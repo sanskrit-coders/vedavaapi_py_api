@@ -1,0 +1,27 @@
+
+These are for the workload list, capture, upload, parse,compact_parse,stop,
+delete,getgraph,getlogfile, customview, splunkview
+-->/list
+-->/capture
+-->/upload
+-->/parse
+-->/compact_parse
+-->/stop
+-->/delete
+-->/getgraph
+-->/getlogfile
+-->/customview
+-->/splunkview
+
+these are the lists of api used in workloads.py for workload replay
+-->/replay
+-->/replay/config
+-->/replay/save
+-->/replay/start
+-->/replay/stop
+-->/replay/pause
+-->/replay/delete
+-->/replay/list
+(start, stop, pause methods has to be implemented.)
+
+

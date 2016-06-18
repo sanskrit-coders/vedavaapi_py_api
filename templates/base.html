@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<!--<meta http-equiv="refresh" content="15">-->
+  <head>
+<link rel="stylesheet" type="text/css" href="/static/css/indicsearch.css">
+    {% if title %}
+    <title>IndicSearch: {{ title }}</title>
+    {% else %}
+    <title>IndicSearch: Visual Manuscript Decoder</title>
+    {% endif %}
+
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/jquery-2.1.1.min.js"></script>
+    <script src="/static/js/common.js" type="text/javascript"></script>
+    <script src="/static/js/upload.js" type="text/javascript"></script>
+    <script src="/static/js/client.js" type="text/javascript"></script>
+  </head>
+  <body id="mainbody1">
+    <header>
+    <h1>IndicSearch: Visual Manuscript Decoder</h1>
+    <div id="servermsg">
+        <div id="server" class="serverconsole">
+            Server Running on:
+        </div><br>
+        <div id="ctrlbtns" class="ctrlbtns">
+            <button id="upgrade_wlwizard" >Update Server</button>
+            <button id="reportbug" value="report bug">Report Bug</button>
+        </div>
+        <div id="console" title="Status Messages">
+            Messages: 
+        </div>
+    </div>
+    <br>
+    </header>
+
+    <div id="bgblur">
+        <!--
+        <div class="hourglass" ></div>
+        <div id="leftcol"></div>
+        <div id="content"></div>
+        --!>
+        {% block content %}{% endblock %}
+    </div>
+
+<script type="text/JavaScript">
+$(document).ready(function () {
+     
+     $(window).load(function() {
+        getserverinfo();
+    });
+    var myurl = window.location.href;
+    $('#server').html("Server Running on: "+myurl);
+    
+    $('#upgrade_wlwizard').click(function () {
+        update_wlwizard();
+    });
+	$('#reportbug').click(function () {
+		var newwin="target=\"_blank\"";
+        window.open('/bugzilla/enter_bug.cgi',newwin);
+    });
+
+});
+   
+</script>
+  </body>
+</html>

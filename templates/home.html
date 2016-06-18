@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block content %}
+<p>
+<div id="leftcol">
+    <button id="wlupload"><Big><b>Upload Scanned Book</b></Big></button>
+    <p>
+    <h2>Browse Books</h2>
+    <div> Filter by name:
+        <input id="wload_filter" type="text" title="Type a regular expression to match"
+            name="WorkloadFilter" onBlur="javascript:getbooks(true);">
+        <button id="getbooks" value="apply">Apply</button>
+    </div>
+
+    <form id="wlactions" action="" onsubmit="return false">
+        <input id="wlnames" type="text" style="display:none" name="wlnames" value=""/>
+        Page Options: Auto-segment: <input id="segment" name="segment" type="checkbox" checked />
+        <br>
+        Actions:
+        <button id="wlstop" value="stop">Stop</button>
+        <button id="wldelete" value="delete">Delete</button>
+        <!--<button id="auto_replaybtn" value="auto_replay">Replay Automation</button>-->   
+        <p>
+    </form>
+</div>
+<div id="content">
+    Matching Books:<br/>
+    <button id="selectall">Select All</button>
+    <button id="clearall">Unselect All</button>
+    <button id= "refresh"> Refresh</button>
+    <div id="book_table" class="table_area1"/> </div>
+</div>
+
+<div id="upload_popup">
+    <h2>Upload Workloads</h2>
+    <form id="upload-form" action="">
+        Select an available book:
+        <select name="selwloads" id="selwloads">
+        </select><p>
+        Or add a new book (use /'s to create a name hierarchy):<br>
+        <input id="uploadpath" name="uploadpath" placeholder="Book Path" type="text" size="56px;"><p>
+        <input id="title" name="Title" placeholder="Book Title" type="text" size="56px;"><p>
+        <input id="author" name="Author" placeholder="Book Author" type="text" size="56px;"><p>
+        <span>Add scanned page files...</span>
+          	<input id="file-picker" type="file" name="files[]" multiple>
+     	<fieldset id="progress" style="display: none">
+           	<legend>Files Progress</legend>
+        	<div class="progress-trough">
+            	<div id="progress-bar" class="progress-bar">0%</div>
+       		</div>
+   	    </fieldset>
+        
+	 <input type="button" id="upload-button" value="Start Upload" >
+    </form>
+    <a id="upload_popup_close">Close</a>
+</div>
+
+<script type="text/JavaScript">
+$(document).ready(function () {
+     
+     $(window).load(function() {
+        getserverinfo();
+        getbooks(true);
+    });
+    var myurl = window.location.href;
+    $('#server').html("Server Running on: "+myurl);
+    $('#getbooks').click(function(){
+        getbooks(true);
+    });
+    
+    $('#file-picker').on("change", function() {
+        handleFiles(this.files);
+    });
+
+    //code for workload upload
+     $('#upload-button').click(function(){
+        startupload();
+         
+    });
+    
+    $('#wlupload').click(function () {
+        //$('#bgblur').css('-webkit-filter','blur(0.8px)');
+        $('#bgblur').css('opacity','0.5');
+        $('#upload_popup').fadeIn("slow");
+        
+        //select workload for file uploading
+        $('#selwloads').on('change', function(e) {
+            //$('#uploadwlname').val($(this).val());
+            $('#uploadwlname').val($(this).val().replace("/"+$('#arrname').val(),""));
+        });
+    });
+    
+    $('#capture_popup_close').click(function(){
+        $('#capture_popup').fadeOut("slow");
+        $('#bgblur').css('opacity','1');
+        //$('#bgblur').css('-webkit-filter','none');
+    });
+
+    $('#upload_popup_close').click(function(){
+        $('#upload_popup').fadeOut("slow");
+        $('#bgblur').css('opacity','1');
+        //$('#bgblur').css('-webkit-filter','none');
+        //location.reload();
+    });
+    
+
+    var cmds = ['delete'];
+    for (var i = 0; i < cmds.length; ++i) {
+        var $cmd_button = $('#wl' + cmds[i]);
+        $cmd_button.click(function() {
+            cmd = this.value;
+            var names = get_selbooks('wltable');
+            var formdata = get_wlform(names.books, 'wlactions');
+            book_process(formdata, cmd);
+        });
+    }
+
+    $('#refresh').click(function () {
+        window.location.reload(true);
+    });
+    
+    $('#upgrade_wlwizard').click(function () {
+        update_wlwizard();
+    });
+	$('#reportbug').click(function () {
+		var newwin="target=\"_blank\"";
+        window.open('/bugzilla/enter_bug.cgi',newwin);
+    });
+
+    
+    $('#selectall').click(function () {
+        $('#wltable').find('input[type="checkbox"]').each(function (){
+            this.checked =true;
+        });       
+    });
+
+    $('#clearall').click(function (){
+        $('#wltable').find('input[type="checkbox"]').each(function (){
+            this.checked =false;
+        });
+    });
+});
+   
+</script>
+{% endblock %}
