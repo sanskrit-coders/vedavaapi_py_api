@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="leftcol">
+    <button onclick="saveData()">Save</button>
+    <button onclick="zoomIn()">ZoomIn</button>
+    <button onclick="zoomOut()">ZoomOut</button>
+    <span id='scale'> </span> 
+    <div id="bookidx"></div>
+</div>
+
+<div id="content">
+    <div id='container' style="float:left; overflow:auto;">
+    <canvas id="canvas1"> </canvas>
+    </div>
+</div>
+
+<pre><script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
+<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
+<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhindic.js') }}"></script>
+<pre><script type="text/javascript" src="{{ url_for('static', filename='js/CanvasInput.js') }}"></script>
+
+<pre>
+<script type="text/javascript">
+
+    var canvas = document.getElementById('canvas1');
+    var container = document.getElementById('container');
+    container.appendChild(canvas);
+    var context = canvas.getContext('2d');
+    var cState;
+    var oldShapes = {{ shapes|tojson|safe }};
+    var bpath = '{{ bpath }}';
+    getbook(true, 'bookidx', bpath);
+
+    cState = init('canvas1','/file/files/'+oid, oldShapes, oid);
+
+    pramukhIME.addLanguage(PramukhIndic,"sanskrit");
+    pramukhIME.enable();
+
+function saveData() {
+    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
+    cState.saveShapes();
+}
+
+function zoomIn() {
+    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
+    cState.zoomIn();
+    document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
+}
+
+function zoomOut() {
+    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
+    cState.zoomOut();
+    document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
+}
+</script></pre>
+
+<script type="text/javascript">
+
+    document.onkeydown = function (e) {
+        e = e || window.event;//Get event
+        if (e.ctrlKey) {
+            var c = e.which || e.keyCode;//Get key code
+            switch (c) {
+                case 83://Block Ctrl+S
+                    saveData();
+                    e.preventDefault();     
+                    e.stopPropagation();
+                break;
+            }
+        }
+    };
+
+</script>
+
+{% endblock %}
+

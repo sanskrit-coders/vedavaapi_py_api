@@ -8,12 +8,13 @@ from json import dumps
 from werkzeug import secure_filename
 import datetime
 from config import *
-from libbooks import *
+from common import *
 from uuid import uuid4
 import subprocess
 import csv
 import string
 from collections import OrderedDict
+from bookManager import *
 import traceback
 app = Flask(__name__)
 import pprint
@@ -31,32 +32,12 @@ def default(filepath):
     print "get " + lpath
     return send_from_directory(repodir(), filepath)
 
-@books_api.route('/taillog/<string:nlines>/<path:filepath>')
-def getlog(nlines, filepath):
-    lpath = join(repodir(), filepath)
-    print "get logfile " + lpath
-    p = subprocess.Popen(['tail','-'+nlines,lpath], shell=False,
-    stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    p_stdout=p.stdout.read()
-    #print p_stdout
-    return '''
-        <html>
-        <meta http-equiv="refresh" content="15">
-        <head>
-        </head>
-        <body>
-        <h1>Reading log file ''' + filepath + '''...</h1>
-        <div id="scbar" style="border:1px solid black;height:350px;width:600px;overflow-y:auto;white-space:pre"><p>'''+p_stdout+'''</p>
-        </div>
-        </body>
-        </html>
-        '''   
 #code for book list
 @books_api.route('/list', methods = ['GET', 'POST'])
-def getwinfo():
+def getbooklist():
     pattern = request.args.get('pattern')
     print "books list filter = " + str(pattern)
-    binfo = listbooks(pattern)
+    binfo = Mybooks.list(pattern)
     return (make_response(dumps(binfo)))
 
 @books_api.route('/browse/<path:bookpath>')
@@ -65,12 +46,12 @@ def browsedir(bookpath):
     return render_template("fancytree.html",abspath=fullpath)
 
 @books_api.route('/delete', methods = ['GET', 'POST'])
-def delwload():
+def delbook():
     return wl_batchprocess(request.args, "delete", wldelete)
 
 @books_api.route('/view', methods = ['GET', 'POST'])
 def docustom():
-    return render_template("explore.html", bookname=request.args.get('bookname'))
+    return render_template("explore.html", bookpath=request.args.get('path'))
 
 @books_api.route('/upload', methods = ['GET', 'POST'])
 def upload():
@@ -109,6 +90,8 @@ def upload():
         page = { 'fname' : filename, 'annotations' : [] }
         pages.append(page)
 
+    book.pages = pages
+
     book_mfile = join(wdir, "book.json")
     try:
         with open(book_mfile, "w") as f:
@@ -116,5 +99,8 @@ def upload():
     except Exception as e:
         return myerror("Error writing " + book_mfile + ":", e)
 
-    response_msg = "Upload Successful for:" + bookpath
+    if (Mybooks.insert(book) == 0):
+        return myerror("Error saving book details.")
+
+    response_msg = "Book upload Successful for " + bookpath
     return myresult(response_msg)

@@ -37,29 +37,18 @@ function urlize(lpath, text, newwin)
 //this method is for getting  serverinfo using api
 function getserverinfo() {
     $.getJSON('/admin/getserverinfo', function(response) { 
-        var resp = (response['splunkurl']) 
-                ? "Splunk Running at: "+ urlize(response['splunkurl'])
-                : "Splunk is not running."
-
-            $('#splunk').html(resp);
     });    
-}
-
-function settext(id)
-{
-    var text = $('#ipaddr1_'+id).val();
-    $('#ipaddr2_'+id).val(text);  
 }
 
 function getbooks(hglass)
 {
     if (hglass == true)
         $(".hourglass").show();
-    var $selwloads = $('#selwloads');
-    $selwloads.empty();
+    var $selbooks = $('#selbooks');
+    $selbooks.empty();
     var html ='';
     html += '<option value="" >'+'</option>';
-    $selwloads.append(html);
+    $selbooks.append(html);
     var $select = $('#book_table');
     $select.empty(); 
     var pattern=document.getElementById('wload_filter').value;
@@ -75,20 +64,54 @@ function getbooks(hglass)
                 '</tr>');
         $.each(data, function(key, winfo) {
             var size = 0
-            html = '<option value="'+winfo["name"]+'">'+winfo["name"]+'</option>';
-            $selwloads.append(html);
+            var bpath = winfo['name']
+            html = '<option value="'+bpath+'">'+bpath+'</option>';
+            $selbooks.append(html);
             var wlinfo = '<tr>'+
             '<td>' +'<input type="checkbox" value=\"' + 
-                winfo["name"] + '\"/>'+ '</td>'+
-            '<td>' + 
-                urlize("/file/view?path=" + winfo["name"], winfo["name"]) 
-                + '</td>'+
-            '<td>' + winfo["title"] + '</td>'+
+                bpath + '\"/>'+ '</td>'+
+            '<td>' + urlize("/books/view?path=" + bpath, bpath) + '</td>'+
             '<td>' +
-            '<button onclick="browse(\''+winfo["name"]+'\');">Details</button>' +
-            '<button onclick="docmd(\'' +winfo["name"]+ 
-                    '\',\'delete\');">Delete</button>'+
+            '<button onclick="browse(\''+bpath+'\');">Details</button>' +
+            '<button onclick="docmd(\'' +bpath+ '\',\'delete\');">Delete</button>'+
                 +'</td>'+
+            '</tr>'
+                table.append(wlinfo);
+        });
+        if (hglass == true)
+            $(".hourglass").hide();
+    });
+}
+
+function getbook(hglass, elem, bookname)
+{
+    if (hglass == true)
+        $(".hourglass").show();
+    var $selbook = $('#' + $elem);
+    $selbook.empty();
+    var html ='';
+    html += '<option value="" >'+'</option>';
+    $selbooks.append(html);
+    var $select = $('#book_table');
+    $select.empty(); 
+    var pattern=document.getElementById('wload_filter').value;
+    $.getJSON('/books/get?path='+bookname, function(data){
+        
+        var pages = data['pages'];
+        $select.append('<table class="wltabclass" id="wltable">'+
+                        '</table>');
+        var table= $select.children();
+        table.empty();
+        table.append('<tr>'+
+                '<th>Page Name</th>'+
+                '</tr>');
+        $.each(pages, function(page) {
+            var size = 0;
+            var bpath = winfo['name']
+            html = '<option value="'+bpath+'">'+bpath+'</option>';
+            $selbooks.append(html);
+            var wlinfo = '<tr>'+
+            '<td>' + page["fname"] + '</td>'+
             '</tr>'
                 table.append(wlinfo);
         });
@@ -151,7 +174,7 @@ function book_process(wlparms, cmd)
 
 function get_selbooks(table,isAll)
 {
-    var selwloads = [];
+    var selbooks = [];
 	var idx = {};
     $seltable = $('#' + table);
 	var isAll = (typeof(isAll)=="undefined")?false:isAll;
@@ -163,9 +186,9 @@ function get_selbooks(table,isAll)
       //$seltable.find('input[type="checkbox"]:checked').each(function(){  
 		var wlname = $(this).val();
 		idx[wlname] = "$"+this.name+"$";
-        selwloads.push(wlname);
+        selbooks.push(wlname);
     });
-    var wlparms = { "books" : selwloads,"idx":idx };
+    var wlparms = { "books" : selbooks,"idx":idx };
     //console.log(wlparms);
     return wlparms;
 }

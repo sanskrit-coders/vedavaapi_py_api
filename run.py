@@ -13,6 +13,7 @@ from werkzeug import secure_filename
 import subprocess
 #from flask.ext.cors import CORS
 from config import *
+from bookManager import IndicDocDB
 
 from file import file_api
 from books import books_api
@@ -67,6 +68,27 @@ def listdirtree(abspath):
     #print "Data:",json.dumps(data)
     return json.dumps(data)
 
+@app.route('/taillog/<string:nlines>/<path:filepath>')
+def getlog(nlines, filepath):
+    lpath = join(repodir(), filepath)
+    print "get logfile " + lpath
+    p = subprocess.Popen(['tail','-'+nlines,lpath], shell=False,
+    stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    p_stdout=p.stdout.read()
+    #print p_stdout
+    return '''
+        <html>
+        <meta http-equiv="refresh" content="15">
+        <head>
+        </head>
+        <body>
+        <h1>Reading log file ''' + filepath + '''...</h1>
+        <div id="scbar" style="border:1px solid black;height:350px;width:600px;overflow-y:auto;white-space:pre"><p>'''+p_stdout+'''</p>
+        </div>
+        </body>
+        </html>
+        '''   
+
 def main(argv):
     try:
         opts, args = getopt.getopt(argv, "do:l:p:rh", ["workdir=", "wloaddir="])
@@ -74,6 +96,7 @@ def main(argv):
         usage()
 
     reset = False
+    dbreset = False
     dbgFlag = False
     myport = PORTNUM
     localdir = None
@@ -89,12 +112,20 @@ def main(argv):
             myport = int(arg)
         elif opt in ("-r", "--reset"):
             reset = True
+        elif opt in ("-R", "--dbreset"):
+            dbreset = True
         elif opt in ("-d", "--debug"):
             dbgFlag = True
     setworkdir(wdir,myport)
     print cmdname + ": Using " + workdir() + " as working directory."
     
     initworkdir(reset)
+
+    if (dbreset):
+        resetdb(INDICDOC_DBNAME)
+    else:
+        initdb(INDICDOC_DBNAME)
+
     for a in args:
         components = a.split(':')
         if len(components) > 1:
@@ -109,6 +140,9 @@ def main(argv):
     if not path.exists(wlocaldir()):
         setwlocaldir(DATADIR_BOOKS)
     os.chdir(workdir())
+
+    # Import all book metadata into the IndicDocDB database
+    Mybooks.importAll()
 
     print "Available on the following URLs:"
     for line in mycheck_output(["/sbin/ifconfig"]).split("\n"):

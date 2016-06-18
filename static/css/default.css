@@ -193,7 +193,7 @@ cursor:pointer
 
 #upload_popup,#capture_popup {
 width:530px;
-height:230px;
+height:auto;
 top:150px;
 left:300px;
 display:none;

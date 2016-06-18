@@ -11,6 +11,7 @@ from flask import *
 
 PORTNUM = 9000
 WORKDIR = "/tmp/indicsearch"
+INDICDOC_DBNAME = "indicdoc_db"
 DATADIR = "/home/sairamas/visual-search-data2"
 DATADIR_SETTINGS = join(DATADIR, "settings")
 DATADIR_BOOKS = join(DATADIR, "books")

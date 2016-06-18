@@ -6,11 +6,11 @@ from bson.objectid import ObjectId
 import json
 
 from gridfs.errors import NoFile
-from bookManager import BookManager
+from bookManager import *
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-DB = MongoClient().menuscript_repository  # DB Name
-BM = BookManager(DB)
+MYDB = IndicDocDB(INDICDOC_DBNAME)
+mybooks = Books(MYDB)
 
 LOG_LEVEL=1
 
@@ -23,7 +23,7 @@ def allowed_file(filename):
 
 @file_api.route('/files', methods=['GET','POST'])
 def list_gridfs_files():
-    files = [BM.get_last_version(file) for file in BM.list()]
+    files = [MYDB.get_last_version(file) for file in MYDB.list()]
     file_list = [{'url':url_for('serve_canvas_file',oid=str(file._id)), 'name':file.name} for file in files]
     return render_template("listfiles.html",file_list=file_list,url=url_for('upload_file'))
 
@@ -33,8 +33,8 @@ def upload_file():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            if not (BM.exists(filename=filename)):
-                oid = BM.put(file, content_type=file.content_type,
+            if not (MYDB.exists(filename=filename)):
+                oid = MYDB.put(file, content_type=file.content_type,
                              filename=filename, literal="[]")
                 return render_template("drawcanvas.html", oid=str(oid), shapes="[]")
     return render_template("uploadfile.html",url='/file/files')
@@ -43,17 +43,17 @@ def upload_file():
 @file_api.route('/app/<oid>', methods=['GET','POST'])
 def serve_canvas_file(oid):
     try:
-        file_object = BM.get(ObjectId(oid))
+        file_object = MYDB.get(ObjectId(oid))
         if request.method == 'POST':
             blob = request.form['Blob']
             if LOG_LEVEL > 0 : print('String Blob: ' + blob)
             shapes = json.loads(blob);
             if LOG_LEVEL > 0: print('Shapes Length: ',len(shapes))
             if LOG_LEVEL > 0: print('Filename:', file_object.filename)
-            BM.insert_literals(ObjectId(oid),shapes)        
+            MYDB.insert_literals(ObjectId(oid),shapes)        
              
             return render_template("drawcanvas.html", oid=str(oid), shapes=json.dumps(shapes))
-        result = BM.find_literals(ObjectId(oid))
+        result = MYDB.find_literals(ObjectId(oid))
         if (result.count() > 0):
             return render_template("drawcanvas.html", oid=str(oid), shapes=json.dumps(result[0]['data']))
         else:
@@ -67,7 +67,7 @@ def serve_canvas_file(oid):
 def serve_gridfs_file(oid):
     try:
         # Convert the string to an ObjectId instance
-        file_object = BM.get(ObjectId(oid))
+        file_object = MYDB.get(ObjectId(oid))
           
         response = make_response(file_object.read())
         response.mimetype = file_object.content_type

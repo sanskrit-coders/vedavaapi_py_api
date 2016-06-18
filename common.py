@@ -49,31 +49,6 @@ def get_all_jsons(path, pattern):
 
     return selected_files
 
-def listbooks(pattern):
-    #print "get all files..."
-    #cmd = "find "+repodir()+" -type f -follow -print | xargs ls -lL"
-    cmd = "find "+repodir()+" \( \( -path '*/.??*' \) -prune \) , \( -path '*.json' \) -follow -print; true"
-    try: 
-        results = mycheck_output(cmd)
-    except Exception as e:
-        print "Error in find: ", e
-
-    matches=[]
-    for f in results.split("\n"):
-        if not f:
-            continue
-        if pattern and not re.search(pattern,f,re.IGNORECASE):
-            continue
-        winfo = {}
-        f = f.replace(repodir() + "/", "")
-        head, fname = os.path.split(f)
-        winfo['name'] = head
-
-        matches.append(winfo)
-
-    matches.sort(key=lambda winfo: winfo['name'])
-    return matches
-
 subprocs = set()
 def signal_children(subprocs, signum):
     sent_signal = False

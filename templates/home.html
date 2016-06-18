@@ -2,7 +2,7 @@
 {% block content %}
 <p>
 <div id="leftcol">
-    <button id="wlupload"><Big><b>Upload Scanned Book</b></Big></button>
+    <button id="wlupload"><Big><b>Upload a book</b></Big></button>
     <p>
     <h2>Browse Books</h2>
     <div> Filter by name:
@@ -13,12 +13,11 @@
 
     <form id="wlactions" action="" onsubmit="return false">
         <input id="wlnames" type="text" style="display:none" name="wlnames" value=""/>
-        Page Options: Auto-segment: <input id="segment" name="segment" type="checkbox" checked />
+        <!--
+        Page Options:<br>
+        Auto-segment: <input id="segment" name="segment" type="checkbox" checked />
         <br>
-        Actions:
-        <button id="wlstop" value="stop">Stop</button>
-        <button id="wldelete" value="delete">Delete</button>
-        <!--<button id="auto_replaybtn" value="auto_replay">Replay Automation</button>-->   
+        -->   
         <p>
     </form>
 </div>
@@ -31,15 +30,20 @@
 </div>
 
 <div id="upload_popup">
-    <h2>Upload Workloads</h2>
+    <h2>Upload Book</h2>
     <form id="upload-form" action="">
-        Select an available book:
-        <select name="selwloads" id="selwloads">
+        Update an existing book:
+        <select name="selbooks" id="selbooks">
         </select><p>
         Or add a new book (use /'s to create a name hierarchy):<br>
-        <input id="uploadpath" name="uploadpath" placeholder="Book Path" type="text" size="56px;"><p>
-        <input id="title" name="Title" placeholder="Book Title" type="text" size="56px;"><p>
-        <input id="author" name="Author" placeholder="Book Author" type="text" size="56px;"><p>
+        <input id="uploadpath" name="uploadpath" placeholder="Book Path" type="text" size="56px;"><br>
+        <input id="title" name="Title" placeholder="Book Title" type="text" size="56px;"><br>
+        <input id="author" name="Author" placeholder="Book Author" type="text" size="56px;"><br>
+        <input id="scantype" name="Scan Type" placeholder="Scan Type" type="text" size="56px;"><br>
+        <input id="bgtype" name="Page Background" placeholder="Page Background" type="text" size="56px;"><br>
+        <input id="language" name="Language" placeholder="Language" type="text" size="56px;"><br>
+        <input id="script" name="Script" placeholder="Script" type="text" size="56px;"><br>
+        <input id="year" name="Year of Publication" placeholder="Year of Publication" type="text" size="56px;"><br>
         <span>Add scanned page files...</span>
           	<input id="file-picker" type="file" name="files[]" multiple>
      	<fieldset id="progress" style="display: none">
@@ -83,7 +87,7 @@ $(document).ready(function () {
         $('#upload_popup').fadeIn("slow");
         
         //select workload for file uploading
-        $('#selwloads').on('change', function(e) {
+        $('#selbooks').on('change', function(e) {
             //$('#uploadwlname').val($(this).val());
             $('#uploadwlname').val($(this).val().replace("/"+$('#arrname').val(),""));
         });

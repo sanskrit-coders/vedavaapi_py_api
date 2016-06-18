@@ -2,7 +2,7 @@
 <html>
 <!--<meta http-equiv="refresh" content="15">-->
   <head>
-<link rel="stylesheet" type="text/css" href="/static/css/indicsearch.css">
+<link rel="stylesheet" type="text/css" href="/static/css/default.css">
     {% if title %}
     <title>IndicSearch: {{ title }}</title>
     {% else %}
@@ -17,7 +17,11 @@
   </head>
   <body id="mainbody1">
     <header>
+    {% if title %}
+    <h1>IndicSearch: {{ title }}</h1>
+    {% else %}
     <h1>IndicSearch: Visual Manuscript Decoder</h1>
+    {% endif %}
     <div id="servermsg">
         <div id="server" class="serverconsole">
             Server Running on:
