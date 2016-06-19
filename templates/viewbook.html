@@ -1,11 +1,23 @@
 {% extends "base.html" %}
+<script src="/static/js/shapes.js" type="text/javascript"></script>
 {% block content %}
+
+<script type="text/javascript">
+    var bpath = '{{ bookpath }}';
+    {% if curpageidx %}
+    var curpage = {{ curpageidx }};
+    {% else %}
+    var curpage = 1;
+    {% endif %}
+</script>
 
 <div id="leftcol">
     <button onclick="saveData()">Save</button>
     <button onclick="zoomIn()">ZoomIn</button>
     <button onclick="zoomOut()">ZoomOut</button>
     <span id='scale'> </span> 
+    <input id="bookdetails" type="hidden">
+    <input id="curpage" type="hidden">
     <div id="bookidx"></div>
 </div>
 
@@ -28,11 +40,9 @@
     container.appendChild(canvas);
     var context = canvas.getContext('2d');
     var cState;
-    var oldShapes = {{ shapes|tojson|safe }};
-    var bpath = '{{ bpath }}';
-    getbook(true, 'bookidx', bpath);
+    getbook(true, bpath);
 
-    cState = init('canvas1','/file/files/'+oid, oldShapes, oid);
+    //cState = init('canvas1','/file/files/'+oid, oldShapes, oid);
 
     pramukhIME.addLanguage(PramukhIndic,"sanskrit");
     pramukhIME.enable();
@@ -53,9 +63,29 @@ function zoomOut() {
     cState.zoomOut();
     document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
 }
+
+function loadpage() {
+    var curpage = $('#curpage').val();
+    if (! curpage)
+        return;
+    // console.log("Loading page " + curpage);
+    var comps = curpage.split(":");
+    var details = $('#bookdetails').val();
+    var bookdetails = JSON.parse(details);
+    var pagedetails = bookdetails['pages'][comps[0]];
+    console.log(pagedetails);
+    var fpath = bpath + "/" + comps[1];
+    console.log("Loading page path: " + fpath);
+    cState = init('canvas1','/books/page/'+fpath, {}, comps[1]);
+}
 </script></pre>
 
 <script type="text/javascript">
+    $(document).ready(function () {
+        $('#curpage').change(function() {
+            loadpage();
+        });
+    });
 
     document.onkeydown = function (e) {
         e = e || window.event;//Get event

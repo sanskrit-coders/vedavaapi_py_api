@@ -17,7 +17,7 @@ from collections import OrderedDict
 from bookManager import *
 import traceback
 app = Flask(__name__)
-import pprint
+from pprint import pprint
 
 books_api = Blueprint('books_api', __name__)
 
@@ -26,19 +26,25 @@ def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-@books_api.route('/relpath/<path:filepath>')
-def default(filepath):
-    lpath = join(repodir(), filepath)
-    print "get " + lpath
-    return send_from_directory(repodir(), filepath)
-
-#code for book list
 @books_api.route('/list', methods = ['GET', 'POST'])
 def getbooklist():
     pattern = request.args.get('pattern')
     print "books list filter = " + str(pattern)
-    binfo = Mybooks.list(pattern)
+    binfo = {'books' : getdb().books.list(pattern) }
     return (make_response(dumps(binfo)))
+
+@books_api.route('/get', methods = ['GET', 'POST'])
+def getbooksingle():
+    path = request.args.get('path')
+    print "book get by path = " + str(path)
+    binfo = getdb().books.get(path)
+    #pprint(binfo)
+    return (make_response(dumps(binfo)))
+
+@books_api.route('/page/<path:pagepath>')
+def getpagesingle(pagepath):
+    print "get book page" + pagepath
+    return (send_from_directory(repodir(), pagepath))
 
 @books_api.route('/browse/<path:bookpath>')
 def browsedir(bookpath):
@@ -51,7 +57,8 @@ def delbook():
 
 @books_api.route('/view', methods = ['GET', 'POST'])
 def docustom():
-    return render_template("explore.html", bookpath=request.args.get('path'))
+    return render_template("viewbook.html", \
+            bookpath=request.args.get('path'), title="Explore a Book")
 
 @books_api.route('/upload', methods = ['GET', 'POST'])
 def upload():
@@ -99,7 +106,7 @@ def upload():
     except Exception as e:
         return myerror("Error writing " + book_mfile + ":", e)
 
-    if (Mybooks.insert(book) == 0):
+    if (getdb().books.insert(book) == 0):
         return myerror("Error saving book details.")
 
     response_msg = "Book upload Successful for " + bookpath

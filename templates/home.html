@@ -39,10 +39,34 @@
         <input id="uploadpath" name="uploadpath" placeholder="Book Path" type="text" size="56px;"><br>
         <input id="title" name="Title" placeholder="Book Title" type="text" size="56px;"><br>
         <input id="author" name="Author" placeholder="Book Author" type="text" size="56px;"><br>
-        <input id="scantype" name="Scan Type" placeholder="Scan Type" type="text" size="56px;"><br>
-        <input id="bgtype" name="Page Background" placeholder="Page Background" type="text" size="56px;"><br>
-        <input id="language" name="Language" placeholder="Language" type="text" size="56px;"><br>
-        <input id="script" name="Script" placeholder="Script" type="text" size="56px;"><br>
+            Scan Type:
+            <select id="scantype" name="scantype" class="dplot_parms">
+                <option value=photo selected="selected">photo</option>
+                <option value=scan>Scan</option>
+            </select>
+            Page Background:
+            <select name="bgtype" class="dplot_parms">
+                <option selected="selected">paper</option>
+                <option>lightwood</option>
+                <option>darkwood</option>
+                <option>palmleaf</option>
+                <option>metal</option>
+            </select><br>
+            Language:
+            <select name="language" id="language" class="dplot_parms">
+                <option value="samskrit" selected="selected">Sanskrit</option>
+                <option value="tamil">Tamil</option>
+                <option value="telugu">Telugu</option>
+                <option value="kannada">Kannada</option>
+            </select>
+            Script:
+            <select name="script" id="script" class="dplot_parms">
+                <option value="devanagari" selected="selected">Devanagari</option>
+                <option value="tamil">Tamil</option>
+                <option value="telugu">Telugu</option>
+                <option value="kannada">Kannada</option>
+                <option value="grantha">Grantha</option>
+            </select>
         <input id="year" name="Year of Publication" placeholder="Year of Publication" type="text" size="56px;"><br>
         <span>Add scanned page files...</span>
           	<input id="file-picker" type="file" name="files[]" multiple>

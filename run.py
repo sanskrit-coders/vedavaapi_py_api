@@ -13,7 +13,7 @@ from werkzeug import secure_filename
 import subprocess
 #from flask.ext.cors import CORS
 from config import *
-from bookManager import IndicDocDB
+from bookManager import *
 
 from file import file_api
 from books import books_api
@@ -28,7 +28,7 @@ setmypath(os.path.abspath(cmddir))
 print "My path is " + mypath()
 
 def usage():
-    print cmdname + " [-r] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ..."
+    print cmdname + " [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ..."
     exit(1)
 
 @app.route('/')
@@ -56,10 +56,10 @@ def browsedir(relpath):
     print fullpath
     return render_template("fancytree.html", abspath=fullpath)
 
-@app.route('/<path:abspath>')
-def details_dir(abspath):
-	print "abspath:",abspath
-	return render_template("fancytree.html", abspath='/'+abspath)
+#@app.route('/<path:abspath>')
+#def details_dir(abspath):
+#	print "abspath:",abspath
+#	return render_template("fancytree.html", abspath='/'+abspath)
 
 @app.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
@@ -91,7 +91,7 @@ def getlog(nlines, filepath):
 
 def main(argv):
     try:
-        opts, args = getopt.getopt(argv, "do:l:p:rh", ["workdir=", "wloaddir="])
+        opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])
     except getopt.GetoptError:
         usage()
 
@@ -121,10 +121,7 @@ def main(argv):
     
     initworkdir(reset)
 
-    if (dbreset):
-        resetdb(INDICDOC_DBNAME)
-    else:
-        initdb(INDICDOC_DBNAME)
+    initdb(INDICDOC_DBNAME, dbreset)
 
     for a in args:
         components = a.split(':')
@@ -141,8 +138,8 @@ def main(argv):
         setwlocaldir(DATADIR_BOOKS)
     os.chdir(workdir())
 
-    # Import all book metadata into the IndicDocDB database
-    Mybooks.importAll()
+    # Import all book metadata into the IndicDocs database
+    getdb().books.importAll(repodir())
 
     print "Available on the following URLs:"
     for line in mycheck_output(["/sbin/ifconfig"]).split("\n"):

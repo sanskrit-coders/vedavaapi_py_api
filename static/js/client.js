@@ -30,7 +30,7 @@ function urlize(lpath, text, newwin)
     var url = "";
     if (lpath.startsWith('http') || lpath.startsWith('/'))
         url = lpath;
-    else url = "/books/relpath/" + lpath;
+    else url = "/relpath/" + lpath;
     return '<a href="' + url + '" ' + newwin + '>' + text + '</a>';
 }
 
@@ -62,62 +62,63 @@ function getbooks(hglass)
                 '<th>Book Path</th>'+
                 '<th>Controls</th>'+
                 '</tr>');
-        $.each(data, function(key, winfo) {
+        booklist = data['books'];
+        $.each(booklist, function(key, binfo) {
             var size = 0
-            var bpath = winfo['name']
+            var bpath = binfo['path']
             html = '<option value="'+bpath+'">'+bpath+'</option>';
             $selbooks.append(html);
-            var wlinfo = '<tr>'+
+            var book_entry = '<tr>'+
             '<td>' +'<input type="checkbox" value=\"' + 
                 bpath + '\"/>'+ '</td>'+
             '<td>' + urlize("/books/view?path=" + bpath, bpath) + '</td>'+
             '<td>' +
             '<button onclick="browse(\''+bpath+'\');">Details</button>' +
             '<button onclick="docmd(\'' +bpath+ '\',\'delete\');">Delete</button>'+
-                +'</td>'+
-            '</tr>'
-                table.append(wlinfo);
+                '</td>'+
+            '</tr>';
+            table.append(book_entry);
         });
         if (hglass == true)
             $(".hourglass").hide();
     });
 }
 
-function getbook(hglass, elem, bookname)
+function getbook(hglass, bpath)
 {
     if (hglass == true)
         $(".hourglass").show();
-    var $selbook = $('#' + $elem);
-    $selbook.empty();
-    var html ='';
-    html += '<option value="" >'+'</option>';
-    $selbooks.append(html);
-    var $select = $('#book_table');
-    $select.empty(); 
-    var pattern=document.getElementById('wload_filter').value;
-    $.getJSON('/books/get?path='+bookname, function(data){
-        
+    var $bookidx = $('#bookidx');
+    $bookidx.empty();
+    $.getJSON('/books/get?path='+bpath, function(data){
+        document.getElementById('bookdetails').value = JSON.stringify(data, null, 4);
         var pages = data['pages'];
-        $select.append('<table class="wltabclass" id="wltable">'+
-                        '</table>');
-        var table= $select.children();
-        table.empty();
-        table.append('<tr>'+
-                '<th>Page Name</th>'+
-                '</tr>');
-        $.each(pages, function(page) {
+        $bookidx.append('<table borderwidth="1" class="wltabclass" id="wltable">');
+        for (i = 0; i < pages.length; ++ i) {
+            var page = pages[i];
             var size = 0;
-            var bpath = winfo['name']
-            html = '<option value="'+bpath+'">'+bpath+'</option>';
-            $selbooks.append(html);
-            var wlinfo = '<tr>'+
-            '<td>' + page["fname"] + '</td>'+
-            '</tr>'
-                table.append(wlinfo);
-        });
+            var pagepath = bpath + "/" + page['fname'];
+            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
+            $bookidx.append(html);
+        }
+        $bookidx.append('</table>');
         if (hglass == true)
             $(".hourglass").hide();
     });
+}
+
+function setcurpage(idx, value)
+{
+    //console.log("Selected page: " + idx + ", value: " + value);
+    var oldval = $('#curpage').val();
+    var newval = idx + ":" + value;
+
+    if (newval != oldval) {
+        console.log("Changed cur page to " + newval);
+        $('#curpage').val(newval).trigger('change');
+    }
+    // document.getElementById('curpage').value = idx + ":" + value;
+    // console.log("Book details + " + $("#bookdetails").val());
 }
 
 function browse(bname){

@@ -9,8 +9,6 @@ from gridfs.errors import NoFile
 from bookManager import *
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
-MYDB = IndicDocDB(INDICDOC_DBNAME)
-mybooks = Books(MYDB)
 
 LOG_LEVEL=1
 
