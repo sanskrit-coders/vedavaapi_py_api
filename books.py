@@ -43,7 +43,7 @@ def getbooksingle():
 
 @books_api.route('/page/<path:pagepath>')
 def getpagesingle(pagepath):
-    print "get book page" + pagepath
+    print "get book page " + pagepath
     return (send_from_directory(repodir(), pagepath))
 
 @books_api.route('/browse/<path:bookpath>')

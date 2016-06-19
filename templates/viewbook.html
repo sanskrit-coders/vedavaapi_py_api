@@ -40,6 +40,8 @@
     container.appendChild(canvas);
     var context = canvas.getContext('2d');
     var cState;
+    var oldShapes = '{}';
+    var oid = '';
     getbook(true, bpath);
 
     //cState = init('canvas1','/file/files/'+oid, oldShapes, oid);
@@ -76,7 +78,8 @@ function loadpage() {
     console.log(pagedetails);
     var fpath = bpath + "/" + comps[1];
     console.log("Loading page path: " + fpath);
-    cState = init('canvas1','/books/page/'+fpath, {}, comps[1]);
+    oid = comps[1];
+    cState = init('canvas1','/books/page/'+fpath, oldShapes, oid);
 }
 </script></pre>
 
