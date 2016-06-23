@@ -100,8 +100,8 @@ class Annotations:
     def update(self, anno_id, anno):
         pprint(anno)
         result = self.annotations.update({'_id' : ObjectId(anno_id)}, anno)
-        pprint(result)
-        return result.matched_count > 0
+        isSuccess = (result['n'] > 0)
+        return isSuccess
 
 class Sections:
     def __init__(self, docdb):
@@ -116,7 +116,7 @@ class Sections:
         return str(result.inserted_id)
     def update(self, sec_id, section):
         result = self.sections.update({'_id' : ObjectId(sec_id)}, section)
-        return result.matched_count > 0
+        return result['n'] > 0
 
 class Users:
     def __init__(docdb):

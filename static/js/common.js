@@ -48,6 +48,8 @@ function get_formparms(formname, fieldname_filter)
 function mychkstatus(resp, okstr, errstr)
 {
     var $msg="";
+    //alert("returned status = " + JSON.stringify(resp));
+
     if (resp['status'] != 'ok') {
         $('#console').html('');
         $msg += resp['status'] + "<br>\n";
