@@ -49,15 +49,15 @@ function mychkstatus(resp, okstr, errstr)
 {
     var $msg="";
     if (resp['status'] != 'ok') {
-        $('#vizconsole').html('');
+        $('#console').html('');
         $msg += resp['status'] + "<br>\n";
         var prefix = (errstr === undefined) ? "Error" : errstr;
         console.log(prefix + ": " + $msg);
-        $('#vizconsole').html($msg);
+        $('#console').html($msg);
         return false;
     }
     else if (okstr !== undefined) {
-        $('#vizconsole').html(okstr + "<br>\n");
+        $('#console').html(okstr + "<br>\n");
     }
     return true;
 }

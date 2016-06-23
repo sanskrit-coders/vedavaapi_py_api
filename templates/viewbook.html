@@ -22,87 +22,97 @@
 </div>
 
 <div id="content">
+    <input id="page_annotations" type="hidden">
+    <input id="page_sections" type="hidden">
     <div id='container' style="float:left; overflow:auto;">
     <canvas id="canvas1"> </canvas>
     </div>
 </div>
 
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhindic.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/CanvasInput.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pramukhindic.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/CanvasInput.js') }}"></script>
 
-<pre>
 <script type="text/javascript">
 
-    var canvas = document.getElementById('canvas1');
-    var container = document.getElementById('container');
-    container.appendChild(canvas);
-    var context = canvas.getContext('2d');
-    var cState;
-    var oldShapes = '{}';
-    var oid = '';
-    getbook(true, bpath);
+//var canvas = document.getElementById('canvas1');
+var container = document.getElementById('container');
+//container.appendChild(canvas);
+//var context = canvas.getContext('2d');
 
-    //cState = init('canvas1','/file/files/'+oid, oldShapes, oid);
+window.cState = undefined;
+var curpage_annotations = {};
+var curpage_sections = {};
+getbook(true, bpath);
 
-    pramukhIME.addLanguage(PramukhIndic,"sanskrit");
-    pramukhIME.enable();
+pramukhIME.addLanguage(PramukhIndic,"sanskrit");
+pramukhIME.enable();
 
 function saveData() {
-    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
-    cState.saveShapes();
+    window.cState.saveShapes();
 }
 
 function zoomIn() {
-    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
-    cState.zoomIn();
-    document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
+    window.cState.zoomIn();
+    document.getElementById("scale").innerHTML = parseFloat(window.cState.scale).toFixed(1);
 }
 
 function zoomOut() {
-    console.log("OldShapes:"+oldShapes+"OID: " + oid); 
-    cState.zoomOut();
-    document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
+    window.cState.zoomOut();
+    document.getElementById("scale").innerHTML = parseFloat(window.cState.scale).toFixed(1);
 }
 
 function loadpage() {
     var curpage = $('#curpage').val();
-    if (! curpage)
+    if (curpage == undefined)
         return;
-    // console.log("Loading page " + curpage);
-    var comps = curpage.split(":");
+    console.log("Loading page " + curpage);
     var details = $('#bookdetails').val();
     var bookdetails = JSON.parse(details);
-    var pagedetails = bookdetails['pages'][comps[0]];
+    var pagedetails = bookdetails['pages'][curpage];
     console.log(pagedetails);
-    var fpath = bpath + "/" + comps[1];
+    pgname = pagedetails['fname'];
+    var fpath = bpath + "/" + pgname;
     console.log("Loading page path: " + fpath);
-    oid = comps[1];
-    cState = init('canvas1','/books/page/'+fpath, oldShapes, oid);
-}
-</script></pre>
+    var anno_id = pagedetails['anno'];
+    var sec_id = pagedetails['sections'];
 
-<script type="text/javascript">
-    $(document).ready(function () {
-        $('#curpage').change(function() {
-            loadpage();
-        });
+    $.getJSON('/books/page/anno/'+anno_id, function(data){
+        if (! mychkstatus(data))
+            return;
+        curpage_annotations = data.result;
+        window.cState = init('canvas1','/books/page/image/'+fpath, 
+            curpage_annotations['anno'], anno_id);
+        console.log(window.cState);
     });
 
-    document.onkeydown = function (e) {
-        e = e || window.event;//Get event
-        if (e.ctrlKey) {
-            var c = e.which || e.keyCode;//Get key code
-            switch (c) {
-                case 83://Block Ctrl+S
-                    saveData();
-                    e.preventDefault();     
-                    e.stopPropagation();
-                break;
-            }
+    $.getJSON('/books/page/sections?id='+sec_id, function(data){
+        if (! mychkstatus(data))
+            return;
+        curpage_sections = data;
+    });
+}
+
+$(document).ready(function () {
+    $('#curpage').change(function() {
+        loadpage();
+    });
+});
+
+document.onkeydown = function (e) {
+    e = e || window.event;//Get event
+    if (e.ctrlKey) {
+        var c = e.which || e.keyCode;//Get key code
+        switch (c) {
+            case 83://Block Ctrl+S
+                saveData();
+                e.preventDefault();     
+                e.stopPropagation();
+            break;
         }
-    };
+    }
+};
 
 </script>
 

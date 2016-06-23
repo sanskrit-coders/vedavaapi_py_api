@@ -5,6 +5,7 @@ from werkzeug import secure_filename
 from pymongo import MongoClient
 from pymongo.database import Database
 from config import *
+from pprint import pprint
 
 from bson.objectid import ObjectId
 import json
@@ -89,26 +90,32 @@ class Annotations:
     def __init__(self, docdb):
         self.annotations = docdb['annotations']
     def get(self, anno_id):
-        return self.annotations.find_one({'_id' : anno_id})
+        res = self.annotations.find_one({'_id' : ObjectId(anno_id)})
+        res['_id'] = str(res['_id'])
+        return res
+
     def insert(self, anno):
         result = self.annotations.insert_one(anno)
-        objid = result.inserted_id
-        return objid
+        return str(result.inserted_id)
     def update(self, anno_id, anno):
-        result = self.annotations.update({'_id' : anno_id}, anno)
+        pprint(anno)
+        result = self.annotations.update({'_id' : ObjectId(anno_id)}, anno)
+        pprint(result)
         return result.matched_count > 0
 
 class Sections:
     def __init__(self, docdb):
         self.sections = docdb['sectations']
     def get(self, sec_id):
-        return self.sections.find_one({'_id' : sec_id})
+        res = self.sections.find_one({'_id' : ObjectId(sec_id)})
+        res['_id'] = str(res['_id'])
+        return res
+
     def insert(self, sec):
         result = self.sections.insert_one(sec)
-        objid = result.inserted_id
-        return objid
+        return str(result.inserted_id)
     def update(self, sec_id, section):
-        result = self.sections.update({'_id' : sec_id}, section)
+        result = self.sections.update({'_id' : ObjectId(sec_id)}, section)
         return result.matched_count > 0
 
 class Users:

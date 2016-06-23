@@ -31,7 +31,7 @@ def getbooklist():
     pattern = request.args.get('pattern')
     print "books list filter = " + str(pattern)
     binfo = {'books' : getdb().books.list(pattern) }
-    return (make_response(dumps(binfo)))
+    return myresult(binfo)
 
 @books_api.route('/get', methods = ['GET', 'POST'])
 def getbooksingle():
@@ -39,12 +39,39 @@ def getbooksingle():
     print "book get by path = " + str(path)
     binfo = getdb().books.get(path)
     #pprint(binfo)
-    return (make_response(dumps(binfo)))
+    return myresult(binfo)
 
-@books_api.route('/page/<path:pagepath>')
+@books_api.route('/page/anno/<anno_id>', methods = ['GET', 'POST'])
+def pageanno(anno_id):
+    if request.method == 'GET':
+        """return the page annotation with id = anno_id"""
+        print "get page annotations by id " + anno_id
+        anno = getdb().annotations.get(anno_id)
+        return myresult(anno)
+    elif request.method == 'POST':
+        """modify/update the page annotation with id = anno_id"""
+        anno = request.form['anno']
+        print "save page annotations by id = " + str(anno_id)
+        pprint(anno)
+        res = getdb().annotations.update(anno_id, anno)
+        if (res > 0):
+            return myresult("Annotation saved successfully.")
+        else:
+            return myerror("error saving annotation.")
+
+@books_api.route('/page/sections', methods = ['GET', 'POST'])
+def getpagesections():
+    myid = request.args.get('id')
+    print "get page sections by id " + str(myid)
+    sec = getdb().sections.get(myid)
+    return myresult(sec)
+
+@books_api.route('/page/image/<path:pagepath>')
 def getpagesingle(pagepath):
     print "get book page " + pagepath
-    return (send_from_directory(repodir(), pagepath))
+    #abspath = join(repodir(), pagepath)
+    #head, tail = os.path.split(abspath)
+    return send_from_directory(repodir(), pagepath)
 
 @books_api.route('/browse/<path:bookpath>')
 def browsedir(bookpath):
@@ -86,6 +113,7 @@ def upload():
         'script' : form.get("script"),
         'pages' : []
     }
+    head, tail = os.path.split(abspath)
 
     pages = []
     for upload in request.files.getlist("file"):

@@ -53,6 +53,9 @@ function getbooks(hglass)
     $select.empty(); 
     var pattern=document.getElementById('wload_filter').value;
     $.getJSON('/books/list?pattern='+pattern, function(data){
+        if (! mychkstatus(data))
+           return;
+        data = data['result'];
         $select.append('<table class="wltabclass" id="wltable">'+
                         '</table>');
         var table= $select.children();
@@ -91,7 +94,11 @@ function getbook(hglass, bpath)
     var $bookidx = $('#bookidx');
     $bookidx.empty();
     $.getJSON('/books/get?path='+bpath, function(data){
+        if (! mychkstatus(data))
+            return;
+        data = data['result'];
         document.getElementById('bookdetails').value = JSON.stringify(data, null, 4);
+
         var pages = data['pages'];
         $bookidx.append('<table borderwidth="1" class="wltabclass" id="wltable">');
         for (i = 0; i < pages.length; ++ i) {
@@ -111,14 +118,12 @@ function setcurpage(idx, value)
 {
     //console.log("Selected page: " + idx + ", value: " + value);
     var oldval = $('#curpage').val();
-    var newval = idx + ":" + value;
+    var newval = idx;
 
     if (newval != oldval) {
         console.log("Changed cur page to " + newval);
         $('#curpage').val(newval).trigger('change');
     }
-    // document.getElementById('curpage').value = idx + ":" + value;
-    // console.log("Book details + " + $("#bookdetails").val());
 }
 
 function browse(bname){
@@ -158,6 +163,9 @@ function book_process(wlparms, cmd)
     //console.log(wlparms);
     var $consolediv = $('#console');
     $.getJSON('/books/'+cmd+'?' + serialize(wlparms), function(data){
+        if (! mychkstatus(data))
+            return;
+        data = data['result'];
         $('#book_table').empty();
         var $resp = "Response for " + cmd + ":<p>\n";;
         $.each(data, function(ind, book) {

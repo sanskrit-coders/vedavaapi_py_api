@@ -499,7 +499,7 @@ CanvasState.prototype.getMouse = function(e) {
 function init(canvas,dataURL, oldShapes, oid) {
     var s = new CanvasState(canvas,dataURL, oid);
     console.log("Init Called for "+oid);
-    oldShapes = JSON.parse(oldShapes);
+    //oldShapes = JSON.parse(oldShapes);
 // JSON.parse did not work so moved to eval however that has some security risks
 //    oldShapes = eval('(' + oldShapes + ')');
     console.log(oldShapes);
@@ -557,7 +557,13 @@ CanvasState.prototype.saveShapes = function() {
         console.log(JSON.stringify(shape));
     }
     console.log('POST /app/'+oid);
-    post('/file/app/'+oid,JSON.stringify(shapes));
+    res = { 'anno' : shapes };
+    console.log('POST anno contents: ' + JSON.stringify(res));
+    $.post('/books/page/anno/'+oid, res, function(data) {
+        mychkstatus(data, "Annotations saved successfully", 
+            "Error saving annotations.");
+    }, "json");
+    //post('/books/page/anno/'+oid, JSON.stringify(shapes));
 }
 
 function post(path, params, method) {
