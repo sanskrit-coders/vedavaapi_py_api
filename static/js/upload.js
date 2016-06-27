@@ -1,4 +1,4 @@
-var UPLOAD_URL = "/workloads/upload";
+var UPLOAD_URL = "/books/upload";
 
 // List of pending files to handle when the Upload button is finally clicked.
 var PENDING_FILES  = [];
@@ -25,7 +25,7 @@ function doUpload() {
         console.log(PENDING_FILES[i]);
     }
 
-    // invoking workloads.py(backend code) over ajax call.
+    // invoking server over ajax call.
     fd.append("__ajax", "true");
     
     var xhr = $.ajax({
@@ -55,17 +55,17 @@ function doUpload() {
         data: fd,
         success: function(data) {
             $progressBar.css({"width": "100%"});
-            data = JSON.parse(data);           
-            if (data.status === "error") {               
-                window.alert(data.msg);
-                $("#upload-form :input").removeAttr("disabled");
-                return;
-            }
-            else {
+            data = JSON.parse(data);
+            if (mychkstatus(data)) {
                  //alert("uploaded successfully..");
                  $('#upload_popup').fadeOut("slow");
-                  getwloads();
+                  getbooks();
                   location.reload();
+            }
+            else {
+                window.alert(data.status);
+                $("#upload-form :input").removeAttr("disabled");
+                return;
             }
         },
     });

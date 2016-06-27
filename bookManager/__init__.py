@@ -25,7 +25,7 @@ class Books:
 
     def list(self, pattern=None):
         cursor = self.books.find({}, {'_id' : False, 'pages' : False})
-        matches = [b for b in cursor if not pattern or re.search(pattern, b.name)]
+        matches = [b for b in cursor if not pattern or re.search(pattern, b['path'])]
         return matches
 
     def getPageByIdx(self, book, idx):
@@ -40,6 +40,26 @@ class Books:
         binfo['_id'] = str(binfo['_id'])
         return binfo
 
+    def importOne(self, book):
+        pgidx = 0
+        bpath = book['path']
+        for page in book['pages']:
+            try:
+                anno_id = self.indicdocs.annotations.insert( \
+                    { 'bpath' : bpath, 'pgidx' : pgidx, \
+                        'anno' : [] })
+                sec_id = self.indicdocs.sections.insert( \
+                    { 'bpath' : bpath, 'pgidx' : pgidx, \
+                        'sections' : [] })
+                #print "anno: " + str(anno_id) + ", sec: " + str(sec_id)
+                page['anno'] = anno_id
+                page['sections'] = sec_id
+            except Exception as e:
+                print "Error inserting anno", e
+            #print json.dumps(page, indent=4)
+            pgidx = pgidx + 1
+        #print json.dumps(book, indent=4)
+        self.insert(book)
     def importAll(self, rootdir, pattern = None):
         print "Importing books into database from ", rootdir
         cmd = "find "+rootdir+" \( \( -path '*/.??*' \) -prune \) , \( -path '*.json' \) -follow -print; true"
@@ -63,24 +83,7 @@ class Books:
                     book = json.load(fhandle)
                     #print json.dumps(book, indent=4)
                     book["path"] = bpath
-                    pgidx = 0
-                    for page in book['pages']:
-                        try:
-                            anno_id = self.indicdocs.annotations.insert( \
-                                { 'bpath' : bpath, 'pgidx' : pgidx, \
-                                   'anno' : [] })
-                            sec_id = self.indicdocs.sections.insert( \
-                                { 'bpath' : bpath, 'pgidx' : pgidx, \
-                                   'sections' : [] })
-                            #print "anno: " + str(anno_id) + ", sec: " + str(sec_id)
-                            page['anno'] = anno_id
-                            page['sections'] = sec_id
-                        except Exception as e:
-                            print "Error inserting anno", e
-                        #print json.dumps(page, indent=4)
-                        pgidx = pgidx + 1
-                    #print json.dumps(book, indent=4)
-                    self.insert(book)
+                    self.importOne(book)
                     nbooks = nbooks + 1
             except Exception as e:
                 print "Skipped book " + f + ". Error:", e

@@ -1,7 +1,7 @@
 // Validating Empty Field first and then start capture
 function startupload() 
 {
-    if (document.getElementById('uploadwlname').value == ""){
+    if (document.getElementById('uploadpath').value == ""){
             alert("Fill All Fields !");
     } 
     else {        

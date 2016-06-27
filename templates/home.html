@@ -37,8 +37,8 @@
         </select><p>
         Or add a new book (use /'s to create a name hierarchy):<br>
         <input id="uploadpath" name="uploadpath" placeholder="Book Path" type="text" size="56px;"><br>
-        <input id="title" name="Title" placeholder="Book Title" type="text" size="56px;"><br>
-        <input id="author" name="Author" placeholder="Book Author" type="text" size="56px;"><br>
+        <input id="title" name="title" placeholder="Book Title" type="text" size="56px;"><br>
+        <input id="author" name="author" placeholder="Book Author" type="text" size="56px;"><br>
             Scan Type:
             <select id="scantype" name="scantype" class="dplot_parms">
                 <option value=photo selected="selected">photo</option>
@@ -67,7 +67,7 @@
                 <option value="kannada">Kannada</option>
                 <option value="grantha">Grantha</option>
             </select>
-        <input id="year" name="Year of Publication" placeholder="Year of Publication" type="text" size="56px;"><br>
+        <input id="pubdate" name="pubdate" placeholder="Year of Publication" type="text" size="56px;"><br>
         <span>Add scanned page files...</span>
           	<input id="file-picker" type="file" name="files[]" multiple>
      	<fieldset id="progress" style="display: none">
@@ -112,8 +112,7 @@ $(document).ready(function () {
         
         //select workload for file uploading
         $('#selbooks').on('change', function(e) {
-            //$('#uploadwlname').val($(this).val());
-            $('#uploadwlname').val($(this).val().replace("/"+$('#arrname').val(),""));
+            $('#uploadpath').val($(this).val());
         });
     });
     

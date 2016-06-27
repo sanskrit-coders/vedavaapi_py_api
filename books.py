@@ -94,13 +94,15 @@ def upload():
     is_ajax = False
     if form.get("__ajax", None) == "true":
         is_ajax = True
-    wdir = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
+    abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
         else join(uploaddir(), bookpath)
+    print "uploading to " + abspath
     try:
-        createdir(wdir)
+        createdir(abspath)
     except Exception as e:
-        return myerror("Couldn't create upload directory: {}".format(wdir), e)
+        return myerror("Couldn't create upload directory: {}".format(abspath), e)
 
+    bookpath = abspath.replace(repodir() + "/", "")
     book = { 
         'author' : form.get("author"),
         'title' : form.get("title"),
@@ -109,6 +111,7 @@ def upload():
         'bgtype' : form.get("bgtype"),
         'language' : form.get("language"),
         'script' : form.get("script"),
+        'path' : bookpath,
         'pages' : []
     }
     head, tail = os.path.split(abspath)
@@ -118,21 +121,21 @@ def upload():
         if file and allowed_file(upload.filename):
             filename = secure_filename(upload.filename)
         filename = upload.filename.rsplit("/")[0]
-        destination = join(wdir, filename)
+        destination = join(abspath, filename)
         upload.save(destination)
-        page = { 'fname' : filename, 'annotations' : [] }
+        page = { 'fname' : filename, 'anno' : [] }
         pages.append(page)
 
-    book.pages = pages
+    book['pages'] = pages
 
-    book_mfile = join(wdir, "book.json")
+    book_mfile = join(abspath, "book.json")
     try:
         with open(book_mfile, "w") as f:
             f.write(json.dumps(book, indent=4, sort_keys=True))
     except Exception as e:
         return myerror("Error writing " + book_mfile + ":", e)
 
-    if (getdb().books.insert(book) == 0):
+    if (getdb().books.importOne(book) == 0):
         return myerror("Error saving book details.")
 
     response_msg = "Book upload Successful for " + bookpath

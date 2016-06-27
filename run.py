@@ -20,7 +20,6 @@ from books import books_api
 
 app = Flask(__name__)
 
-app.register_blueprint(file_api, url_prefix='/file')
 app.register_blueprint(books_api, url_prefix='/books')
 
 (cmddir, cmdname) = os.path.split(argv[0])
