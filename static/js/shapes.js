@@ -100,15 +100,82 @@ Shape.prototype = {
 
 };
 
+function CanvasStateList() {
+    this.csList = [];
+    this.curCanvasState = null;
+    this.interval = 30;
+    var myListState = this;
+    setInterval(function() { myListState.draw(); }, myListState.interval);
+}
+
+CanvasStateList.prototype = {
+    add: function(canvasId, dataURL, oid) {
+        var canvasStateName = canvasId+oid;
+        console.log("Add: Canvas Id "+canvasId+" oid "+oid);
+        if (typeof this.csList[canvasStateName] !== "undefined" && 
+                this.csList[canvasStateName] !== null) {
+            console.log("Add: Canvas "+canvasStateName+" already added");
+            return this.csList[canvasStateName];
+        } else {
+            this.csList[canvasStateName] = new CanvasState(canvasId, dataURL, oid);
+            return this.csList[canvasStateName];
+        }
+    },
+    get: function(canvasId, dataURL, oid) {
+        var canvasStateName = canvasId+oid;
+        console.log("Get: Canvas Id "+canvasId+" oid "+oid);
+        if (typeof this.csList[canvasStateName] !== "undefined" && 
+                this.csList[canvasStateName] !== null) {
+            console.log("Get: Canvas "+canvasStateName+" found");
+            return this.csList[canvasStateName];
+        } else {
+            console.log("Get: Canvas "+canvasStateName+" not found");
+            return null;
+        }
+    },
+    moveTo: function(canvasStateName) {
+        if (typeof this.csList[canvasStateName] !== "undefined" && 
+                this.csList[canvasStateName] !== null) {
+            if (this.curCanvasState !== null) { 
+                this.curCanvasState.active = false;
+            }
+            this.curCanvasState = this.csList[canvasStateName];
+            this.curCanvasState.active = true;
+            this.curCanvasState.canvasContainer.scrollLeft = this.curCanvasState.containerScrollLeft; 
+            this.curCanvasState.canvasContainer.scrollTop = this.curCanvasState.containerScrollTop; 
+            this.curCanvasState.valid = false;
+            return this.curCanvasState;
+        } else {
+            console.log("MoveTo: Canvas "+canvasStateName+" does not exist");
+            return null;
+        }
+    },
+    delete: function(canvasStateName) {
+        if (typeof this.csList[canvasStateName] !== "undefined" && 
+                this.csList[canvasStateName] !== null) {
+            delete this.csList[canvasStateName];
+        } else {
+            console.log("Delete: Canvas "+canvasStateName+" does not exist");
+        }
+    },
+    draw: function() {
+        if (this.curCanvasState !== null) {
+            this.curCanvasState.draw();
+        }
+    },
+};
+
 function CanvasState(canvasId, dataURL, oid) {
     // **** First some setup! ****
+    this.name = canvasId+oid;
+    this.active = false;
     this.INPUT_WIDTH = 90;
     this.INPUT_HEIGHT = 24; 
     canvas = document.getElementById(canvasId);
     this.inputText = new CanvasInput({
         canvas: document.getElementById(canvasId),
-        width: this.INPUT_WIDTH,
-        height: this.INPUT_HEIGHT,
+        width: 1,
+        height: 1,
         padding: 0,
         borderWidth: 0,
         borderRadius: 0,
@@ -123,11 +190,13 @@ function CanvasState(canvasId, dataURL, oid) {
             },
     }); 
     this.canvas = canvas;
+    this.canvasContainer = canvas.parentElement;
     this.width = canvas.width;
     this.height = canvas.height;
     this.ctx = this.canvas.getContext('2d');
     this.imageURL = dataURL;
     this.oid = oid;
+    this.anno_id = "0";
     // This complicates things a little but but fixes mouse co-ordinate problems
     // when there's a border or padding. See getMouse for more detail
     var stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
@@ -148,9 +217,16 @@ function CanvasState(canvasId, dataURL, oid) {
  
     this.scale = 1; // Initialize with scale as 1 (range is 0.1 - 1.0) 
     this.scrollX = 0;
+    this.scrollY = 0;
   
     this.valid = false; // when set to false, the canvas will redraw everything
     this.shapes = [];  // the collection of things to be drawn
+    this.containerScrollLeft = 0;
+    this.containerScrollTop = 0;
+    this.dragForScrolling = false;  // True when mouse down in canvas 
+                                    // without any selection 
+    this.dragForScrollingX = 0; // X position when mouse was moved down 
+    this.dragForScrollingY = 0; // Y position when mouse was moved down 
     this.dragging = false; // Keep track of when we are dragging
     this.dragForResizing = false; // Keep track of when we are dragging 
                                   // for resizing
@@ -178,6 +254,7 @@ function CanvasState(canvasId, dataURL, oid) {
         return false; }, false);
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function(e) {
+        if (!myState.active) { return; }
         var mouse = myState.getMouse(e);
         var mx = mouse.x;
         var my = mouse.y;
@@ -218,9 +295,19 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.scrollY = window.scrollY;
             myState.valid = false; // Need to clear the old selection border
         }
+        if (!myState.dragForResizing && !myState.dragging) {
+            myState.dragForScrolling = true;
+            myState.scrollX = window.scrollX;
+            myState.scrollY = window.scrollY;
+            myState.dragForScrollingX = e.pageX;
+            myState.dragForScrollingY = e.pageY;
+            myState.valid = false; // Need to move the canvas 
+        }
     }, true);
 
     canvas.addEventListener('mousemove', function(e) {
+        if (!myState.active) { return; }
+        e.preventDefault();
         if (myState.dragging){
             var mouse = myState.getMouse(e);
             if (! myState.dragForResizing) {
@@ -250,20 +337,81 @@ function CanvasState(canvasId, dataURL, oid) {
             } else {
                 this.style.cursor = 'auto';
             }
+        } else if (myState.dragForScrolling) {
+            this.style.cursor = 'all-scroll';
+            var leftMove = myState.canvasContainer.scrollLeft;
+            var topMove = myState.canvasContainer.scrollTop;
+
+            leftMove += (myState.dragForScrollingX - e.pageX);
+            if (leftMove < 0 ) {
+                leftMove = 0;
+            }
+            if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
+                leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
+            }
+
+            topMove += (myState.dragForScrollingY - e.pageY);
+            if (topMove < 0 ) {
+                topMove = 0;
+            }
+            if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
+                topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
+            }
+            myState.dragForScrollingX = e.pageX;
+            myState.dragForScrollingY = e.pageY;
+            myState.canvasContainer.scrollLeft = leftMove; 
+            myState.canvasContainer.scrollTop = topMove; 
+            myState.containerScrollLeft = leftMove;
+            myState.containerScrollTop = topMove;
+            console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
+
+//            myState.valid = false; // Something's dragging so we must redraw
         }
     }, true);
 
     canvas.addEventListener('mouseup', function(e) {
+        if (!myState.active) { return; }
         if (myState.selection) {
             myState.changeInputLocation(myState.selection);
             myState.valid = false;
         }
-        myState.dragging = false; myState.dragForResizing = false; 
+        if (myState.dragForScrolling) {
+            var leftMove = myState.canvasContainer.scrollLeft;
+            var topMove = myState.canvasContainer.scrollTop;
+
+            leftMove += (myState.dragForScrollingX - e.pageX);
+            if (leftMove < 0 ) {
+                leftMove = 0;
+            }
+            if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
+                leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
+            }
+
+            topMove += (myState.dragForScrollingY - e.pageY);
+            if (topMove < 0 ) {
+                topMove = 0;
+            }
+            if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
+                topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
+            }
+            myState.dragForScrollingX = e.pageX;
+            myState.dragForScrollingY = e.pageY;
+            myState.canvasContainer.scrollLeft = leftMove; 
+            myState.canvasContainer.scrollTop = topMove; 
+            myState.containerScrollLeft = leftMove;
+            myState.containerScrollTop = topMove;
+            console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
+//            myState.valid = false; // Something's dragging so we must redraw
+        }
+        myState.dragging = false; 
+        myState.dragForResizing = false; 
+        myState.dragForScrolling = false; 
         this.style.cursor = 'auto';
     }, true);
 
     // double click for making new shapes
     canvas.addEventListener('dblclick', function(e) {
+        if (!myState.active) { return; }
         var mouse = myState.getMouse(e);
         // To keep the rectangle of same size, we would need to scale up the 
         // rectangle by the amount the image is scaled down
@@ -275,6 +423,7 @@ function CanvasState(canvasId, dataURL, oid) {
 
     this.altKeyDown = false;
     window.addEventListener('keyup', function(e) {
+        if (!myState.active) { return; }
         var charPressed = e.keyCode;
         console.log("You lifted Keycode "+e.keyCode);
         if (charPressed == 16) {
@@ -283,6 +432,7 @@ function CanvasState(canvasId, dataURL, oid) {
     }, true);
 
     window.addEventListener('keydown', function(e) {
+        if (!myState.active) { return; }
         var charPressed = e.keyCode;
         console.log("You pressed Keycode "+e.keyCode);
         if (charPressed == 8) {
@@ -344,8 +494,8 @@ function CanvasState(canvasId, dataURL, oid) {
   
     this.selectionColor = '#CC0000';
     this.selectionWidth = 2;  
-    this.interval = 30;
-    setInterval(function() { myState.draw(); }, myState.interval);
+//    this.interval = 30;
+//    setInterval(function() { myState.draw(); }, myState.interval);
 }
 
 CanvasState.prototype.changeInputLocation = function(selectedShape) {
@@ -390,6 +540,7 @@ CanvasState.prototype.adjustAllComponentsToScale = function() {
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
 CanvasState.prototype.draw = function() {
+    if (!this.active) { return; }
     // if our state is invalid, redraw and validate!
     if (!this.valid) {
         var ctx = this.ctx;
@@ -408,10 +559,15 @@ CanvasState.prototype.draw = function() {
         console.log("Image: "+imageObj.width+" "+imageObj.height+" Scale: "+this.scale);
         ctx.scale(this.scale,this.scale); 
         ctx.drawImage(imageObj,0,0);
-        this.inputText.width(Math.round(this.INPUT_WIDTH / this.scale));
-        this.inputText.height(Math.round(this.INPUT_HEIGHT / this.scale));
-        this.inputText.render();
-        this.inputText.focus();
+        if (this.selection != null) {
+            this.inputText.width(Math.round(this.INPUT_WIDTH / this.scale));
+            this.inputText.height(Math.round(this.INPUT_HEIGHT / this.scale));
+            this.inputText.render();
+            this.inputText.focus();
+        } else {
+            this.inputText.width(1);
+            this.inputText.height(1);
+        }
         // draw all shapes
         var l = shapes.length;
 //        console.log("Shapes Length: "+l);
@@ -465,9 +621,8 @@ CanvasState.prototype.getMouse = function(e) {
         } while ((element = element.offsetParent));
     }
 
-//BELOW 2 LINES have to be MADE GENERIC
-    var divTop = document.getElementById("container").scrollTop;
-    var divLeft = document.getElementById("container").scrollLeft;
+    var divLeft = this.canvasContainer.scrollLeft;
+    var divTop = this.canvasContainer.scrollTop;
 
     this.log(" OffL: "+offsetX+" OffT: "+offsetY);
     
@@ -497,12 +652,13 @@ CanvasState.prototype.getMouse = function(e) {
 //init();
 
 function init(canvas,dataURL, oldShapes, oid) {
-    var s = new CanvasState(canvas,dataURL, oid);
+    var s = canvasStateList.get(canvas,dataURL, oid);
     console.log("Init Called for "+oid);
-    //oldShapes = JSON.parse(oldShapes);
+//    oldShapes = JSON.parse(oldShapes);
 // JSON.parse did not work so moved to eval however that has some security risks
 //    oldShapes = eval('(' + oldShapes + ')');
     console.log(oldShapes);
+    if (oldShapes == null) { return s; }
     console.log(oldShapes.length);
     for (var i = 0; i < oldShapes.length; i++) {
         oldShape = oldShapes[i];
@@ -546,6 +702,7 @@ CanvasState.prototype.zoomIn = function() {
 CanvasState.prototype.saveShapes = function() {
     var shapes = this.shapes; 
     var oid = this.oid;
+    var anno_id = this.anno_id;
 
     console.log(JSON.stringify(shapes));
     for (var i = 0; i < shapes.length; i++) {
@@ -556,10 +713,10 @@ CanvasState.prototype.saveShapes = function() {
         console.log(JSON.parse(JSON.stringify(shape)));
         console.log(JSON.stringify(shape));
     }
-    console.log('POST /app/'+oid);
-    res = { 'anno' : shapes };
+    console.log('POST /app/'+anno_id);
+    var res = { 'anno' : JSON.stringify(shapes) };
     console.log('POST anno contents: ' + JSON.stringify(res));
-    $.post('/books/page/anno/'+oid, res, function(data) {
+    $.post('/books/page/anno/'+anno_id, res, function(data) {
         mychkstatus(data, "Annotations saved successfully.", 
             "Error saving annotations.");
     }, "json");

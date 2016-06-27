@@ -10,8 +10,8 @@ from pprint import pprint
 from bson.objectid import ObjectId
 import json
 
-from gridfs import GridFS
-from gridfs.errors import NoFile
+#from gridfs import GridFS
+#from gridfs.errors import NoFile
 
 class Books:
     def __init__(self, indicdocs):

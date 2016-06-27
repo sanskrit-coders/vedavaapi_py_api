@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from bson.objectid import ObjectId
 import json
 
-from gridfs.errors import NoFile
+#from gridfs.errors import NoFile
 from bookManager import *
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])

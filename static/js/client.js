@@ -91,24 +91,32 @@ function getbook(hglass, bpath)
 {
     if (hglass == true)
         $(".hourglass").show();
-    var $bookidx = $('#bookidx');
-    $bookidx.empty();
-    $.getJSON('/books/get?path='+bpath, function(data){
-        if (! mychkstatus(data))
-            return;
+        var $bookidx = $('#bookidx');
+        $.getJSON('/books/get?path='+bpath, function(data){
+        document.getElementById('bookdetails').value = JSON.stringify(data, null, 4); 
+        var html = [];
+        var itemIdx = 0;
+        $bookidx.empty();
         data = data['result'];
-        document.getElementById('bookdetails').value = JSON.stringify(data, null, 4);
-
+        html.push('<div id="item'+itemIdx+'" class="item active">');
         var pages = data['pages'];
-        $bookidx.append('<table borderwidth="1" class="wltabclass" id="wltable">');
-        for (i = 0; i < pages.length; ++ i) {
+        for (i = 0; i < pages.length; i++) {
             var page = pages[i];
             var size = 0;
             var pagepath = bpath + "/" + page['fname'];
-            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
-            $bookidx.append(html);
+            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="thumb"><img src="/books/page/image/'+pagepath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></div>');
+//            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>'; 
+            if ((i>1) && ((i+1)%4 == 0) && (i != (pages.length-1))) {
+                html[itemIdx] = html[itemIdx].concat('</div>');
+                itemIdx++;
+                html.push('<div id="item'+itemIdx+'" class="item">');
+            }
         }
-        $bookidx.append('</table>');
+        html[itemIdx] = html[itemIdx].concat('</div>');
+        for (i=0; i< html.length; i++) {
+            console.log('HTML: '+html[i]);
+        }
+        $bookidx.append(html);
         if (hglass == true)
             $(".hourglass").hide();
     });
@@ -121,7 +129,7 @@ function setcurpage(idx, value)
     var newval = idx;
 
     if (newval != oldval) {
-        console.log("Changed cur page to " + newval);
+        console.log("Changed cur page from "+oldval+" to " + newval);
         $('#curpage').val(newval).trigger('change');
     }
 }

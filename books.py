@@ -49,8 +49,9 @@ def pageanno(anno_id):
         return myresult(anno)
     elif request.method == 'POST':
         """modify/update the page annotation with id = anno_id"""
-        anno = request.form.getlist('anno')
+        anno = request.form.get('anno')
         print "save page annotations by id = " + str(anno_id)
+        print "save page annotations = " + json.dumps(anno)
         res = getdb().annotations.update(anno_id, { 'anno' : anno })
         if res == True:
             x = myresult("Annotation saved successfully.")

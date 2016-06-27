@@ -14,12 +14,11 @@
     </div>
 </div>
 
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/pramukhindic.js') }}"></script>
-<pre><script type="text/javascript" src="{{ url_for('static', filename='js/CanvasInput.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/pramukhindic.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/CanvasInput.js') }}"></script>
 
-<pre>
 <script type="text/javascript">
 
     var canvas = document.getElementById('canvas1');
@@ -51,7 +50,7 @@ function zoomOut() {
     cState.zoomOut();
     document.getElementById("scale").innerHTML = parseFloat(cState.scale).toFixed(1);
 }
-</script></pre>
+</script>
 
 <script type="text/javascript">
 

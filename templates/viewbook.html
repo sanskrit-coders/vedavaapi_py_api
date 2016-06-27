@@ -2,6 +2,93 @@
 <script src="/static/js/shapes.js" type="text/javascript"></script>
 {% block content %}
 
+<style type="text/css">
+.carousel-inner.vertical {
+  height: 100%;
+}
+.carousel-inner.vertical > .item {
+  -webkit-transition: .6s ease-in-out top;
+  -o-transition: .6s ease-in-out top;
+  transition: .6s ease-in-out top;
+}
+@media all and (transform-3d),
+(-webkit-transform-3d) {
+  .carousel-inner.vertical > .item {
+    -webkit-transition: -webkit-transform .6s ease-in-out;
+    -o-transition: -o-transform .6s ease-in-out;
+    transition: transform .6s ease-in-out;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+  }
+  .carousel-inner.vertical > .item.next,
+  .carousel-inner.vertical > .item.active.right {
+    top: 0;
+    -webkit-transform: translate3d(0, 100%, 0);
+    transform: translate3d(0, 100%, 0);
+  }
+  .carousel-inner.vertical > .item.prev,
+  .carousel-inner.vertical > .item.active.left {
+    top: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+  .carousel-inner.vertical > .item.next.left,
+  .carousel-inner.vertical > .item.prev.right,
+  .carousel-inner.vertical > .item.active {
+    top: 0;
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+.carousel-inner.vertical > .active {
+  top: 0;
+}
+.carousel-inner.vertical > .next,
+.carousel-inner.vertical > .prev {
+  top: 0;
+}
+.carousel-inner.vertical > .next {
+  left: 0;
+  top: 100%;
+}
+.carousel-inner.vertical > .prev {
+  left: 0;
+  top: -100%
+}
+.carousel-inner.vertical > .next.left,
+.carousel-inner.vertical > .prev.right {
+  top: 0;
+}
+.carousel-inner.vertical > .active.left {
+  left: 0;
+  top: -100%;
+}
+.carousel-inner.vertical > .active.right {
+  left: 0;
+  top: 100%;
+}
+
+.carousel {
+    margin-top: 20px;
+}
+.item .thumb {
+	height: 25%;
+	cursor: pointer;
+	float: top;
+}
+.item .thumb img {
+	width: 100%;
+	margin: 2px;
+    border-style: double;
+    border-width: 1px;
+}
+::-webkit-scrollbar { 
+    display: none; 
+}
+</style>
+
 <script type="text/javascript">
     var bpath = '{{ bookpath }}';
     {% if curpageidx %}
@@ -11,7 +98,8 @@
     {% endif %}
 </script>
 
-<div id="leftcol">
+
+<!--div id="leftcol">
     <button onclick="saveData()">Save</button>
     <button onclick="zoomIn()">ZoomIn</button>
     <button onclick="zoomOut()">ZoomOut</button>
@@ -19,14 +107,47 @@
     <input id="bookdetails" type="hidden">
     <input id="curpage" type="hidden">
     <div id="bookidx"></div>
-</div>
+</div-->
 
-<div id="content">
-    <input id="page_annotations" type="hidden">
-    <input id="page_sections" type="hidden">
+<!--div id="content">
     <div id='container' style="float:left; overflow:auto;">
-    <canvas id="canvas1"> </canvas>
+    <canvas id="pageCanvas"> </canvas>
     </div>
+</div-->
+
+  <div class="container">
+  <div class="row">
+    <div class="col-sm-2 col-xs-2">
+    <button onclick="saveData()">Save</button>
+    <button onclick="zoomIn()">ZoomIn</button>
+    <button onclick="zoomOut()">ZoomOut</button>
+    <span id='scale'> </span> 
+    <input id="bookdetails" type="hidden">
+    <input id="curpage" type="hidden">
+        <div id="thumbcarousel" class="carousel slide" data-interval="false">
+            <div id="bookidx" class="carousel-inner vertical">
+            </div><!-- /carousel-inner -->
+            <a class="left carousel-control" href="#thumbcarousel" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" href="#thumbcarousel" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+        </div> <!-- /thumbcarousel -->
+    </div> <!-- /col-sm-2 -->
+    <!--div class="clearfix"-->
+    <div class="col-sm-10 col-xs-10">
+        <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div class="canvas-outer">
+                <div id='container' class="item active" style="overflow:auto; height:100vh">
+                <canvas id="pageCanvas"> </canvas>
+                </div>
+            </div>
+        </div> <!-- /carousel --> 
+    </div> <!-- /col-sm-10 -->
+    <!--/div--><!-- /clearfix -->
+  </div> <!-- /row -->
+</div> <!-- /container -->
 </div>
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
@@ -36,7 +157,7 @@
 
 <script type="text/javascript">
 
-//var canvas = document.getElementById('canvas1');
+//var canvas = document.getElementById('pageCanvas');
 var container = document.getElementById('container');
 //container.appendChild(canvas);
 //var context = canvas.getContext('2d');
@@ -70,20 +191,27 @@ function loadpage() {
     console.log("Loading page " + curpage);
     var details = $('#bookdetails').val();
     var bookdetails = JSON.parse(details);
-    var pagedetails = bookdetails['pages'][curpage];
+    console.log("Book Details: " + JSON.stringify(bookdetails));
+    var pagedetails = bookdetails['result']['pages'][curpage];
     console.log(pagedetails);
     pgname = pagedetails['fname'];
     var fpath = bpath + "/" + pgname;
     console.log("Loading page path: " + fpath);
     var anno_id = pagedetails['anno'];
     var sec_id = pagedetails['sections'];
+    window.cState = canvasStateList.get('pageCanvas',"",curpage);
+    window.cState.anno_id = anno_id;
 
     $.getJSON('/books/page/anno/'+anno_id, function(data){
         if (! mychkstatus(data))
             return;
-        curpage_annotations = data.result;
-        window.cState = init('canvas1','/books/page/image/'+fpath, 
-            curpage_annotations['anno'], anno_id);
+        console.log("Page Anno: " + JSON.stringify(data.result));
+        curpage_annotations = data.result['anno'];
+        if (curpage_annotations.length != 0) {
+            curpage_annotations = JSON.parse(curpage_annotations);
+        }
+        window.cState = init('pageCanvas','/books/page/image/'+fpath, 
+            curpage_annotations, curpage);
         console.log(window.cState);
     });
 
@@ -93,26 +221,49 @@ function loadpage() {
         curpage_sections = data;
     });
 }
+</script>
 
-$(document).ready(function () {
-    $('#curpage').change(function() {
-        loadpage();
+<script type="text/javascript">
+    var canvasStateList = new CanvasStateList();
+    $(document).ready(function () {
+        $('#thumbcarousel').carousel({
+            interval: false
+        });
+
+        $('body').on('click','img',function(){
+            console.log("Click called on "+$(this).attr("oid"));
+            window.cState = canvasStateList.add('pageCanvas',$(this).attr("attr-display"), $(this).attr("oid"));
+            window.cState = canvasStateList.moveTo(window.cState.name);
+            setcurpage($(this).attr("oid"), $(this).attr("attr-display"));
+            loadpage();
+        });
+/*
+        $('.thumb img').click(function () {
+            console.log("Click called on "+$(this).attr("oid")+"at ID: "+$(this).attr("data-slide-to"));
+            setcurpage($(this).attr("data-slide-to"), $(this).attr("attr-display"));
+            loadpage();
+//            cState = init('pageCanvas',$(this).attr("attr-display"), oldShapes, $(this).attr("oid"));
+//            $('#DataDisplay').attr("src", $(this).attr("attr-display"));
+        });
+*/
+        $('#curpage').change(function() {
+//            loadpage();
+        });
     });
-});
 
-document.onkeydown = function (e) {
-    e = e || window.event;//Get event
-    if (e.ctrlKey) {
-        var c = e.which || e.keyCode;//Get key code
-        switch (c) {
-            case 83://Block Ctrl+S
-                saveData();
-                e.preventDefault();     
-                e.stopPropagation();
-            break;
+    document.onkeydown = function (e) {
+        e = e || window.event;//Get event
+        if (e.ctrlKey) {
+            var c = e.which || e.keyCode;//Get key code
+            switch (c) {
+                case 83://Block Ctrl+S
+                    saveData();
+                    e.preventDefault();     
+                    e.stopPropagation();
+                break;
+            }
         }
-    }
-};
+    };
 
 </script>
 

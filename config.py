@@ -10,9 +10,9 @@ from json import dumps
 from flask import *
 
 PORTNUM = 9000
-WORKDIR = "/tmp/indicsearch"
+WORKDIR = "/home/parag/tmp/indicsearch"
 INDICDOC_DBNAME = "indicdoc_db"
-DATADIR = "/home/sairamas/visual-search-data2"
+DATADIR = "/home/parag/Workspace/visual-search-data"
 DATADIR_SETTINGS = join(DATADIR, "settings")
 DATADIR_BOOKS = join(DATADIR, "books")
 MYPATH = ""
