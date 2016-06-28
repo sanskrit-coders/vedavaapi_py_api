@@ -104,7 +104,12 @@ function getbook(hglass, bpath)
             var page = pages[i];
             var size = 0;
             var pagepath = bpath + "/" + page['fname'];
-            var thumbpath = bpath + "/" + page['tname'];
+            var thumbpath = "";
+            if (page['tname'] !== undefined && page['tname'] != null) {
+                thumbpath = bpath + "/" + page['tname'];
+            } else {
+                thumbpath = bpath + "/" + page['fname'];
+            }
             html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="thumb"><img src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></div>');
 //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>'; 
             if ((i>1) && ((i+1)%4 == 0) && (i != (pages.length-1))) {

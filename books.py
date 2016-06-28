@@ -40,7 +40,7 @@ def resize(img, box, fit, out):
         factor *=2
 
     if factor > 1:
-        img.thumbnail((img.size[0]/factor, img.size[1]/factor), Image.ANTIALIAS)
+        img.thumbnail((img.size[0]/factor, img.size[1]/factor), Image.NEAREST)
 
     #calculate the cropping box and get the cropped part
     if fit:
