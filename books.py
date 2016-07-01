@@ -82,13 +82,17 @@ def getbooksingle():
 def pageanno(anno_id):
     if request.method == 'GET':
         """return the page annotation with id = anno_id"""
+        reparse = request.args.get('reparse')
+        if (reparse):
+            getdb().annotations.propagate(anno_id)
         anno = getdb().annotations.get(anno_id)
         return myresult(anno)
     elif request.method == 'POST':
         """modify/update the page annotation with id = anno_id"""
         anno = request.form.get('anno')
         print "save page annotations by id = " + str(anno_id)
-        print "save page annotations = " + json.dumps(anno)
+        #print "save page annotations = " + anno
+        anno = json.loads(anno)
         res = getdb().annotations.update(anno_id, { 'anno' : anno })
         if res == True:
             x = myresult("Annotation saved successfully.")

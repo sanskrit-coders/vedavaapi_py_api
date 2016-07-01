@@ -27,7 +27,8 @@ function Shape(x, y, w, h, fill, obj) {
     this.fontName = 'Arial Unicode MS';
     this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
     this.fillStyle = 'black';
-    this.fillText = '';
+    this.text = '';
+    this.state = 'user_supplied';
     // Handle Object
     if (obj instanceof Object) {
         for (var attr in obj) {
@@ -50,7 +51,7 @@ Shape.prototype = {
     // Text x,y starts from bottom left, whereas rectangle from top left
         ctx.font = this.font; 
         ctx.fillStyle = this.fillStyle;
-        ctx.fillText(this.fillText,this.x,this.y+this.fontPoints+4);
+        ctx.fillText(this.text,this.x,this.y+this.fontPoints+4);
     },
 
     // increment the text font size
@@ -181,7 +182,7 @@ function CanvasState(canvasId, dataURL, oid) {
         borderRadius: 0,
         onsubmit: function() {
                 if (myState.selection) {
-                    myState.selection.fillText = myState.inputText.value(); 
+                    myState.selection.text = myState.inputText.value(); 
                     myState.valid = false;  
                     myState.inputText.value('');
                 } else {
@@ -713,7 +714,7 @@ CanvasState.prototype.saveShapes = function() {
         console.log(JSON.parse(JSON.stringify(shape)));
         console.log(JSON.stringify(shape));
     }
-    console.log('POST /app/'+anno_id);
+    console.log('POST /books/page/anno/'+anno_id);
     var res = { 'anno' : JSON.stringify(shapes) };
     console.log('POST anno contents: ' + JSON.stringify(res));
     $.post('/books/page/anno/'+anno_id, res, function(data) {

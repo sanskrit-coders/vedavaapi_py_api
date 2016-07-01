@@ -121,6 +121,7 @@
     <button onclick="saveData()">Save</button>
     <button onclick="zoomIn()">ZoomIn</button>
     <button onclick="zoomOut()">ZoomOut</button>
+    <button onclick="reparse_page()">Parse</button>
     <span id='scale'> </span> 
     <input id="bookdetails" type="hidden">
     <input id="curpage" type="hidden">
@@ -184,7 +185,11 @@ function zoomOut() {
     document.getElementById("scale").innerHTML = parseFloat(window.cState.scale).toFixed(1);
 }
 
-function loadpage() {
+function reparse_page() {
+    loadpage(true);
+}
+
+function loadpage(reparse = false) {
     var curpage = $('#curpage').val();
     if (curpage == undefined)
         return;
@@ -202,14 +207,12 @@ function loadpage() {
     window.cState = canvasStateList.get('pageCanvas',"",curpage);
     window.cState.anno_id = anno_id;
 
-    $.getJSON('/books/page/anno/'+anno_id, function(data){
+    parms = { 'reparse' : reparse };
+    $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(parms), function(data){
         if (! mychkstatus(data))
             return;
         console.log("Page Anno: " + JSON.stringify(data.result));
         curpage_annotations = data.result['anno'];
-        if (curpage_annotations.length != 0) {
-            curpage_annotations = JSON.parse(curpage_annotations);
-        }
         window.cState = init('pageCanvas','/books/page/image/'+fpath, 
             curpage_annotations, curpage);
         console.log(window.cState);
