@@ -4,78 +4,6 @@
 
 <style type="text/css">
 
-/*
-.carousel-inner.vertical {
-  height: 100%;
-}
-.carousel-inner.vertical > .item {
-  -webkit-transition: .6s ease-in-out top;
-  -o-transition: .6s ease-in-out top;
-  transition: .6s ease-in-out top;
-}
-@media all and (transform-3d),
-(-webkit-transform-3d) {
-  .carousel-inner.vertical > .item {
-    -webkit-transition: -webkit-transform .6s ease-in-out;
-    -o-transition: -o-transform .6s ease-in-out;
-    transition: transform .6s ease-in-out;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
-  }
-  .carousel-inner.vertical > .item.next,
-  .carousel-inner.vertical > .item.active.right {
-    top: 0;
-    -webkit-transform: translate3d(0, 100%, 0);
-    transform: translate3d(0, 100%, 0);
-  }
-  .carousel-inner.vertical > .item.prev,
-  .carousel-inner.vertical > .item.active.left {
-    top: 0;
-    -webkit-transform: translate3d(0, -100%, 0);
-    transform: translate3d(0, -100%, 0);
-  }
-  .carousel-inner.vertical > .item.next.left,
-  .carousel-inner.vertical > .item.prev.right,
-  .carousel-inner.vertical > .item.active {
-    top: 0;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-  }
-}
-.carousel-inner.vertical > .active {
-  top: 0;
-}
-.carousel-inner.vertical > .next,
-.carousel-inner.vertical > .prev {
-  top: 0;
-}
-.carousel-inner.vertical > .next {
-  left: 0;
-  top: 100%;
-}
-.carousel-inner.vertical > .prev {
-  left: 0;
-  top: -100%
-}
-.carousel-inner.vertical > .next.left,
-.carousel-inner.vertical > .prev.right {
-  top: 0;
-}
-.carousel-inner.vertical > .active.left {
-  left: 0;
-  top: -100%;
-}
-.carousel-inner.vertical > .active.right {
-  left: 0;
-  top: 100%;
-}
-
-.carousel {
-    margin-top: 20px;
-}
-*/
 .item .thumb {
 	height: 10%;
 	cursor: pointer;
@@ -112,33 +40,48 @@
 </script>
 
 
-<!--div id="leftcol">
-    <button onclick="saveData()">Save</button>
-    <button onclick="zoomIn()">ZoomIn</button>
-    <button onclick="zoomOut()">ZoomOut</button>
-    <span id='scale'> </span> 
+    <!--button type="button" class="btn btn-info btn-sm" onclick="saveData()">Save</button>
+    <button type="button" class="btn btn-info btn-sm" onclick="zoomIn()">ZoomIn</button>
+    <button type="button" class="btn btn-info btn-sm" onclick="zoomOut()">ZoomOut</button>
+    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
+    <span id='scale'> </span--> 
     <input id="bookdetails" type="hidden">
     <input id="curpage" type="hidden">
-    <div id="bookidx"></div>
-</div-->
 
-<!--div id="content">
-    <div id='container' style="float:left; overflow:auto;">
-    <canvas id="pageCanvas"> </canvas>
+<div class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#indicNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">IndicTool</a>
     </div>
-</div-->
+    <div class="collapse navbar-collapse" id="indicNavbar">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#" data-toggle="modal" data-target="#ThumbnailModal">Thumbnail</a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Book<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a onclick="saveData()">Save</a></li>
+            <li><a onclick="zoomIn()">ZoomIn</a></li>
+            <li><a onclick="zoomOut()">ZoomOut</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Scale <span id='scale'></span></a></li>
+        <li><a href="#">Admin</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
 
-    <div class="well">
-  <button type="button" class="btn btn-info btn-sm" onclick="saveData()">Save</button>
-  <button type="button" class="btn btn-info btn-sm" onclick="zoomIn()">ZoomIn</button>
-  <button type="button" class="btn btn-info btn-sm" onclick="zoomOut()">ZoomOut</button>
-  <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
-    <span id='scale'> </span> 
-    <input id="bookdetails" type="hidden">
-    <input id="curpage" type="hidden">
-    </div> <!-- well -->
 
-  <div class="container">
+<div class="container">
   <div class="row">
   <!-- Modal -->
   <div class="modal fade" id="ThumbnailModal" role="dialog">
@@ -162,10 +105,10 @@
     </div>
   </div>
   
-    </div> <!-- row -->
-  </div> <!-- container -->
+  </div> <!-- row -->
+</div> <!-- container -->
 
-  <div class="container">
+<div class="container">
     <div class="row">
     <div class="col-sm-12">
         <div id="carousel" class="carousel slide" data-ride="carousel">
