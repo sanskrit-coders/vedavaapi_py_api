@@ -98,7 +98,7 @@ function getbook(hglass, bpath)
         var itemIdx = 0;
         $bookidx.empty();
         data = data['result'];
-        html.push('<div id="item'+itemIdx+'" class="item active">');
+        html.push('<div id="item'+itemIdx+'" class="item active"> <div class="row-fluid">');
         var pages = data['pages'];
         for (i = 0; i < pages.length; i++) {
             var page = pages[i];
@@ -110,10 +110,10 @@ function getbook(hglass, bpath)
             } else {
                 thumbpath = bpath + "/" + page['fname'];
             }
-            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="thumb"><img src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></div>');
+            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="col-sm-2"><a href="#x" class="thumb"><img src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></a></div>');
 //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>'; 
-            if ((i>1) && ((i+1)%4 == 0) && (i != (pages.length-1))) {
-                html[itemIdx] = html[itemIdx].concat('</div>');
+            if ((i>1) && ((i+1)%6 == 0) && (i != (pages.length-1))) {
+                html[itemIdx] = html[itemIdx].concat('</div> </div>');
                 itemIdx++;
                 html.push('<div id="item'+itemIdx+'" class="item">');
             }

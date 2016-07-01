@@ -3,6 +3,8 @@
 {% block content %}
 
 <style type="text/css">
+
+/*
 .carousel-inner.vertical {
   height: 100%;
 }
@@ -73,17 +75,28 @@
 .carousel {
     margin-top: 20px;
 }
+*/
 .item .thumb {
-	height: 25%;
+	height: 10%;
 	cursor: pointer;
 	float: top;
 }
 .item .thumb img {
-	width: 100%;
-	margin: 2px;
+	width: 140px;
+	margin: 1px;
     border-style: double;
     border-width: 1px;
 }
+
+.carousel-control {
+	left: -8px;
+    width: 4%;
+}
+.carousel-control.right {
+	right: -8px;
+    width: 4%;
+}
+
 ::-webkit-scrollbar { 
     display: none; 
 }
@@ -115,28 +128,46 @@
     </div>
 </div-->
 
-  <div class="container">
-  <div class="row">
-    <div class="col-sm-2 col-xs-2">
-    <button onclick="saveData()">Save</button>
-    <button onclick="zoomIn()">ZoomIn</button>
-    <button onclick="zoomOut()">ZoomOut</button>
+    <div class="well">
+  <button type="button" class="btn btn-info btn-sm" onclick="saveData()">Save</button>
+  <button type="button" class="btn btn-info btn-sm" onclick="zoomIn()">ZoomIn</button>
+  <button type="button" class="btn btn-info btn-sm" onclick="zoomOut()">ZoomOut</button>
+  <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
     <span id='scale'> </span> 
     <input id="bookdetails" type="hidden">
     <input id="curpage" type="hidden">
+    </div> <!-- well -->
+
+  <div class="container">
+  <div class="row">
+  <!-- Modal -->
+  <div class="modal fade" id="ThumbnailModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-body">
         <div id="thumbcarousel" class="carousel slide" data-interval="false">
-            <div id="bookidx" class="carousel-inner vertical">
+            <div id="bookidx" class="carousel-inner">
             </div><!-- /carousel-inner -->
-            <a class="left carousel-control" href="#thumbcarousel" role="button" data-slide="prev">
+            <a class="left carousel-control" href="#thumbcarousel" data-slide="prev">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
-            <a class="right carousel-control" href="#thumbcarousel" role="button" data-slide="next">
+            <a class="right carousel-control" href="#thumbcarousel" data-slide="next">
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
         </div> <!-- /thumbcarousel -->
-    </div> <!-- /col-sm-2 -->
-    <!--div class="clearfix"-->
-    <div class="col-sm-10 col-xs-10">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>  
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    </div> <!-- row -->
+  </div> <!-- container -->
+
+  <div class="container">
+    <div class="row">
+    <div class="col-sm-12">
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="canvas-outer">
                 <div id='container' class="item active" style="overflow:auto; height:100vh">
@@ -144,11 +175,9 @@
                 </div>
             </div>
         </div> <!-- /carousel --> 
-    </div> <!-- /col-sm-10 -->
-    <!--/div--><!-- /clearfix -->
-  </div> <!-- /row -->
+    </div> <!-- /col-sm-12 -->
+    </div><!-- /row -->
 </div> <!-- /container -->
-</div>
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
