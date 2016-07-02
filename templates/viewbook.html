@@ -67,6 +67,7 @@
             <li><a onclick="saveData()">Save</a></li>
             <li><a onclick="zoomIn()">ZoomIn</a></li>
             <li><a onclick="zoomOut()">ZoomOut</a></li>
+            <li><a onclick="reparse_page()">Parse</a></li>
           </ul>
         </li>
         <li><a href="#">Scale <span id='scale'></span></a></li>
@@ -83,7 +84,6 @@
 
 <div class="container">
   <div class="row">
-    <button onclick="reparse_page()">Parse</button>
   <!-- Modal -->
   <div class="modal fade" id="ThumbnailModal" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -226,7 +226,6 @@ function slideTo(where) {
         console.log("Reached the end or start");
         return;
     }
-    saveData();
     window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
     window.cState = canvasStateList.moveTo(window.cState.name);
     setcurpage(oid, attrDisplay);

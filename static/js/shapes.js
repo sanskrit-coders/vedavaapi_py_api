@@ -20,7 +20,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.y = y || 0;
     this.w = w || 30;
     this.h = h || 30;
-    this.fill = fill || '#AAAAAA';
+    this.fill = fill || 'rgba(0,255,0,.3)';
     this.stroke = '#FFFF00';
     this.fontType = 'normal';
     this.fontPoints = 22;
@@ -52,6 +52,16 @@ Shape.prototype = {
         ctx.font = this.font; 
         ctx.fillStyle = this.fillStyle;
         ctx.fillText(this.text,this.x,this.y+this.fontPoints+4);
+    },
+
+    print: function() {
+        var message = "";
+        for (var attr in this) {
+            if (this.hasOwnProperty(attr)){
+                message = message.concat("{"+attr+":"+this[attr]+"}");
+            }
+        }
+        console.log(message);
     },
 
     // increment the text font size
@@ -280,8 +290,8 @@ function CanvasState(canvasId, dataURL, oid) {
                     myState.dragForResizing = true;
                     this.style.cursor = 'se-resize';
                 }
-                myState.scrollX = window.scrollX;
-                myState.scrollY = window.scrollY;
+                myState.scrollX = Math.round(window.scrollX);
+                myState.scrollY = Math.round(window.scrollY);
                 myState.valid = false;
                 return;
             }
@@ -292,14 +302,14 @@ function CanvasState(canvasId, dataURL, oid) {
             console.log("Deselecting - MX: "+mx+" MY: "+my);
             myState.selection = null;
             myState.selectionIndex = null;
-            myState.scrollX = window.scrollX;
-            myState.scrollY = window.scrollY;
+            myState.scrollX = Math.round(window.scrollX);
+            myState.scrollY = Math.round(window.scrollY);
             myState.valid = false; // Need to clear the old selection border
         }
         if (!myState.dragForResizing && !myState.dragging) {
             myState.dragForScrolling = true;
-            myState.scrollX = window.scrollX;
-            myState.scrollY = window.scrollY;
+            myState.scrollX = Math.round(window.scrollX);
+            myState.scrollY = Math.round(window.scrollY);
             myState.dragForScrollingX = e.pageX;
             myState.dragForScrollingY = e.pageY;
             myState.valid = false; // Need to move the canvas 
@@ -326,8 +336,8 @@ function CanvasState(canvasId, dataURL, oid) {
                     myState.selection.h = mouse.y - myState.selection.y;
                 }
             }
-            myState.scrollX = window.scrollX;
-            myState.scrollY = window.scrollY;
+            myState.scrollX = Math.round(window.scrollX);
+            myState.scrollY = Math.round(window.scrollY);
             myState.valid = false; // Something's dragging so we must redraw
         } else if (myState.selection) {
             var mouse = myState.getMouse(e);
@@ -350,6 +360,7 @@ function CanvasState(canvasId, dataURL, oid) {
             if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
                 leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
             }
+            leftMove = Math.round(leftMove);
 
             topMove += (myState.dragForScrollingY - e.pageY);
             if (topMove < 0 ) {
@@ -358,6 +369,8 @@ function CanvasState(canvasId, dataURL, oid) {
             if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
                 topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
             }
+            topMove = Math.round(topMove);
+
             myState.dragForScrollingX = e.pageX;
             myState.dragForScrollingY = e.pageY;
             myState.canvasContainer.scrollLeft = leftMove; 
@@ -387,6 +400,7 @@ function CanvasState(canvasId, dataURL, oid) {
             if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
                 leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
             }
+            leftMove = Math.round(leftMove);
 
             topMove += (myState.dragForScrollingY - e.pageY);
             if (topMove < 0 ) {
@@ -395,6 +409,8 @@ function CanvasState(canvasId, dataURL, oid) {
             if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
                 topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
             }
+            topMove = Math.round(topMove);
+
             myState.dragForScrollingX = e.pageX;
             myState.dragForScrollingY = e.pageY;
             myState.canvasContainer.scrollLeft = leftMove; 
@@ -437,8 +453,8 @@ function CanvasState(canvasId, dataURL, oid) {
         var charPressed = e.keyCode;
         console.log("You pressed Keycode "+e.keyCode);
         if (charPressed == 8) {
-            myState.scrollX = window.scrollX;
-            myState.scrollY = window.scrollY;
+            myState.scrollX = Math.round(window.scrollX);
+            myState.scrollY = Math.round(window.scrollY);
             myState.valid = false;
         }
         if (charPressed == 16) {
@@ -522,6 +538,7 @@ CanvasState.prototype.inputTextContains = function(mx, my) {
 
 CanvasState.prototype.addShape = function(shape) {
     this.shapes.push(shape);
+    shape.print();
     this.valid = false;
 }
 
@@ -557,7 +574,7 @@ CanvasState.prototype.draw = function() {
         if (!imageObj.complete) { 
             return; 
         }
-        console.log("Image: "+imageObj.width+" "+imageObj.height+" Scale: "+this.scale);
+//        console.log("Image: "+imageObj.width+" "+imageObj.height+" Scale: "+this.scale);
         ctx.scale(this.scale,this.scale); 
         ctx.drawImage(imageObj,0,0);
         if (this.selection != null) {
@@ -590,7 +607,7 @@ CanvasState.prototype.draw = function() {
             var mySel = this.selection;
             ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
         }
-        console.log("Scrolling To"+ this.scrollX+" "+ this.scrollY); 
+//        console.log("Scrolling To"+ this.scrollX+" "+ this.scrollY); 
         window.scrollTo(this.scrollX, this.scrollY); 
     
         // ** Add stuff you want drawn on top all the time here **
@@ -601,7 +618,7 @@ CanvasState.prototype.draw = function() {
 
 CanvasState.prototype.log = function(str) {
     if (!this.selection) {
-        console.log(str);
+//        console.log(str);
     }
 }
 
