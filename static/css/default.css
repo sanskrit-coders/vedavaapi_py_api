@@ -57,11 +57,11 @@ nav {
     /* line-height:30px; */
     background-color:#e6e6fa;
     height:40px;
-    width:400px;
+    width:30%;
     float:right;
     border:0px solid #000000;
     overflow:auto;
-    top:90px;
+    top:10px;
     position:absolute;
     padding:0px;
     right:8px;

@@ -110,7 +110,7 @@ function getbook(hglass, bpath)
             } else {
                 thumbpath = bpath + "/" + page['fname'];
             }
-            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="col-sm-2"><a href="#x" class="thumb"><img src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></a></div>');
+            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="col-sm-2"><a href="#x" class="thumb"><img id="thumb'+i+'" src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></a></div>');
 //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>'; 
             if ((i>1) && ((i+1)%6 == 0) && (i != (pages.length-1))) {
                 html[itemIdx] = html[itemIdx].concat('</div> </div>');

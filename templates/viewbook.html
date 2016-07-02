@@ -11,9 +11,9 @@
 }
 .item .thumb img {
 	width: 140px;
-	margin: 1px;
+	margin: 2px;
     border-style: double;
-    border-width: 1px;
+    border-width: 3px;
 }
 
 .carousel-control {
@@ -116,6 +116,12 @@
                 <div id='container' class="item active" style="overflow:auto; height:100vh">
                 <canvas id="pageCanvas"> </canvas>
                 </div>
+            <a class="left carousel-control" onclick="slideTo('prev')">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" onclick="slideTo('next')">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
             </div>
         </div> <!-- /carousel --> 
     </div> <!-- /col-sm-12 -->
@@ -193,6 +199,37 @@ function loadpage() {
         curpage_sections = data;
     });
 }
+
+function slideTo(where) {
+    var curpage = $('#curpage').val();
+    if (!curpage) { 
+        console.log("curpage not defined. returning");
+        return;
+    }
+    if (where.toLowerCase() == 'next') {
+        console.log("Curpage = "+curpage);
+        var newpage = parseInt(curpage) + 1;
+        console.log("Nextpage = "+newpage);
+        console.log("Next called is "+$('#thumb'+newpage).parent().html());
+    } else {
+        console.log("Curpage = "+curpage);
+        var newpage = parseInt(curpage) - 1;
+        console.log("Prevpage = "+newpage);
+        console.log("Prev called is "+$('#thumb'+newpage).parent().html());
+    }
+    var attrDisplay = $('#thumb'+newpage).attr("attr-display");
+    var oid = $('#thumb'+newpage).attr("oid");
+    if (attrDisplay == undefined || oid == undefined) {
+        console.log("Reached the end or start");
+        return;
+    }
+    saveData();
+    window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
+    window.cState = canvasStateList.moveTo(window.cState.name);
+    setcurpage(oid, attrDisplay);
+    loadpage();
+}
+
 </script>
 
 <script type="text/javascript">
@@ -203,10 +240,12 @@ function loadpage() {
         });
 
         $('body').on('click','img',function(){
-            console.log("Click called on "+$(this).attr("oid"));
-            window.cState = canvasStateList.add('pageCanvas',$(this).attr("attr-display"), $(this).attr("oid"));
+            console.log("Click called on "+$(this).parent().html());
+            var attrDisplay = $(this).attr("attr-display");
+            var oid = $(this).attr("oid");
+            window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
             window.cState = canvasStateList.moveTo(window.cState.name);
-            setcurpage($(this).attr("oid"), $(this).attr("attr-display"));
+            setcurpage(oid, attrDisplay);
             loadpage();
         });
 /*
@@ -228,11 +267,21 @@ function loadpage() {
         if (e.ctrlKey) {
             var c = e.which || e.keyCode;//Get key code
             switch (c) {
-                case 83://Block Ctrl+S
+                case 83://Block Ctrl+'S'
                     saveData();
                     e.preventDefault();     
                     e.stopPropagation();
-                break;
+                    break;
+                case 187://Block Ctrl+'+'
+                    zoomIn();
+                    e.preventDefault();     
+                    e.stopPropagation();
+                    break;
+                case 189://Block Ctrl+'-'
+                    zoomOut();
+                    e.preventDefault();     
+                    e.stopPropagation();
+                    break;
             }
         }
     };

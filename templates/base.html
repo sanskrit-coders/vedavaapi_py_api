@@ -22,13 +22,14 @@
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
   </head>
   <body id="mainbody1">
-    <header>
+    <div class="well well-sm" style="margin-bottom:1px; color:white; background-color:#6a5acd;">
+    <div class="container">
     {% if title %}
-    <h1>IndicSearch: {{ title }}</h1>
+    <h4 style="text-align:center; font-weight:bold">IndicSearch: {{ title }}</h4>
     {% else %}
-    <h1>IndicSearch: Visual Manuscript Decoder</h1>
+    <h4 style="text-align:center; font-weight:bold">IndicSearch: Visual Manuscript Decoder</h4>
     {% endif %}
-    <div id="servermsg">
+    <!--div id="servermsg">
         <div id="server" class="serverconsole">
             Server Running on:
         </div><br>
@@ -36,12 +37,13 @@
             <button id="upgrade_wlwizard" >Update Server</button>
             <button id="reportbug" value="report bug">Report Bug</button>
         </div>
+    </div-->
         <div id="console" title="Status Messages">
             Messages: 
         </div>
-    </div>
-    <br>
-    </header>
+
+    </div> <!-- container -->
+    </div> <!-- well -->
 
     <div id="bgblur">
         <!--
