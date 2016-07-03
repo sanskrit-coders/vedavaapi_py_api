@@ -20,7 +20,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.y = y || 0;
     this.w = w || 30;
     this.h = h || 30;
-    this.fill = fill || 'rgba(0,255,0,.3)';
+    this.fill = fill || 'rgba(0,255,0,.2)';
     this.stroke = '#FFFF00';
     this.fontType = 'normal';
     this.fontPoints = 22;
@@ -29,6 +29,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.fillStyle = 'black';
     this.text = '';
     this.state = 'user_supplied';
+    this.display = true;
     // Handle Object
     if (obj instanceof Object) {
         for (var attr in obj) {
@@ -42,6 +43,20 @@ function Shape(x, y, w, h, fill, obj) {
 Shape.prototype = {
     // Draws this shape to a given context with different stroke and fill
     draw: function(ctx) {
+        if (this.state == "system_inferred") {
+            this.stroke = 'rgba(255,0,0,1)';
+            this.fill = 'rgba(0,255,0,.3)';
+        } else if (this.state == "user_accepted") {
+            this.stroke = 'rgba(255,255,0,0)';
+            this.fill = 'rgba(0,255,255,.3)';
+        } else if (this.state == "user_supplied") {
+            this.stroke = 'rgba(255,255,0,1)';
+            this.fill = 'rgba(0,255,0,.3)';
+        }
+        if (this.display == false) {
+            this.stroke = 'rgba(255,255,0,1)';
+            this.fill = 'rgba(0,255,0,.1)';
+        }
         ctx.strokeStyle = this.stroke;
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.w, this.h);
@@ -49,9 +64,11 @@ Shape.prototype = {
         ctx.fillStyle = this.fill;
         ctx.fill();
     // Text x,y starts from bottom left, whereas rectangle from top left
-        ctx.font = this.font; 
-        ctx.fillStyle = this.fillStyle;
-        ctx.fillText(this.text,this.x,this.y+this.fontPoints+4);
+        if (this.display == true) {
+            ctx.font = this.font; 
+            ctx.fillStyle = this.fillStyle;
+            ctx.fillText(this.text,this.x,this.y+this.fontPoints+4);
+        }
     },
 
     print: function() {
@@ -76,6 +93,20 @@ Shape.prototype = {
         this.fontPoints--;
         this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
         return this.fontPoints;
+    },
+
+    // hide/unhide the shape 
+    toggleDisplay: function() {
+        if (this.display == true) {
+            this.display = false;
+        }else {
+            this.display = true;
+        }
+    },
+
+    // change state of the shape 
+    changeStateTo: function(newState) {
+        this.state = newState;
     },
 
     // Determine if a point is inside the shape's bounds
@@ -353,10 +384,14 @@ function CanvasState(canvasId, dataURL, oid) {
             var leftMove = myState.canvasContainer.scrollLeft;
             var topMove = myState.canvasContainer.scrollTop;
 
+            console.log("1.Scrolling Div To"+ leftMove+" "+ topMove); 
+
             leftMove += (myState.dragForScrollingX - e.pageX);
             if (leftMove < 0 ) {
                 leftMove = 0;
             }
+            console.log("2.Scrolling Div To"+ leftMove+" "+ topMove); 
+
             if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
                 leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
             }
@@ -379,16 +414,12 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.containerScrollTop = topMove;
             console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
 
-//            myState.valid = false; // Something's dragging so we must redraw
+            myState.valid = false; // Something's dragging so we must redraw
         }
     }, true);
 
     canvas.addEventListener('mouseup', function(e) {
         if (!myState.active) { return; }
-        if (myState.selection) {
-            myState.changeInputLocation(myState.selection);
-            myState.valid = false;
-        }
         if (myState.dragForScrolling) {
             var leftMove = myState.canvasContainer.scrollLeft;
             var topMove = myState.canvasContainer.scrollTop;
@@ -418,7 +449,7 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.containerScrollLeft = leftMove;
             myState.containerScrollTop = topMove;
             console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
-//            myState.valid = false; // Something's dragging so we must redraw
+            myState.valid = false; // Something's dragging so we must redraw
         }
         myState.dragging = false; 
         myState.dragForResizing = false; 
@@ -438,47 +469,45 @@ function CanvasState(canvasId, dataURL, oid) {
                                    width, height, 'rgba(0,255,0,.3)'));
     }, true);
 
-    this.altKeyDown = false;
     window.addEventListener('keyup', function(e) {
         if (!myState.active) { return; }
-        var charPressed = e.keyCode;
+        var charPressed = e.which || e.keyCode;
         console.log("You lifted Keycode "+e.keyCode);
-        if (charPressed == 16) {
-            this.shiftKeyDown = false;
-        }
     }, true);
 
     window.addEventListener('keydown', function(e) {
         if (!myState.active) { return; }
-        var charPressed = e.keyCode;
-        console.log("You pressed Keycode "+e.keyCode);
+        var charPressed = e.which || e.keyCode;
+        console.log("You pressed Keycode "+charPressed);
+/*
         if (charPressed == 8) {
             myState.scrollX = Math.round(window.scrollX);
             myState.scrollY = Math.round(window.scrollY);
             myState.valid = false;
         }
-        if (charPressed == 16) {
-            this.shiftKeyDown = true;
-        }
+*/
         // Alt+up/down should hide and unhide the inputText bar
-        if ((charPressed == 40 || charPressed == 38) && this.shiftKeyDown) {
+        if ((charPressed == 40 || charPressed == 38) && e.shiftKey) {
             if (myState.inputText.height() == 1) {
+                if (myState.selection) {
+                    myState.changeInputLocation(myState.selection);
+                }
                 myState.inputText.height(24);
                 myState.inputText.width(90);
             }else {
                 myState.inputText.height(1);
                 myState.inputText.width(1);
             }
-            myState.valid = false; // Something's deleted so we must redraw
+            myState.valid = false; // Something's changed so we must redraw
         }
         if (!myState.selection) {
             return;
         }
-        if (charPressed == 39 && this.shiftKeyDown) {
+        if (charPressed == 39 && e.shiftKey) {
             console.log("You pressed + key");
             myState.selection.increaseFont();
             myState.valid = false; // Something's deleted so we must redraw
-        } else if (charPressed == 37 && this.shiftKeyDown) {
+        } else if (charPressed == 37 && e.shiftKey) {
             console.log("You pressed - key");
             myState.selection.decreaseFont();
             myState.valid = false; // Something's deleted so we must redraw
@@ -489,24 +518,17 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.selection = null;
             myState.selectionIndex = null;
             myState.valid = false; // Something's deleted so we must redraw
+        } else if (charPressed == 65 && e.altKey) {
+            myState.selection.changeStateTo('user_accepted');
+            myState.valid = false; // Something's deleted so we must redraw
+        } else if (charPressed == 72 && e.altKey) {
+            myState.selection.toggleDisplay();
+            myState.valid = false; // Something's deleted so we must redraw
         } else {
             return; 
         }
     }, true);
  
-/*
-  window.addEventListener('mousedown', function(e) {
-    var mouse = myState.getMouse(e);
-    var mx = mouse.x;
-    var my = mouse.y;
-//    console.log("X:"+mx+"Y:"+my+"W: "+this.canvas.width+" H: "+this.canvas.height);
-    if (myState.selection && (mx > this.canvas.width || my > this.canvas.height) ) {
-      myState.selection = null;
-      myState.selectionIndex = null;
-      myState.valid = false; // Need to clear the old selection border
-    }
-  }, true);
-*/
   // **** Options! ****
   
     this.selectionColor = '#CC0000';
@@ -518,10 +540,10 @@ function CanvasState(canvasId, dataURL, oid) {
 CanvasState.prototype.changeInputLocation = function(selectedShape) {
     buffer = 5;
     this.inputText.x(selectedShape.x);
-    if (selectedShape.y < (this.inputText.height() + buffer)) {
+    if (selectedShape.y < (this.INPUT_HEIGHT + buffer)) {
         this.inputText.y(selectedShape.y+selectedShape.h + buffer);
     }else {
-        this.inputText.y(selectedShape.y-(this.inputText.height() + buffer));
+        this.inputText.y(selectedShape.y-(this.INPUT_HEIGHT + buffer));
     }
     console.log("Shape X: "+selectedShape.x+" Y: "+selectedShape.y+" H: "+selectedShape.h+" W: "+selectedShape.w+" Ix: "+this.inputText.x()+" Iy: "+this.inputText.y()+" Ih: "+this.inputText.height()+" Iw: "+this.inputText.width());
 }
@@ -577,15 +599,12 @@ CanvasState.prototype.draw = function() {
 //        console.log("Image: "+imageObj.width+" "+imageObj.height+" Scale: "+this.scale);
         ctx.scale(this.scale,this.scale); 
         ctx.drawImage(imageObj,0,0);
+
         if (this.selection != null) {
-            this.inputText.width(Math.round(this.INPUT_WIDTH / this.scale));
-            this.inputText.height(Math.round(this.INPUT_HEIGHT / this.scale));
             this.inputText.render();
             this.inputText.focus();
-        } else {
-            this.inputText.width(1);
-            this.inputText.height(1);
-        }
+        } 
+
         // draw all shapes
         var l = shapes.length;
 //        console.log("Shapes Length: "+l);
@@ -608,7 +627,7 @@ CanvasState.prototype.draw = function() {
             ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
         }
 //        console.log("Scrolling To"+ this.scrollX+" "+ this.scrollY); 
-        window.scrollTo(this.scrollX, this.scrollY); 
+//        window.scrollTo(this.scrollX, this.scrollY); 
     
         // ** Add stuff you want drawn on top all the time here **
     

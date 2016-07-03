@@ -30,23 +30,26 @@
 }
 </style>
 
+    <input id="curpage" type="hidden">
+
 <script type="text/javascript">
     var bpath = '{{ bookpath }}';
+    var curpage = 1;
     {% if curpageidx %}
     var curpage = {{ curpageidx }};
     {% else %}
     var curpage = 1;
     {% endif %}
+    $('#curpage').val(curpage);
 </script>
 
+    <input id="bookdetails" type="hidden">
 
     <!--button type="button" class="btn btn-info btn-sm" onclick="saveData()">Save</button>
     <button type="button" class="btn btn-info btn-sm" onclick="zoomIn()">ZoomIn</button>
     <button type="button" class="btn btn-info btn-sm" onclick="zoomOut()">ZoomOut</button>
     <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
     <span id='scale'> </span--> 
-    <input id="bookdetails" type="hidden">
-    <input id="curpage" type="hidden">
 
 <div class="navbar navbar-default">
   <div class="container-fluid">
@@ -117,10 +120,10 @@
                 <div id='container' class="item active" style="overflow:auto; height:100vh">
                 <canvas id="pageCanvas"> </canvas>
                 </div>
-            <a class="left carousel-control" onclick="slideTo('prev')">
+            <a id="prevPage" class="left carousel-control" onclick="slideTo('prev')">
                 <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
-            <a class="right carousel-control" onclick="slideTo('next')">
+            <a id="nextPage" class="right carousel-control" onclick="slideTo('next')">
                 <span class="glyphicon glyphicon-chevron-right"></span>
             </a>
             </div>
@@ -145,9 +148,11 @@ window.cState = undefined;
 var curpage_annotations = {};
 var curpage_sections = {};
 getbook(true, bpath);
+console.log("Get Book Returned");
 
 pramukhIME.addLanguage(PramukhIndic,"sanskrit");
 pramukhIME.enable();
+
 
 function saveData() {
     window.cState.saveShapes();
@@ -173,6 +178,7 @@ function loadpage(reparse = false) {
         return;
     console.log("Loading page " + curpage);
     var details = $('#bookdetails').val();
+    console.log("Details: " + details);
     var bookdetails = JSON.parse(details);
     console.log("Book Details: " + JSON.stringify(bookdetails));
     var pagedetails = bookdetails['result']['pages'][curpage];
@@ -250,18 +256,11 @@ function slideTo(where) {
             setcurpage(oid, attrDisplay);
             loadpage();
         });
-/*
-        $('.thumb img').click(function () {
-            console.log("Click called on "+$(this).attr("oid")+"at ID: "+$(this).attr("data-slide-to"));
-            setcurpage($(this).attr("data-slide-to"), $(this).attr("attr-display"));
-            loadpage();
-//            cState = init('pageCanvas',$(this).attr("attr-display"), oldShapes, $(this).attr("oid"));
-//            $('#DataDisplay').attr("src", $(this).attr("attr-display"));
-        });
-*/
+
         $('#curpage').change(function() {
 //            loadpage();
         });
+
     });
 
     document.onkeydown = function (e) {
@@ -287,6 +286,7 @@ function slideTo(where) {
             }
         }
     };
+
 
 </script>
 
