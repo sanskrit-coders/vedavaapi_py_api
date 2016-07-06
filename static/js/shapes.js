@@ -338,11 +338,13 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.valid = false; // Need to clear the old selection border
         }
         if (!myState.dragForResizing && !myState.dragging) {
-            myState.dragForScrolling = true;
             myState.scrollX = Math.round(window.scrollX);
             myState.scrollY = Math.round(window.scrollY);
+/**
+            myState.dragForScrolling = true;
             myState.dragForScrollingX = e.pageX;
             myState.dragForScrollingY = e.pageY;
+*/
             myState.valid = false; // Need to move the canvas 
         }
     }, true);
@@ -380,6 +382,7 @@ function CanvasState(canvasId, dataURL, oid) {
                 this.style.cursor = 'auto';
             }
         } else if (myState.dragForScrolling) {
+/*
             this.style.cursor = 'all-scroll';
             var leftMove = myState.canvasContainer.scrollLeft;
             var topMove = myState.canvasContainer.scrollTop;
@@ -415,12 +418,14 @@ function CanvasState(canvasId, dataURL, oid) {
             console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
 
             myState.valid = false; // Something's dragging so we must redraw
+*/
         }
     }, true);
 
     canvas.addEventListener('mouseup', function(e) {
         if (!myState.active) { return; }
         if (myState.dragForScrolling) {
+/*
             var leftMove = myState.canvasContainer.scrollLeft;
             var topMove = myState.canvasContainer.scrollTop;
 
@@ -450,10 +455,11 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.containerScrollTop = topMove;
             console.log("Scrolling Div To"+ leftMove+" "+ topMove); 
             myState.valid = false; // Something's dragging so we must redraw
+*/
         }
         myState.dragging = false; 
         myState.dragForResizing = false; 
-        myState.dragForScrolling = false; 
+//        myState.dragForScrolling = false; 
         this.style.cursor = 'auto';
     }, true);
 
@@ -469,16 +475,10 @@ function CanvasState(canvasId, dataURL, oid) {
                                    width, height, 'rgba(0,255,0,.3)'));
     }, true);
 
-    window.addEventListener('keyup', function(e) {
-        if (!myState.active) { return; }
-        var charPressed = e.which || e.keyCode;
-        console.log("You lifted Keycode "+e.keyCode);
-    }, true);
-
     window.addEventListener('keydown', function(e) {
         if (!myState.active) { return; }
         var charPressed = e.which || e.keyCode;
-        console.log("You pressed Keycode "+charPressed);
+        console.log("You pressed Key "+charPressed);
 /*
         if (charPressed == 8) {
             myState.scrollX = Math.round(window.scrollX);
@@ -518,12 +518,16 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.selection = null;
             myState.selectionIndex = null;
             myState.valid = false; // Something's deleted so we must redraw
-        } else if (charPressed == 65 && e.altKey) {
+        } else if (charPressed == 65 && e.ctrlKey && e.shiftKey) {
             myState.selection.changeStateTo('user_accepted');
             myState.valid = false; // Something's deleted so we must redraw
-        } else if (charPressed == 72 && e.altKey) {
+            e.preventDefault();
+            e.stopPropagation();
+        } else if (charPressed == 72 && e.ctrlKey && e.shiftKey) {
             myState.selection.toggleDisplay();
             myState.valid = false; // Something's deleted so we must redraw
+            e.preventDefault();
+            e.stopPropagation();
         } else {
             return; 
         }
@@ -723,6 +727,13 @@ CanvasState.prototype.zoomOut = function() {
     } else {
         alert("Cannot scale below 10%")
     }
+}
+
+// Shrink the canvas dimensions by 10% fixed value, later that 
+// can be made configurable
+CanvasState.prototype.accept = function() {
+    this.selection.changeStateTo('user_accepted');
+    this.valid = false;
 }
 
 // Shrink the canvas dimensions by 10% fixed value, later that 

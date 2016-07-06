@@ -17,18 +17,38 @@
 }
 
 .carousel-control {
-	left: -8px;
-    width: 4%;
+	left: -15px;
+    width: 1%;
 }
 .carousel-control.right {
-	right: -8px;
-    width: 4%;
+	right: -15px;
+    width: 1%;
 }
 
+@media (min-width:1200px) {
+    .container {
+        width: 100% !important;
+    }
+
+    body {
+      padding:0;
+    }
+
+    .navbar-fixed-top, .navbar-fixed-bottom, .navbar-static-top {
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom:0;
+    }
+}
+
+/*
 ::-webkit-scrollbar { 
     display: none; 
 }
+*/
 </style>
+
+<div id=content>
 
     <input id="curpage" type="hidden">
 
@@ -45,10 +65,7 @@
 
     <input id="bookdetails" type="hidden">
 
-    <!--button type="button" class="btn btn-info btn-sm" onclick="saveData()">Save</button>
-    <button type="button" class="btn btn-info btn-sm" onclick="zoomIn()">ZoomIn</button>
-    <button type="button" class="btn btn-info btn-sm" onclick="zoomOut()">ZoomOut</button>
-    <button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
+    <!-- button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
     <span id='scale'> </span--> 
 
 <div class="navbar navbar-default">
@@ -112,9 +129,16 @@
   </div> <!-- row -->
 </div> <!-- container -->
 
-<div class="container">
+<div class="container" style="width=100%;">
     <div class="row">
-    <div class="col-sm-12">
+    <div class="col-sm-1 col-xs-1">
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="saveData()">Save</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="reparse_page()">Parse</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="accept()">Accept</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomIn()">ZoomIn</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomOut()">ZoomOut</button>
+    </div>
+    <div class="col-sm-11 col-xs-11">
         <div id="carousel" class="carousel slide" data-ride="carousel">
             <div class="canvas-outer">
                 <div id='container' class="item active" style="overflow:auto; height:100vh">
@@ -131,6 +155,9 @@
     </div> <!-- /col-sm-12 -->
     </div><!-- /row -->
 </div> <!-- /container -->
+
+
+</div> <!-- content -->
 
 <script type="text/javascript" src="{{ url_for('static', filename='js/shapes.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/pramukhime.js') }}"></script>
@@ -156,6 +183,10 @@ pramukhIME.enable();
 
 function saveData() {
     window.cState.saveShapes();
+}
+
+function accept() {
+    window.cState.accept();
 }
 
 function zoomIn() {
@@ -263,22 +294,28 @@ function slideTo(where) {
 
     });
 
-    document.onkeydown = function (e) {
-        e = e || window.event;//Get event
-        if (e.ctrlKey) {
+    document.onkeypress = function (e) {
+//        e = e || window.event;//Get event
+        if (e.ctrlKey && e.shiftKey) {
             var c = e.which || e.keyCode;//Get key code
+            console.log("You pressed Ctrl+Shift+"+c);
             switch (c) {
-                case 83://Block Ctrl+'S'
+                case 80://Block Ctrl+Shift+'S'
+                    reparse_page();
+                    e.preventDefault();     
+                    e.stopPropagation();
+                    break;
+                case 83://Block Ctrl+Shift+'S'
                     saveData();
                     e.preventDefault();     
                     e.stopPropagation();
                     break;
-                case 187://Block Ctrl+'+'
+                case 187://Block Ctrl+Shift+'+'
                     zoomIn();
                     e.preventDefault();     
                     e.stopPropagation();
                     break;
-                case 189://Block Ctrl+'-'
+                case 189://Block Ctrl+Shift+'-'
                     zoomOut();
                     e.preventDefault();     
                     e.stopPropagation();
