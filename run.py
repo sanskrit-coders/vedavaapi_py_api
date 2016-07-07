@@ -13,7 +13,7 @@ from werkzeug import secure_filename
 import subprocess
 #from flask.ext.cors import CORS
 from config import *
-from bookManager import *
+from indicdocs import *
 
 #from file import file_api
 from books import books_api

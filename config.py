@@ -18,8 +18,18 @@ DATADIR_BOOKS = join(DATADIR, "books")
 MYPATH = ""
 LOG_LEVEL = 1
 
+SERVER_CONFIG = {}
+
+class DotDict(dict):
+    def __getattr__(self, name):
+        return self[name]
+
 def mypath():
 	return MYPATH
+
+def serverconfig():
+    global SERVER_CONFIG
+    return SERVER_CONFIG
 
 def setmypath(path):
 	global MYPATH
@@ -100,11 +110,20 @@ def initworkdir(reset):
     createdir(pubroot())
 #    createdir(workdir() + "/users")
     createdir(DATADIR_SETTINGS)
-    if not os.path.exists(join(DATADIR_SETTINGS, "indicsearch_parms.json")):
-        if os.path.exists(cmdpath("indicsearch_parms.json")):
-            print "Importing derived metric definitions from", cmdpath("indicsearch_parms.json")
-            os.system("cp -a " + cmdpath("indicsearch_parms.json") + " " + \
-                    join(DATADIR_SETTINGS, "indicsearch_parms.json"))
+    cfgfile = join(DATADIR_SETTINGS, "server_config.json")
+    if reset:
+        print "Resetting server configuration to defaults"
+        os.system("rm -f " + cfgfile)
+    if not os.path.exists(cfgfile):
+        if os.path.exists(cmdpath("server_config.json")):
+            print "Importing derived metric definitions from", cmdpath("server_config.json")
+            os.system("cp -a " + cmdpath("server_config.json") + " " + cfgfile)
+    print "Loading server configuration from ", cfgfile
+    with open(cfgfile, "r") as f:
+        global SERVER_CONFIG
+        SERVER_CONFIG = json.load(f)
+    print "Configuration Settings: "
+    print json.dumps(SERVER_CONFIG, indent=4)
     print "done."
 
 def addrepo(d, reponame):

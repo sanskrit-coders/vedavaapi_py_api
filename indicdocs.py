@@ -15,13 +15,9 @@ from operator import itemgetter, attrgetter, methodcaller
 #from gridfs import GridFS
 #from gridfs.errors import NoFile
 
-class DotDict(dict):
-    def __getattr__(self, name):
-        return self[name]
-
 class Books:
     def __init__(self, indicdocs):
-        print "Initializing books collection ..."
+        #print "Initializing books collection ..."
         self.indicdocs = indicdocs
         self.books = indicdocs.db['books']
 
@@ -43,12 +39,14 @@ class Books:
 
     def get(self, path):
         book = self.books.find_one({'path' : path})
-        book['_id'] = str(book['_id'])
+        if book is not None:
+            book['_id'] = str(book['_id'])
         return book
 
     def importOne(self, book):
         pgidx = 0
         bpath = book['path']
+            
         for page in book['pages']:
             try:
                 anno_id = self.indicdocs.annotations.insert( \
@@ -90,20 +88,12 @@ class Books:
                     book = json.load(fhandle)
                     #print json.dumps(book, indent=4)
                     book["path"] = bpath
-                    self.importOne(book)
-                    nbooks = nbooks + 1
+                    if self.get(bpath) is None:
+                        self.importOne(book)
+                        nbooks = nbooks + 1
             except Exception as e:
                 print "Skipped book " + f + ". Error:", e
         return nbooks
-
-class Segment:
-    def __init__(self, x, y, w, h):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-    def __repr__(self):
-        return repr((self.x, self.y, self.w, self.h))
 
 class Annotations:
     def __init__(self, indicdocs):
@@ -137,37 +127,43 @@ class Annotations:
 
         page = book['pages'][anno_obj['pgidx']]
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
-
+        print "Image path = ", imgpath
         page_img = DocImage(imgpath)
 
-        new_anno = []
-        new_anno.extend(anno_obj['anno'])
-
-        # Don't auto-parse user-identified segments
-        excl_segments = DisjointSegments()
+        known_segments = DisjointSegments()
+        srch_segments = []
         for a in anno_obj['anno']:
-            a = DotDict(a)
-            if a.state != 'system_inferred':
-                excl_segments.insert(a)
-
-        # For each user-supplied annotation,
-        for a in anno_obj['anno']:
-            a = DotDict(a)
+            a = ImgSegment(a)
             if a.state == 'system_inferred':
                 continue
+            a['score'] = float(1.0) # Set the max score for user-identified segments
+            # Prevent image matcher from changing user-identified segments
+            known_segments.insert(a) 
+            srch_segments.append(a)
+
+        cfg = serverconfig()
+        thres = cfg['template_match']['threshold']
+
+        print "segments to propagate = " + json.dumps(srch_segments)
+        print "Known segments = " + json.dumps(known_segments.segments)
+        # For each user-supplied annotation,
+        for a in srch_segments:
             # Search for similar image segments within page
-            matches = page_img.find_recurrence(a, 0.6, excl_segments)
+            # make sure they are spatially disjoint
+            matches = page_img.find_recurrence(a, thres, known_segments)
             #print "Matches = " + json.dumps(matches)
             for r in matches:
                 # and propagate its text to them
                 r['state'] = 'system_inferred'
                 r['text'] = a.text
-            new_anno.extend(matches)
-        #print json.dumps(new_anno)
-        #new_anno = sorted(DotDict(new_anno), key=attrgetter('x', 'y', 'w', 'h'))
 
+        known_segments.segments.sort()
+        #for r in known_segments.segments:
+        #   print str(r)
+        #print(known_segments.segments)
+        #new_anno = sorted(DotDict(new_anno), key=attrgetter('x', 'y', 'w', 'h'))
         # Save the updated annotations
-        self.update(anno_id, { 'anno' : new_anno })
+        self.update(anno_id, { 'anno' : known_segments.segments })
         return True
 
 class Sections:
@@ -244,7 +240,46 @@ Mydocs = None
 def initdb(dbname, reset=False):
     global Mydocs
     Mydocs = IndicDocs(dbname)
-    Mydocs.reset()
+    if reset:
+        Mydocs.reset()
 
 def getdb():
     return Mydocs
+
+def main(args):
+    setworkdir(workdir())
+    initworkdir(False)
+    setwlocaldir(DATADIR_BOOKS)
+    initdb(INDICDOC_DBNAME, False)
+
+    anno_id = args[0]
+    getdb().annotations.propagate(anno_id)
+
+    # Get the annotations from anno_id
+    anno_obj = getdb().annotations.get(anno_id)
+    if not anno_obj:
+        return False
+
+    # Get the containing book
+    book = getdb().books.get(anno_obj['bpath'])
+    if not book:
+        return False
+
+    page = book['pages'][anno_obj['pgidx']]
+    imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+    img = DocImage(imgpath)
+
+    #print json.dumps(matches)
+    rects = anno_obj['anno']
+    seeds = [r for r in rects if r['state'] != 'system_inferred']
+    img.annotate(rects)
+    img.annotate(seeds, (0,255,0))
+    cv2.namedWindow('Annotated image', cv2.WINDOW_NORMAL)
+    cv2.imshow('Annotated image', img.img_rgb)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -15,7 +15,7 @@ import subprocess
 import csv
 import string
 from collections import OrderedDict
-from bookManager import *
+from indicdocs import *
 import traceback
 app = Flask(__name__)
 from pprint import pprint
@@ -82,8 +82,8 @@ def getbooksingle():
 def pageanno(anno_id):
     if request.method == 'GET':
         """return the page annotation with id = anno_id"""
-        reparse = request.args.get('reparse')
-        if (reparse):
+        reparse = json.loads(request.args.get('reparse'))
+        if reparse:
             getdb().annotations.propagate(anno_id)
         anno = getdb().annotations.get(anno_id)
         return myresult(anno)
