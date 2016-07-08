@@ -41,7 +41,21 @@
     }
 }
 
+input[type=radio] { 
+
+transform: scale(0.5); 
+-moz-transform: scale(0.5); 
+-ms-transform: scale(0.5); 
+-webkit-transform: scale(0.5); 
+-o-transform: scale(0.5); 
+}
+
 /*
+input[type=radio] {
+    border: 0px;
+    width: 100%;
+}
+
 ::-webkit-scrollbar { 
     display: none; 
 }
@@ -52,7 +66,7 @@
 
     <input id="curpage" type="hidden">
 
-<script type="text/javascript">
+    <script type="text/javascript">
     var bpath = '{{ bookpath }}';
     var curpage = 1;
     {% if curpageidx %}
@@ -61,7 +75,7 @@
     var curpage = 1;
     {% endif %}
     $('#curpage').val(curpage);
-</script>
+    </script>
 
     <input id="bookdetails" type="hidden">
 
@@ -137,6 +151,14 @@
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="accept()">Accept</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomIn()">ZoomIn</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomOut()">ZoomOut</button>
+
+        <div class="btn-group-vertical btn-block">
+            <button type="button" id="modeButton" flag="N" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown"> Mode <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a onclick="changeMode('Edit')">Edit</a></li>
+                <li><a onclick="changeMode('Review')">Review</a></li>
+            </ul>
+        </div>
     </div>
     <div class="col-sm-11 col-xs-11">
         <div id="carousel" class="carousel slide" data-ride="carousel">
@@ -180,6 +202,17 @@ console.log("Get Book Returned");
 pramukhIME.addLanguage(PramukhIndic,"sanskrit");
 pramukhIME.enable();
 
+function changeMode(mode='Edit') {
+    document.getElementById("modeButton").innerHTML = '<b><u>'+mode+' </u></b><span class="caret"></span>';
+    if (mode == 'Edit') {
+        document.getElementById("modeButton").flag = "E";
+    } else if (mode == 'Review') {
+        document.getElementById("modeButton").flag = "R";
+    } else {
+        document.getElementById("modeButton").flag = "N";
+    }
+	window.cState.changeMode(document.getElementById("modeButton").flag);
+}
 
 function saveData() {
     window.cState.saveShapes();

@@ -216,8 +216,8 @@ function CanvasState(canvasId, dataURL, oid) {
     canvas = document.getElementById(canvasId);
     this.inputText = new CanvasInput({
         canvas: document.getElementById(canvasId),
-        width: 1,
-        height: 1,
+        width: 90,
+        height: 24,
         padding: 0,
         borderWidth: 0,
         borderRadius: 0,
@@ -256,7 +256,8 @@ function CanvasState(canvasId, dataURL, oid) {
     this.htmlLeft = html.offsetLeft;
 
     // **** Keep track of state! ****
- 
+
+    this.mode = "E"; // Initializing with "E" edit mode. ("E"|"R"|"N") 
     this.scale = 1; // Initialize with scale as 1 (range is 0.1 - 1.0) 
     this.scrollX = 0;
     this.scrollY = 0;
@@ -323,6 +324,9 @@ function CanvasState(canvasId, dataURL, oid) {
                 }
                 myState.scrollX = Math.round(window.scrollX);
                 myState.scrollY = Math.round(window.scrollY);
+
+                myState.changeInputLocation(myState.selection);
+
                 myState.valid = false;
                 return;
             }
@@ -457,6 +461,10 @@ function CanvasState(canvasId, dataURL, oid) {
             myState.valid = false; // Something's dragging so we must redraw
 */
         }
+        if (myState.selection) {
+            myState.changeInputLocation(myState.selection);
+        }
+        myState.valid = false;
         myState.dragging = false; 
         myState.dragForResizing = false; 
 //        myState.dragForScrolling = false; 
@@ -488,6 +496,7 @@ function CanvasState(canvasId, dataURL, oid) {
 */
         // Alt+up/down should hide and unhide the inputText bar
         if ((charPressed == 40 || charPressed == 38) && e.shiftKey) {
+            if (myState.mode == "R") { return; } //No action taken
             if (myState.inputText.height() == 1) {
                 if (myState.selection) {
                     myState.changeInputLocation(myState.selection);
@@ -700,6 +709,7 @@ function init(canvas,dataURL, oldShapes, oid) {
 //    oldShapes = eval('(' + oldShapes + ')');
     console.log(oldShapes);
     if (oldShapes == null) { return s; }
+    s.shapes = []; // initialize the shapes as we are getting all info together
     console.log(oldShapes.length);
     for (var i = 0; i < oldShapes.length; i++) {
         oldShape = oldShapes[i];
@@ -727,6 +737,19 @@ CanvasState.prototype.zoomOut = function() {
     } else {
         alert("Cannot scale below 10%")
     }
+}
+
+// Currently there are 2 modes supported "E" edit mode and "R" review mode
+CanvasState.prototype.changeMode = function(flag) {
+    this.mode = flag;
+    if (this.mode == "E") {
+        this.inputText.height(24);
+        this.inputText.width(90);
+    }else if (this.mode == "R") {
+        this.inputText.height(1);
+        this.inputText.width(1);
+    }
+    this.valid = false; // Something's changed so we must redraw
 }
 
 // Shrink the canvas dimensions by 10% fixed value, later that 
