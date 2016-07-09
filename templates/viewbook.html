@@ -51,11 +51,6 @@ transform: scale(0.5);
 }
 
 /*
-input[type=radio] {
-    border: 0px;
-    width: 100%;
-}
-
 ::-webkit-scrollbar { 
     display: none; 
 }
@@ -67,20 +62,19 @@ input[type=radio] {
     <input id="curpage" type="hidden">
 
     <script type="text/javascript">
-    var bpath = '{{ bookpath }}';
-    var curpage = 1;
-    {% if curpageidx %}
-    var curpage = {{ curpageidx }};
-    {% else %}
-    var curpage = 1;
-    {% endif %}
-    $('#curpage').val(curpage);
+        var bpath = '{{ bookpath }}';
+        var curpage = 1;
+        {% if curpageidx %}
+            curpage = {{ curpageidx }};
+        {% else %}
+            curpage = 1;
+        {% endif %}
+        $('#curpage').val(curpage);
     </script>
 
     <input id="bookdetails" type="hidden">
 
-    <!-- button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button>
-    <span id='scale'> </span--> 
+    <!-- button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button-->
 
 <div class="navbar navbar-default">
   <div class="container-fluid">

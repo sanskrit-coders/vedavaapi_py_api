@@ -29,7 +29,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.fillStyle = 'black';
     this.text = '';
     this.state = 'user_supplied';
-    this.display = true;
+    this.displayTextAbove = false;
     // Handle Object
     if (obj instanceof Object) {
         for (var attr in obj) {
@@ -53,7 +53,7 @@ Shape.prototype = {
             this.stroke = 'rgba(255,255,0,1)';
             this.fill = 'rgba(0,255,0,.3)';
         }
-        if (this.display == false) {
+        if (this.displayTextAbove == true) {
             this.stroke = 'rgba(255,255,0,1)';
             this.fill = 'rgba(0,255,0,.1)';
         }
@@ -64,11 +64,13 @@ Shape.prototype = {
         ctx.fillStyle = this.fill;
         ctx.fill();
     // Text x,y starts from bottom left, whereas rectangle from top left
-        if (this.display == true) {
-            ctx.font = this.font; 
-            ctx.fillStyle = this.fillStyle;
+        ctx.font = this.font; 
+        ctx.fillStyle = this.fillStyle;
+        if (this.displayTextAbove == true) {
+            ctx.fillText(this.text,this.x,this.y);
+        }else {
             ctx.fillText(this.text,this.x,this.y+this.fontPoints+4);
-        }
+    	}
     },
 
     print: function() {
@@ -95,13 +97,18 @@ Shape.prototype = {
         return this.fontPoints;
     },
 
-    // hide/unhide the shape 
-    toggleDisplay: function() {
-        if (this.display == true) {
-            this.display = false;
+    // text display above for review 
+    toggleDisplayText: function() {
+        if (this.displayTextAbove == true) {
+            this.displayTextAbove = false;
         }else {
-            this.display = true;
+            this.displayTextAbove = true;
         }
+    },
+
+    // text display should reset to the box 
+    resetDisplayText: function() {
+        this.displayTextAbove = false;
     },
 
     // change state of the shape 
@@ -222,14 +229,14 @@ function CanvasState(canvasId, dataURL, oid) {
         borderWidth: 0,
         borderRadius: 0,
         onsubmit: function() {
-                if (myState.selection) {
-                    myState.selection.text = myState.inputText.value(); 
-                    myState.valid = false;  
-                    myState.inputText.value('');
-                } else {
-                    alert("First select the area");
-                }
-            },
+            if (myState.selection) {
+                myState.selection.text = myState.inputText.value(); 
+                myState.valid = false;  
+                myState.inputText.value('');
+            } else {
+                alert("First select the area");
+            }
+        },
     }); 
     this.canvas = canvas;
     this.canvasContainer = canvas.parentElement;
@@ -295,6 +302,7 @@ function CanvasState(canvasId, dataURL, oid) {
     // canvas
     canvas.addEventListener('selectstart', function(e) { e.preventDefault(); 
         return false; }, false);
+
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function(e) {
         if (!myState.active) { return; }
@@ -308,8 +316,17 @@ function CanvasState(canvasId, dataURL, oid) {
                 var mySel; 
                 if (myState.selection && myState.selection.contains(mx,my)) {
                     mySel = shapes[myState.selectionIndex];
-                } else {
+                    if (myState.mode == "R") {
+                        if (mySel.state != "user_accepted" ) { mySel.toggleDisplayText(); }
+                    }
+                } else { // Selection of differnt rectangle
                     mySel = shapes[i];
+                    if (myState.mode == "R") {
+                        if (myState.selection) {
+                            myState.selection.resetDisplayText();
+                        }
+                        if (mySel.state != "user_accepted" ) { mySel.toggleDisplayText(); }
+                    }
                     myState.selection = mySel;
                     myState.selectionIndex = i;
                 }
@@ -324,8 +341,10 @@ function CanvasState(canvasId, dataURL, oid) {
                 }
                 myState.scrollX = Math.round(window.scrollX);
                 myState.scrollY = Math.round(window.scrollY);
-
-                myState.changeInputLocation(myState.selection);
+                
+                if (myState.mode == "E") {
+                    myState.changeInputLocation(myState.selection);
+                } 
 
                 myState.valid = false;
                 return;
@@ -335,6 +354,9 @@ function CanvasState(canvasId, dataURL, oid) {
         // If there was an object selected, we deselect it
         if (myState.selection && (!myState.inputTextContains(mx,my))) {
             console.log("Deselecting - MX: "+mx+" MY: "+my);
+            if (myState.mode == "R") {
+                myState.selection.resetDisplayText();
+            }
             myState.selection = null;
             myState.selectionIndex = null;
             myState.scrollX = Math.round(window.scrollX);
@@ -484,9 +506,113 @@ function CanvasState(canvasId, dataURL, oid) {
     }, true);
 
     window.addEventListener('keydown', function(e) {
-        if (!myState.active) { return; }
+        if (!myState.active) { return false; }
         var charPressed = e.which || e.keyCode;
-        console.log("You pressed Key "+charPressed);
+//        console.log("You pressed Key "+charPressed);
+        if (charPressed == 9) {
+            if (myState.mode == "R") {
+                if (myState.selection) {
+                    myState.selection.resetDisplayText();
+                } else {
+                    console.log("No selection done ");
+                    return false;
+                }
+                var prevSelection = myState.selection;
+                if (e.shiftKey) {
+                    if (myState.selectionIndex == 0) {
+                        myState.selectionIndex = myState.shapes.length - 1;
+                    } else {
+                        myState.selectionIndex--;
+                    }
+                } else {
+                    if (myState.selectionIndex == (myState.shapes.length -1)) {
+                        myState.selectionIndex = 0;
+                    } else {
+                        myState.selectionIndex++;
+                    }
+                }
+                var newSelection = myState.shapes[myState.selectionIndex];
+                myState.selection = newSelection;
+                if (myState.selection.state != "user_accepted" ) { myState.selection.toggleDisplayText(); }
+
+                myState.scrollX = Math.round(window.scrollX);
+                myState.scrollY = Math.round(window.scrollY);
+//                console.log("ScrollX = "+myState.scrollX+" ScrollY = "+myState.scrollY);
+
+                var scrollLeft = myState.canvasContainer.scrollLeft; 
+                var scrollTop = myState.canvasContainer.scrollTop; 
+                var scrollWidth = myState.canvasContainer.scrollWidth;
+                var scrollHeight = myState.canvasContainer.scrollHeight;
+                var clientWidth = myState.canvasContainer.clientWidth;
+                var clientHeight = myState.canvasContainer.clientHeight;
+                var horizontalMove = 0;
+                var verticalMove = 0;
+//                console.log("ScrollHeight = "+scrollHeight+" clientHeight "+clientHeight);
+//                console.log("ScrollWidth = "+scrollWidth+" clientWidth "+clientWidth);
+
+                var hDistance = Math.abs(newSelection.x - prevSelection.x);
+//                console.log("H-Distance = "+hDistance);
+                //Check if the new selection is on right or left of viewport
+                if (newSelection.x > (scrollLeft + clientWidth)) {
+                    if (hDistance < (clientWidth/4)) { 
+                        horizontalMove = Math.min(clientWidth/4, 
+                                (scrollWidth - (scrollLeft + clientWidth)));
+                    } else if (hDistance > (clientWidth/2)) {
+                        horizontalMove = Math.min((hDistance+clientWidth/4), 
+                                (scrollWidth - (scrollLeft + clientWidth)));
+                    } else {
+                        horizontalMove = Math.min(clientWidth/2, 
+                                (scrollWidth - (scrollLeft + clientWidth)));
+                    }
+                } else if (newSelection.x < scrollLeft) {
+                    if (hDistance < (clientWidth/4)) { 
+                        horizontalMove = -(Math.min(clientWidth/4, scrollLeft));
+                    } else if (hDistance > (clientWidth/2)) {
+                        horizontalMove = -(Math.min((hDistance+clientWidth/4), 
+                                scrollLeft));
+                    } else {
+                        horizontalMove = -(Math.min(clientWidth/2, scrollLeft));
+                    }
+                }
+                horizontalMove = Math.round(horizontalMove);
+
+                var vDistance = Math.abs(newSelection.y - prevSelection.y);
+//                console.log("V-Distance = "+vDistance);
+                //Check if the new selection is on top or bottom of viewport
+                if (newSelection.y > (scrollTop + clientHeight)) {
+                    if (vDistance < (clientHeight/4)){ 
+                        verticalMove = Math.min(clientHeight/4, 
+                                (scrollHeight - (scrollTop + clientHeight)));
+                    } else if (vDistance > (clientHeight/2)) {
+                        verticalMove = Math.min((vDistance+clientHeight/4), 
+                                (scrollHeight - (scrollTop + clientHeight)));
+                    } else {
+                        verticalMove = Math.min(clientHeight/2, 
+                                (scrollHeight - (scrollTop + clientHeight)));
+                    }
+                } else if (newSelection.y < scrollTop) {
+                    if (vDistance < (clientHeight/4)){ 
+                        verticalMove = -(Math.min(clientHeight/4, scrollTop));
+                    } else if (vDistance > (clientHeight/2)) {
+                        verticalMove = -(Math.min((vDistance+clientHeight/4), 
+                                scrollTop));
+                    } else {
+                        verticalMove = -(Math.min(clientHeight/2, scrollTop));
+                    }
+                }
+                verticalMove = Math.round(verticalMove);
+
+//                console.log("Current Scroll by X: "+scrollLeft+" Y: "+scrollTop);
+//                console.log("Scrolling by X: "+horizontalMove+" Y: "+verticalMove);
+                myState.canvasContainer.scrollLeft =  scrollLeft + horizontalMove ; 
+                myState.canvasContainer.scrollTop =  scrollTop + verticalMove ; 
+                myState.valid = false;
+                // For logging purpose only
+//                scrollLeft = myState.canvasContainer.scrollLeft; 
+//                scrollTop = myState.canvasContainer.scrollTop; 
+//                console.log("New Scroll by X: "+scrollLeft+" Y: "+scrollTop);
+            }
+        }
 /*
         if (charPressed == 8) {
             myState.scrollX = Math.round(window.scrollX);
@@ -513,27 +639,30 @@ function CanvasState(canvasId, dataURL, oid) {
             return;
         }
         if (charPressed == 39 && e.shiftKey) {
-            console.log("You pressed + key");
+//            console.log("You pressed + key");
             myState.selection.increaseFont();
             myState.valid = false; // Something's deleted so we must redraw
         } else if (charPressed == 37 && e.shiftKey) {
-            console.log("You pressed - key");
+//            console.log("You pressed - key");
             myState.selection.decreaseFont();
             myState.valid = false; // Something's deleted so we must redraw
         }else if (charPressed == 46) { // Del key triggered
-            console.log("You pressed del key");
+//            console.log("You pressed del key");
             //removing the shape from the array
             myState.shapes.splice(myState.selectionIndex,1);
             myState.selection = null;
             myState.selectionIndex = null;
             myState.valid = false; // Something's deleted so we must redraw
-        } else if (charPressed == 65 && e.ctrlKey && e.shiftKey) {
-            myState.selection.changeStateTo('user_accepted');
-            myState.valid = false; // Something's deleted so we must redraw
-            e.preventDefault();
-            e.stopPropagation();
+        } else if (charPressed == 65) {
+            if (myState.mode == "R") {
+                myState.selection.changeStateTo('user_accepted');
+                myState.selection.resetDisplayText();
+                myState.valid = false; // Something's deleted so we must redraw
+                e.preventDefault();
+                e.stopPropagation();
+            }
         } else if (charPressed == 72 && e.ctrlKey && e.shiftKey) {
-            myState.selection.toggleDisplay();
+            if (myState.selection.state != "user_accepted" ) { myState.selection.toggleDisplayText(); }
             myState.valid = false; // Something's deleted so we must redraw
             e.preventDefault();
             e.stopPropagation();
@@ -572,7 +701,21 @@ CanvasState.prototype.inputTextContains = function(mx, my) {
 }
 
 CanvasState.prototype.addShape = function(shape) {
-    this.shapes.push(shape);
+    var length = this.shapes.length;
+    // traversing from the back of the list. Bottom right to top left 
+    for (i=length-1; i>=0; i--) {
+        var lastShape = this.shapes[i];
+        if (lastShape.x < shape.x && (Math.abs(lastShape.y - shape.y) < (lastShape.h/2))) { // Right side on the same row
+            this.shapes.splice(i+1,0,shape);
+            break;
+        } else if ((shape.y - lastShape.y) > (lastShape.h/2)) { // Next row case
+            this.shapes.splice(i+1,0,shape);
+            break;
+        }
+    }
+    if (length == 0) {
+        this.shapes.push(shape);
+    }
     shape.print();
     this.valid = false;
 }
@@ -640,7 +783,7 @@ CanvasState.prototype.draw = function() {
             ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
         }
 //        console.log("Scrolling To"+ this.scrollX+" "+ this.scrollY); 
-//        window.scrollTo(this.scrollX, this.scrollY); 
+        window.scrollTo(this.scrollX, this.scrollY); 
     
         // ** Add stuff you want drawn on top all the time here **
     
@@ -742,6 +885,9 @@ CanvasState.prototype.zoomOut = function() {
 // Currently there are 2 modes supported "E" edit mode and "R" review mode
 CanvasState.prototype.changeMode = function(flag) {
     this.mode = flag;
+    if (this.selection) { 
+        this.selection.resetDisplayText();
+    }
     if (this.mode == "E") {
         this.inputText.height(24);
         this.inputText.width(90);
@@ -756,6 +902,9 @@ CanvasState.prototype.changeMode = function(flag) {
 // can be made configurable
 CanvasState.prototype.accept = function() {
     this.selection.changeStateTo('user_accepted');
+    if (this.selection) { 
+        this.selection.resetDisplayText();
+    }
     this.valid = false;
 }
 
