@@ -616,15 +616,21 @@ function CanvasState(canvasId, dataURL, oid) {
 //                scrollLeft = myState.canvasContainer.scrollLeft; 
 //                scrollTop = myState.canvasContainer.scrollTop; 
 //                console.log("New Scroll by X: "+scrollLeft+" Y: "+scrollTop);
+                e.preventDefault();
+                e.stopPropagation();
             }
         }
-/*
-        if (charPressed == 8) {
-            myState.scrollX = Math.round(window.scrollX);
-            myState.scrollY = Math.round(window.scrollY);
-            myState.valid = false;
+        // Undo operation called
+        if (charPressed == 90 && e.ctrlKey) { 
+            myState.undoActivity(); 
+            e.preventDefault();
+            e.stopPropagation();
+        }else if (charPressed == 89 && e.ctrlKey) {
+            myState.redoActivity(); 
+            e.preventDefault();
+            e.stopPropagation();
         }
-*/
+
         // Alt+up/down should hide and unhide the inputText bar
         if ((charPressed == 40 || charPressed == 38) && e.shiftKey) {
             if (myState.mode == "R") { return; } //No action taken
@@ -661,8 +667,7 @@ function CanvasState(canvasId, dataURL, oid) {
         } else if (charPressed == 65) {
             if (myState.mode == "R") {
                 var oldState = myState.selection.getState();
-                myState.undoStack.push(["StateChange",oldState,'user_accepted']);
-                myState.redoStack = [];
+                myState.addActivity('StateChange',myState.selection, oldState,'user_accepted');
                 myState.selection.changeStateTo('user_accepted');
                 myState.selection.resetDisplayText();
                 myState.valid = false; // Something's changed so we must redraw
@@ -688,6 +693,47 @@ function CanvasState(canvasId, dataURL, oid) {
     this.redoStack = []; // Items stores as {"Op",newShape,oldShape}
 //    this.interval = 30;
 //    setInterval(function() { myState.draw(); }, myState.interval);
+}
+
+CanvasState.prototype.addActivity = function(activityName, object, prevVal, newVal) {
+    this.undoStack.push([activityName, object, prevVal, newVal]);
+    this.redoStack = []; // reseting redo with any new activity
+}
+
+CanvasState.prototype.undoActivity = function() {
+    if (this.undoStack.length == 0 ) { return; }
+    var activity = this.undoStack.pop();
+    var activityName = activity[0];
+    var object = activity[1];
+    var prevVal = activity[2];
+    var newVal = activity[3]; 
+    this.redoStack.push(activity); 
+    if (activityName == "StateChange") {
+        if (object !== null) { 
+            object.changeStateTo(prevVal);
+            this.valid = false;
+        } else {
+            console.log("undo on un-selected item");
+        }
+    }
+}
+
+CanvasState.prototype.redoActivity = function() {
+    if (this.redoStack.length == 0 ) { return; }
+    var activity = this.redoStack.pop();
+    var activityName = activity[0];
+    var object = activity[1]; 
+    var prevVal = activity[2];
+    var newVal = activity[3]; 
+    this.undoStack.push(activity); 
+    if (activityName == "StateChange") {
+        if (object !== null) { 
+            object.changeStateTo(newVal);
+            this.valid = false;
+        } else {
+            console.log("redo on un-selected item");
+        }
+    }
 }
 
 CanvasState.prototype.changeInputLocation = function(selectedShape) {
@@ -914,14 +960,17 @@ CanvasState.prototype.changeMode = function(flag) {
     this.valid = false; // Something's changed so we must redraw
 }
 
-// Shrink the canvas dimensions by 10% fixed value, later that 
-// can be made configurable
+// Accept the selected shape
 CanvasState.prototype.accept = function() {
-    this.selection.changeStateTo('user_accepted');
     if (this.selection) { 
+        var oldState = this.selection.getState();
+        this.addActivity('StateChange',oldState,'user_accepted');
+        this.selection.changeStateTo('user_accepted');
         this.selection.resetDisplayText();
+        this.valid = false;
+    }else {
+        console.log("No active selection");
     }
-    this.valid = false;
 }
 
 // Shrink the canvas dimensions by 10% fixed value, later that 
