@@ -23,7 +23,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.fill = fill || 'rgba(0,255,0,.2)';
     this.stroke = '#FFFF00';
     this.fontType = 'normal';
-    this.fontPoints = 22;
+    this.fontPoints = 20;
     this.fontName = 'Arial Unicode MS';
     this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
     this.fillStyle = 'black';
@@ -133,7 +133,7 @@ Shape.prototype = {
     atBorders: function(mx, my) {
         // All we have to do is make sure the Mouse X,Y fall in the area 
         // segment around the four corners with certain distance.  
-        var distance = 7;
+        var distance = Math.round(this.h / 5);
         // currently only bottom right corner is enabled (To be enhanced)
         return  (this.atBottomRight(mx, my, distance));
     },
@@ -225,17 +225,21 @@ function CanvasState(canvasId, dataURL, oid) {
     this.active = false;
     this.INPUT_WIDTH = 90;
     this.INPUT_HEIGHT = 24; 
+    this.INPUT_FONT_SIZE = 20; 
     canvas = document.getElementById(canvasId);
     this.inputText = new CanvasInput({
         canvas: document.getElementById(canvasId),
-        width: 90,
-        height: 24,
+        width: this.INPUT_WIDTH,
+        height: this.INPUT_HEIGHT,
+        fontSize: this.INPUT_FONT_SIZE,
         padding: 0,
         borderWidth: 0,
         borderRadius: 0,
         onsubmit: function() {
             if (myState.selection) {
                 myState.selection.text = myState.inputText.value(); 
+                myState.selection.fontPoints = Math.round(myState.selection.h - 2/myState.scale);
+                myState.selection.font = myState.selection.fontType+" "+myState.selection.fontPoints+"pt "+myState.selection.fontName;
                 myState.valid = false;  
                 myState.inputText.value('');
             } else {
@@ -739,10 +743,11 @@ CanvasState.prototype.redoActivity = function() {
 CanvasState.prototype.changeInputLocation = function(selectedShape) {
     buffer = 5;
     this.inputText.x(selectedShape.x);
-    if (selectedShape.y < (this.INPUT_HEIGHT + buffer)) {
+    scaledHeight = Math.round(this.INPUT_HEIGHT / this.scale);
+    if (selectedShape.y < (scaledHeight + buffer)) {
         this.inputText.y(selectedShape.y+selectedShape.h + buffer);
     }else {
-        this.inputText.y(selectedShape.y-(this.INPUT_HEIGHT + buffer));
+        this.inputText.y(selectedShape.y-(scaledHeight + buffer));
     }
     console.log("Shape X: "+selectedShape.x+" Y: "+selectedShape.y+" H: "+selectedShape.h+" W: "+selectedShape.w+" Ix: "+this.inputText.x()+" Iy: "+this.inputText.y()+" Ih: "+this.inputText.height()+" Iw: "+this.inputText.width());
 }
@@ -819,6 +824,10 @@ CanvasState.prototype.draw = function() {
         ctx.drawImage(imageObj,0,0);
 
         if (this.selection != null && this.mode != "R") {
+            this.inputText.width(Math.round(Math.max(this.INPUT_WIDTH/this.scale, this.selection.w)));
+            this.inputText.height(Math.round(this.INPUT_HEIGHT/this.scale));
+            this.inputText.fontSize(Math.round(this.INPUT_FONT_SIZE/this.scale));
+            this.inputText.value(this.selection.text); 
             this.inputText.render();
             this.inputText.focus();
         } 
