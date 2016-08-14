@@ -48,6 +48,18 @@ class DisjointSegments:
         self.segments = []
         self.merge(segments)
 
+    def to_rect(self, seg):
+        return DotDict(seg)
+
+    def intersection(self, a, b):
+        x = max(a.x, b.x)
+        y = max(a.y, b.y)
+        w = min(a.x+a.w, b.x+b.w) - x
+        h = min(a.y+a.h, b.y+b.h) - y
+        return w > 0 and h > 0
+        #if w<=0 or h<=0: return () # or (0,0,0,0) ?
+        #return (x, y, w, h)
+
     def overlap(self, testseg):
         #testrect = self.to_rect(testseg)
         for i in range(len(self.segments)):
