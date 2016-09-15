@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import preprocessing
-import sys
+import sys, os
 import json
 from operator import itemgetter, attrgetter
 from pprint import pprint
@@ -153,11 +153,99 @@ class DocImage:
             known_segments = DisjointSegments()
         known_segments.insert(ImgSegment(r))
         return self.find_matches(template, thres, known_segments)
+   
+    def self_to_image(self):
+	return self.img_rgb
 
-    def annotate(self, sel_areas, color = (0,0,255)):
-        for rect in sel_areas:
+    def segments(self, show_int, pause_int):
+	img = self.img_gray
+	
+	kernel1 = np.ones((2,2),np.uint8)
+	kernel2 = np.ones((1,1),np.uint8)
+
+	all_heights = [] 
+	
+	
+	def show_img(name, fname):
+    	    if int(show_int) != 0:
+                cv2.imshow(name, fname)
+    	    if int(pause_int) != 0:
+        	cv2.waitKey(0)
+	
+	show_img('Output0',img)
+
+	boxes_temp = np.zeros(img.shape[:2],np.uint8)
+	print "boxes generated"
+
+	binary = preprocessing.binary_img(img)
+	show_img('BinaryOutput',binary)	
+	
+	dilation = cv2.dilate(binary,kernel1,iterations = 1)
+	show_img('Dilation', dilation)
+	
+	erosion = cv2.dilate(dilation,kernel1,iterations = 1)
+	show_img('Erosion', erosion)
+
+	edges = cv2.Canny(dilation,50,100)
+	show_img('Edges', edges)
+
+	dilation2 = cv2.dilate(edges,kernel1,iterations = 1)
+	show_img('Dilation9999', dilation2)
+	
+	inv9999 = 255-dilation2
+	show_img('inv9999', inv9999)
+
+	edges = cv2.dilate(edges,kernel1,iterations = 1)
+	ret,thresh = cv2.threshold(erosion,127,255,0)
+	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+	for c in contours:
+    	    x,y,w,h = cv2.boundingRect(c)
+    	    #annotate(boxes_temp,(255,255,255),-1)
+    	    if h> 10:
+                all_heights.append(h)
+
+        std_dev = np.std(all_heights)
+        mn = np.mean(all_heights)
+        md = np.median(all_heights)
+
+        for xx in contours:
+            cv2.drawContours(edges,[xx],-1,(255,255,255),-1)
+	
+	show_img('edges2',edges)
+
+        ret,thresh = cv2.threshold(erosion,127,255,0)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+        for c in contours:
+            x,y,w,h = cv2.boundingRect(c)
+            #if (mn+(std_dev/2)<h):
+            cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),-1)
+            #annotate(img,(255,0,0),2)
+	
+	show_img('boxes_temp',boxes_temp)
+	
+	ret,thresh = cv2.threshold(boxes_temp,127,255,0)
+	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+	
+	allsegments = []
+	coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
+
+	for c in contours:
+    	    x,y,w,h = cv2.boundingRect(c)
+	    coordinates['x'] = x
+	    coordinates['y'] = y
+	    coordinates['w'] = w
+	    coordinates['h'] = h
+	    print coordinates
+	    allsegments.append(coordinates)
+    	    print allsegments
+    	return allsegments
+
+    def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
+	for rect in sel_areas:
             cv2.rectangle(self.img_rgb, (rect['x'], rect['y']), \
-                (rect['x'] + rect['w'], rect['y'] + rect['h']), color, 2)
+                (rect['x'] + rect['w'], rect['y'] + rect['h']), color, thickness)
 
 def main(args):
     img = DocImage(args[0])
@@ -179,5 +267,14 @@ def main(args):
 
     sys.exit(0)
 
+def mainTEST(arg):
+    img = DocImage(arg)
+    img.annotate(img.segments(1,1))
+    cv2.imshow('Final image', img.img_rgb)
+    cv2.waitKey(0)
+    
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    #main(sys.argv[1:])
+    mainTEST(sys.argv[1])
+
