@@ -229,17 +229,16 @@ class DocImage:
 	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 	
 	allsegments = []
-	coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
+	
 
 	for c in contours:
+	    coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
     	    x,y,w,h = cv2.boundingRect(c)
 	    coordinates['x'] = x
 	    coordinates['y'] = y
 	    coordinates['w'] = w
 	    coordinates['h'] = h
-	    print coordinates
 	    allsegments.append(coordinates)
-    	    print allsegments
     	return allsegments
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
