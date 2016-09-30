@@ -157,7 +157,8 @@ class DocImage:
     def self_to_image(self):
         return self.img_rgb
 
-    def segments(self, show_int, pause_int):
+    def find_segments(self, show_int, pause_int, known_segments = None):
+
         img = self.img_gray
         
         kernel1 = np.ones((2,2),np.uint8)
@@ -231,14 +232,20 @@ class DocImage:
         allsegments = []
         
         for c in contours:
-            coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
+            coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
             x,y,w,h = cv2.boundingRect(c)
             coordinates['x'] = x
             coordinates['y'] = y
             coordinates['w'] = w
             coordinates['h'] = h
-            allsegments.append(coordinates)
-        return allsegments
+            allsegments.append(ImgSegment(coordinates))
+
+        if known_segments is None:
+            known_segments = DisjointSegments()
+        disjoint_matches = known_segments.merge(allsegments);
+
+        return disjoint_matches
+#        return allsegments
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
         for rect in sel_areas:
@@ -268,7 +275,7 @@ def main(args):
 
 def mainTEST(arg):
     img = DocImage(arg)
-    img.annotate(img.segments(0,0))
+    img.annotate(img.find_segments(0,0))
     
     screen_res = 1280.0, 720.0
     scale_width = screen_res[0] / img.w

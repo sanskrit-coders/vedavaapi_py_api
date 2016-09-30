@@ -135,7 +135,6 @@ class Annotations:
 
     def segment(self, anno_id):
         known_segments = DisjointSegments()
-        srch_segments = []
         for a in anno_obj['anno']:
             a = ImgSegment(a)
             if a.state == 'system_inferred':
@@ -143,10 +142,9 @@ class Annotations:
             a['score'] = float(1.0) # Set the max score for user-identified segments
             # Prevent image matcher from changing user-identified segments
             known_segments.insert(a) 
-            srch_segments.append(a)
 
         page_img = self.get_image(anno_id)
-        matches = page_img.segments(0,0)
+        matches = page_img.find_segments(0,0,known_segments)
 
         self.update(anno_id, { 'anno' : known_segments.segments })
         return True
