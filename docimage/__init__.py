@@ -155,54 +155,54 @@ class DocImage:
         return self.find_matches(template, thres, known_segments)
    
     def self_to_image(self):
-	return self.img_rgb
+        return self.img_rgb
 
     def segments(self, show_int, pause_int):
-	img = self.img_gray
-	
-	kernel1 = np.ones((2,2),np.uint8)
-	kernel2 = np.ones((1,1),np.uint8)
+        img = self.img_gray
+        
+        kernel1 = np.ones((2,2),np.uint8)
+        kernel2 = np.ones((1,1),np.uint8)
 
-	all_heights = [] 
-	
-	
-	def show_img(name, fname):
-    	    if int(show_int) != 0:
+        all_heights = [] 
+        
+        
+        def show_img(name, fname):
+            if int(show_int) != 0:
                 cv2.imshow(name, fname)
-    	    if int(pause_int) != 0:
-        	cv2.waitKey(0)
-	
-	show_img('Output0',img)
+            if int(pause_int) != 0:
+                cv2.waitKey(0)
+        
+        show_img('Output0',img)
 
-	boxes_temp = np.zeros(img.shape[:2],np.uint8)
-	print "boxes generated"
+        boxes_temp = np.zeros(img.shape[:2],np.uint8)
+        print "boxes generated"
 
-	binary = preprocessing.binary_img(img)
-	show_img('BinaryOutput',binary)	
-	
-	dilation = cv2.dilate(binary,kernel1,iterations = 1)
-	show_img('Dilation', dilation)
-	
-	erosion = cv2.dilate(dilation,kernel1,iterations = 1)
-	show_img('Erosion', erosion)
+        binary = preprocessing.binary_img(img)
+        show_img('BinaryOutput',binary)        
+        
+        dilation = cv2.dilate(binary,kernel1,iterations = 1)
+        show_img('Dilation', dilation)
+        
+        erosion = cv2.dilate(dilation,kernel1,iterations = 1)
+        show_img('Erosion', erosion)
 
-	edges = cv2.Canny(dilation,50,100)
-	show_img('Edges', edges)
+        edges = cv2.Canny(dilation,50,100)
+        show_img('Edges', edges)
 
-	dilation2 = cv2.dilate(edges,kernel1,iterations = 1)
-	show_img('Dilation9999', dilation2)
-	
-	inv9999 = 255-dilation2
-	show_img('inv9999', inv9999)
+        dilation2 = cv2.dilate(edges,kernel1,iterations = 1)
+        show_img('Dilation9999', dilation2)
+        
+        inv9999 = 255-dilation2
+        show_img('inv9999', inv9999)
 
-	edges = cv2.dilate(edges,kernel1,iterations = 1)
-	ret,thresh = cv2.threshold(erosion,127,255,0)
-	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        edges = cv2.dilate(edges,kernel1,iterations = 1)
+        ret,thresh = cv2.threshold(erosion,127,255,0)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-	for c in contours:
-    	    x,y,w,h = cv2.boundingRect(c)
-    	    #annotate(boxes_temp,(255,255,255),-1)
-    	    if h> 10:
+        for c in contours:
+            x,y,w,h = cv2.boundingRect(c)
+            #annotate(boxes_temp,(255,255,255),-1)
+            if h> 10:
                 all_heights.append(h)
 
         std_dev = np.std(all_heights)
@@ -211,8 +211,8 @@ class DocImage:
 
         for xx in contours:
             cv2.drawContours(edges,[xx],-1,(255,255,255),-1)
-	
-	show_img('edges2',edges)
+        
+        show_img('edges2',edges)
 
         ret,thresh = cv2.threshold(erosion,127,255,0)
         contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
@@ -222,27 +222,26 @@ class DocImage:
             #if (mn+(std_dev/2)<h):
             cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),-1)
             #annotate(img,(255,0,0),2)
-	
-	show_img('boxes_temp',boxes_temp)
-	
-	ret,thresh = cv2.threshold(boxes_temp,127,255,0)
-	contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-	
-	allsegments = []
-	
-
-	for c in contours:
-	    coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
-    	    x,y,w,h = cv2.boundingRect(c)
-	    coordinates['x'] = x
-	    coordinates['y'] = y
-	    coordinates['w'] = w
-	    coordinates['h'] = h
-	    allsegments.append(coordinates)
-    	return allsegments
+        
+        show_img('boxes_temp',boxes_temp)
+        
+        ret,thresh = cv2.threshold(boxes_temp,127,255,0)
+        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        
+        allsegments = []
+        
+        for c in contours:
+            coordinates = {'x': 0, 'y':0, 'h':0, 'w':0}
+            x,y,w,h = cv2.boundingRect(c)
+            coordinates['x'] = x
+            coordinates['y'] = y
+            coordinates['w'] = w
+            coordinates['h'] = h
+            allsegments.append(coordinates)
+        return allsegments
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
-	for rect in sel_areas:
+        for rect in sel_areas:
             cv2.rectangle(self.img_rgb, (rect['x'], rect['y']), \
                 (rect['x'] + rect['w'], rect['y'] + rect['h']), color, thickness)
 
@@ -259,6 +258,7 @@ def main(args):
     #print json.dumps(matches)
     img.annotate(matches)
     img.annotate([rect], (0,255,0))
+
     cv2.namedWindow('Annotated image', cv2.WINDOW_NORMAL)
     cv2.imshow('Annotated image', img.img_rgb)
     cv2.waitKey(0)
@@ -268,9 +268,21 @@ def main(args):
 
 def mainTEST(arg):
     img = DocImage(arg)
-    img.annotate(img.segments(1,1))
+    img.annotate(img.segments(0,0))
+    
+    screen_res = 1280.0, 720.0
+    scale_width = screen_res[0] / img.w
+    scale_height = screen_res[1] / img.h
+    scale = min(scale_width, scale_height)
+    window_width = int(img.w * scale)
+    window_height = int(img.h * scale)
+
+    cv2.namedWindow('Final image', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Final image', window_width, window_height)
+
     cv2.imshow('Final image', img.img_rgb)
     cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
 
 if __name__ == "__main__":

@@ -99,19 +99,58 @@ class Annotations:
     def __init__(self, indicdocs):
         self.indicdocs = indicdocs
         self.annotations = indicdocs.db['annotations']
+
     def get(self, anno_id):
         res = self.annotations.find_one({'_id' : ObjectId(anno_id)})
         res['_id'] = str(res['_id'])
         return res
 
+    def get_image(self, anno_id):
+        # Get the annotations from anno_id
+        anno_obj = self.get(anno_id)
+        if not anno_obj:
+            return False
+
+        # Get the containing book
+        books = self.indicdocs.books
+        book = books.get(anno_obj['bpath'])
+        if not book:
+            return False
+
+        page = book['pages'][anno_obj['pgidx']]
+        imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+        print "Image path = ", imgpath
+        page_img = DocImage(imgpath)
+        return page_img 
+
     def insert(self, anno):
         result = self.annotations.insert_one(anno)
         return str(result.inserted_id)
+
     def update(self, anno_id, anno):
         #pprint(anno)
         result = self.annotations.update({'_id' : ObjectId(anno_id)}, { "$set": anno })
         isSuccess = (result['n'] > 0)
         return isSuccess
+
+    def segment(self, anno_id):
+        known_segments = DisjointSegments()
+        srch_segments = []
+        for a in anno_obj['anno']:
+            a = ImgSegment(a)
+            if a.state == 'system_inferred':
+                continue
+            a['score'] = float(1.0) # Set the max score for user-identified segments
+            # Prevent image matcher from changing user-identified segments
+            known_segments.insert(a) 
+            srch_segments.append(a)
+
+        page_img = self.get_image(anno_id)
+        matches = page_img.segments(0,0)
+
+        self.update(anno_id, { 'anno' : known_segments.segments })
+        return True
+
 
     def propagate(self, anno_id):
         # Get the annotations from anno_id
