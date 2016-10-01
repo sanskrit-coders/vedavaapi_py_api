@@ -243,9 +243,9 @@ class DocImage:
         if known_segments is None:
             known_segments = DisjointSegments()
         disjoint_matches = known_segments.merge(allsegments);
-
+        
+        # print "Disjoint Segments = " + json.dumps(disjoint_matches)
         return disjoint_matches
-#        return allsegments
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
         for rect in sel_areas:

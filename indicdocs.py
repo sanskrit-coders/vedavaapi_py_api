@@ -134,6 +134,22 @@ class Annotations:
         return isSuccess
 
     def segment(self, anno_id):
+        # Get the annotations from anno_id
+        anno_obj = self.get(anno_id)
+        if not anno_obj:
+            return False
+
+        # Get the containing book
+        books = self.indicdocs.books
+        book = books.get(anno_obj['bpath'])
+        if not book:
+            return False
+
+        page = book['pages'][anno_obj['pgidx']]
+        imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+        print "Image path = ", imgpath
+        page_img = DocImage(imgpath)
+
         known_segments = DisjointSegments()
         for a in anno_obj['anno']:
             a = ImgSegment(a)
@@ -143,8 +159,12 @@ class Annotations:
             # Prevent image matcher from changing user-identified segments
             known_segments.insert(a) 
 
-        page_img = self.get_image(anno_id)
         matches = page_img.find_segments(0,0,known_segments)
+        #print "Matches = " + json.dumps(matches)
+        #print "Segments = " + json.dumps(known_segments.segments)
+        for r in matches:
+            # and propagate its text to them
+            r['state'] = 'system_inferred'
 
         self.update(anno_id, { 'anno' : known_segments.segments })
         return True
@@ -172,6 +192,7 @@ class Annotations:
         for a in anno_obj['anno']:
             a = ImgSegment(a)
             if a.state == 'system_inferred':
+                known_segments.insert(a) 
                 continue
             a['score'] = float(1.0) # Set the max score for user-identified segments
             # Prevent image matcher from changing user-identified segments
@@ -182,7 +203,7 @@ class Annotations:
         thres = cfg['template_match']['threshold']
 
         print "segments to propagate = " + json.dumps(srch_segments)
-        print "Known segments = " + json.dumps(known_segments.segments)
+        # print "Known segments = " + json.dumps(known_segments.segments)
         # For each user-supplied annotation,
         for a in srch_segments:
             # Search for similar image segments within page

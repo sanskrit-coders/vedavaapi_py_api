@@ -96,6 +96,7 @@ transform: scale(0.5);
             <li><a onclick="zoomIn()">ZoomIn</a></li>
             <li><a onclick="zoomOut()">ZoomOut</a></li>
             <li><a onclick="reparse_page()">Parse</a></li>
+            <li><a onclick="segment_page()">Segment</a></li>
           </ul>
         </li>
         <li><a href="#">Scale <span id='scale'></span></a></li>
@@ -142,6 +143,7 @@ transform: scale(0.5);
     <div class="col-sm-1 col-xs-1">
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="saveData()">Save</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="reparse_page()">Parse</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="segment_page()">Segment</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="accept()">Accept</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomIn()">ZoomIn</button>
         <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomOut()">ZoomOut</button>
@@ -208,6 +210,10 @@ function changeMode(mode='Edit') {
 	window.cState.changeMode(document.getElementById("modeButton").flag);
 }
 
+function segmentPage() {
+    window.cState.segmentPage();
+}
+
 function saveData() {
     window.cState.saveShapes();
 }
@@ -227,6 +233,26 @@ function zoomOut() {
 }
 
 function reparse_page() {
+    loadpage(true);
+}
+
+function segment_page() {
+
+    var curpage = $('#curpage').val();
+    if (curpage == undefined)
+        return;
+    var details = $('#bookdetails').val();
+    var bookdetails = JSON.parse(details);
+    var pagedetails = bookdetails['result']['pages'][curpage];
+    var anno_id = pagedetails['anno'];
+    var sec_id = pagedetails['sections'];
+
+    $.getJSON('/books/page/anno/segment/'+anno_id, function(data){
+        if (! mychkstatus(data))
+            return;
+//        console.log("Page Anno: " + JSON.stringify(data.result));
+        curpage_annotations = data.result['anno'];
+    });
     loadpage(true);
 }
 
@@ -253,7 +279,7 @@ function loadpage(reparse = false) {
     $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(parms), function(data){
         if (! mychkstatus(data))
             return;
-        console.log("Page Anno: " + JSON.stringify(data.result));
+//        console.log("Page Anno: " + JSON.stringify(data.result));
         curpage_annotations = data.result['anno'];
         window.cState = init('pageCanvas','/books/page/image/'+fpath, 
             curpage_annotations, curpage);
