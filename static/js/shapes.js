@@ -241,6 +241,9 @@ function CanvasState(canvasId, dataURL, oid) {
                 myState.selection.fontPoints = Math.round(myState.selection.h - 2/myState.scale);
                 myState.selection.font = myState.selection.fontType+" "+myState.selection.fontPoints+"pt "+myState.selection.fontName;
                 myState.valid = false;  
+                var oldState = myState.selection.getState();
+                myState.addActivity('StateChange',myState.selection, oldState,'user_supplied');
+                myState.selection.changeStateTo('user_supplied');
                 myState.inputText.value('');
             } else {
                 alert("First select the area");
@@ -783,7 +786,9 @@ CanvasState.prototype.addShape = function(shape) {
     }else if (shapeInserted == false) { // Insert at the begining
         this.shapes.splice(0,0,shape);
     }
-    shape.print();
+    if (shape.text != '') {
+        shape.print();
+    }
     this.valid = false;
 }
 
@@ -921,14 +926,14 @@ function init(canvas,dataURL, oldShapes, oid) {
 //    oldShapes = JSON.parse(oldShapes);
 // JSON.parse did not work so moved to eval however that has some security risks
 //    oldShapes = eval('(' + oldShapes + ')');
-    console.log(oldShapes);
+//    console.log(oldShapes);
     if (oldShapes == null) { return s; }
     s.shapes = []; // initialize the shapes as we are getting all info together
-    console.log(oldShapes.length);
+    console.log("Length of oldShapes = "+oldShapes.length);
     for (var i = 0; i < oldShapes.length; i++) {
         oldShape = oldShapes[i];
-        console.log(oldShape);
-        console.log("X:"+oldShape.x+"Y:"+oldShape.y+"W:"+oldShape.w+"H:"+oldShape.h+" Fill:"+oldShape.fill);
+//            console.log(oldShape);
+//            console.log("X:"+oldShape.x+"Y:"+oldShape.y+"W:"+oldShape.w+"H:"+oldShape.h+" Fill:"+oldShape.fill);
         s.addShape(new Shape(oldShape.x,oldShape.y,oldShape.w,oldShape.h,oldShape.fill, oldShape));
     }
 //  s.addShape(new Shape(40,40,50,50)); // The default is gray
@@ -998,18 +1003,20 @@ CanvasState.prototype.saveShapes = function() {
     var oid = this.oid;
     var anno_id = this.anno_id;
 
-    console.log(JSON.stringify(shapes));
+//    console.log(JSON.stringify(shapes));
     for (var i = 0; i < shapes.length; i++) {
         var shape = shapes[i];
-            
-        console.log(Object.prototype.toString.call(shape));
-        console.log("X:"+shape.x+" Y:"+shape.y+" W:"+shape.w+" H:"+shape.h);
-        console.log(JSON.parse(JSON.stringify(shape)));
-        console.log(JSON.stringify(shape));
+        
+        if (shape.text != '') {    
+//            console.log(Object.prototype.toString.call(shape));
+//            console.log("X:"+shape.x+" Y:"+shape.y+" W:"+shape.w+" H:"+shape.h);
+            console.log(JSON.parse(JSON.stringify(shape)));
+            console.log(JSON.stringify(shape));
+        }
     }
     console.log('POST /books/page/anno/'+anno_id);
     var res = { 'anno' : JSON.stringify(shapes) };
-    console.log('POST anno contents: ' + JSON.stringify(res));
+//    console.log('POST anno contents: ' + JSON.stringify(res));
     $.post('/books/page/anno/'+anno_id, res, function(data) {
         mychkstatus(data, "Annotations saved successfully.", 
             "Error saving annotations.");

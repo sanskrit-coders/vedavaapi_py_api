@@ -1,0 +1,32 @@
+{
+    "author" : "",
+    "title" : "Kannada Samskrit Dictionary",
+    "pubdate" : "",
+    "scantype" : "photo",
+    "bgtype" : "paper",
+    "language" : "kannada",
+    "script" : "devanagari",
+    "pages" : [
+        { 
+            "fname" : "img1.png", 
+            "anno" : [],
+            "sections" : [
+                {
+                    "coord" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "type" : "",
+                    "text" : ""
+                }
+            ] 
+        },
+        { "fname" : "img2.png" },
+        { "fname" : "img3.png" },
+        { "fname" : "img4.png" },
+        { "fname" : "img5.png" },
+        { "fname" : "img6.png" },
+        { "fname" : "img7.png" },
+        { "fname" : "img8.png" },
+        { "fname" : "img9.png" },
+        { "fname" : "img10.png" },
+        { "fname" : "img11.png" }
+    ]
+}

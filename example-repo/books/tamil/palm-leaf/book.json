@@ -1,0 +1,24 @@
+{
+    "author" : "",
+    "title" : "Palm leaf manuscripts",
+    "pubdate" : "",
+    "scantype" : "photo",
+    "bgtype" : "palm leaf",
+    "language" : "tamil",
+    "script" : "grantha",
+    "pages" : [
+        { 
+            "fname" : "1.jpg", 
+            "anno" : [], 
+            "sections" : [
+                {
+                    "coord" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "type" : "",
+                    "text" : ""
+                }
+            ] 
+        },
+        { "fname" : "pl1.jpg" },
+        { "fname" : "pl4.jpg" }
+    ]
+}
