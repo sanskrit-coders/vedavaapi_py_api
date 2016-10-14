@@ -1,0 +1,24 @@
+{
+    "author" : "",
+    "title" : "Miscellaneous english",
+    "pubdate" : "",
+    "scantype" : "photo",
+    "bgtype" : "paper",
+    "language" : "english",
+    "script" : "english",
+    "pages" : [
+        { 
+            "fname" : "2.jpg", 
+            "anno" : [], 
+            "sections" : [
+                {
+                    "coord" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "type" : "",
+                    "text" : ""
+                }
+            ] 
+        },
+        { "fname" : "3.png" },
+        { "fname" : "test1.png" }
+    ]
+}
