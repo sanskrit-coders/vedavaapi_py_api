@@ -105,8 +105,8 @@ class Annotations:
         return res
 
     def insert(self, anno):
-        result = self.annotations.insert_one(anno)
-        return str(result.inserted_id)
+        id = self.annotations.insert(anno)
+        return str(id)
     def update(self, anno_id, anno):
         #pprint(anno)
         result = self.annotations.update({'_id' : ObjectId(anno_id)}, { "$set": anno })
@@ -176,8 +176,8 @@ class Sections:
         return res
 
     def insert(self, sec):
-        result = self.sections.insert_one(sec)
-        return str(result.inserted_id)
+        id = self.sections.insert(sec)
+        return str(id)
     def update(self, sec_id, section):
         result = self.sections.update({'_id' : ObjectId(sec_id)}, section)
         return result['n'] > 0
