@@ -1,0 +1,22 @@
+{
+    "author" : "",
+    "title" : "Miscellaneous Pages",
+    "pubdate" : "",
+    "scantype" : "photo",
+    "bgtype" : "paper",
+    "language" : "sanskrit",
+    "script" : "devanagari",
+    "pages" : [
+        { 
+            "fname" : "IMG_0256_srimahaganapati.jpg", 
+            "anno" : [], 
+            "sections" : [
+                {
+                    "coord" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "type" : "",
+                    "text" : ""
+                }
+            ] 
+        }
+    ]
+}

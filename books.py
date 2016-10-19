@@ -78,6 +78,14 @@ def getbooksingle():
     #pprint(binfo)
     return myresult(binfo)
 
+@books_api.route('/page/anno/segment/<anno_id>', methods = ['GET', 'POST'])
+def getpagesegment(anno_id):
+    if request.method == 'GET':
+        """return the page annotation with id = anno_id"""
+        getdb().annotations.segment(anno_id)
+        anno = getdb().annotations.get(anno_id)
+        return myresult(anno)
+
 @books_api.route('/page/anno/<anno_id>', methods = ['GET', 'POST'])
 def pageanno(anno_id):
     if request.method == 'GET':
