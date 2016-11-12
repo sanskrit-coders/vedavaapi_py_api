@@ -1,0 +1,130 @@
+{
+    "author" : "",
+    "title" : "",
+    "pubdate" : "",
+    "scantype" : "",
+    "bgtype" : "",
+    "language" : "",
+    "script" : "",
+    "pages" : [
+        { "FNAME" : "o9.jpg", 
+          "oid" : "...",
+          "anno" : [
+                {
+                    "COORD" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "annotations" : [
+                        { "text" : {
+                              "content" : "...",
+                              "font" : { 
+                                "size" : 10,
+                                "family" : "courier",
+                              },
+                          }
+                          "source" : "user_supplied|user_accepted|sys_inferred",
+                          "USERID" : "..."
+                        }
+                    ]
+                }
+           ], 
+           "sections" : [
+                {
+                    "COORD" : { "x" : 0, "y" : 0, "w" : 0, "h" : 0 },
+                    "type" : "header|footer|right|left",
+                }
+           ] 
+        },
+        { "fname" : "o5.jpg" },
+        { "fname" : "o6.jpg" },
+        { "fname" : "o12.jpg" },
+        { "fname" : "o8.jpg" },
+        { "fname" : "o10.jpg" }
+    ]
+}
+
+  "annotation": {
+    "author": "", 
+    "comment": "", 
+    "date": "", 
+    "matches": [], 
+    "rank": "0-10", 
+    "refs": [], 
+    "see_also": [], 
+    "text": ""
+  }, 
+  "book": {
+    "annotations": [], 
+    "author": "", 
+    "imagedirpath": "", 
+    "images": [
+      "o11.jpg", 
+      "o9.jpg", 
+      "o5.jpg", 
+      "o6.jpg", 
+      "o12.jpg", 
+      "o8.jpg", 
+      "o10.jpg"
+    ], 
+    "pages": [], 
+    "title": ""
+  }, 
+  "column": {
+    "annotations": [], 
+    "geometry": {
+      "sizex": 300, 
+      "sizey": 300, 
+      "startx": 0, 
+      "starty": 0
+    }, 
+    "sections": [], 
+    "title": ""
+  }, 
+  "line": {
+    "annotations": [], 
+    "geometry": {
+      "sizex": 300, 
+      "sizey": 300, 
+      "startx": 0, 
+      "starty": 0
+    }, 
+    "phrases": [], 
+    "text": ""
+  }, 
+  "page": {
+    "angle": 30.0, 
+    "annotations": [], 
+    "colspace": "10px", 
+    "columns": [], 
+    "linespace": "5px", 
+    "ncolumns": 2, 
+    "pagenum": 1, 
+    "templateimgpath": "", 
+    "wordspace": "2px"
+  }, 
+  "phrase": {
+    "annotations": [], 
+    "geometry": {
+      "sizex": 300, 
+      "sizey": 300, 
+      "startx": 0, 
+      "starty": 0
+    }
+  }, 
+  "section": {
+    "annotations": [], 
+    "geometry": {
+      "sizex": 300, 
+      "sizey": 300, 
+      "startx": 0, 
+      "starty": 0
+    }, 
+    "lines": [], 
+    "text": "", 
+    "title": "", 
+    "type": [
+      "paragraph", 
+      "footnote", 
+      "pagenum", 
+      "notes"
+    ]
+  }
+}

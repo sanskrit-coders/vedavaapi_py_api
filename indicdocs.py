@@ -131,8 +131,8 @@ class Annotations:
         return page_img 
 
     def insert(self, anno):
-        result = self.annotations.insert_one(anno)
-        return str(result.inserted_id)
+        id = self.annotations.insert(anno)
+        return str(id)
 
     def update(self, anno_id, anno):
         #pprint(anno)
