@@ -1,10 +1,13 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
+from PIL import Image, ImageFile
 import preprocessing
 import sys, os
-import json
+import json 
 from operator import itemgetter, attrgetter
 from pprint import pprint
+from os import path
 
 
 class DotDict(dict):
@@ -15,7 +18,7 @@ class DotDict(dict):
 
 # Represents a rectangular image segment
 class ImgSegment(DotDict):
-    # Two segments are 'equal' if they overlap
+    # Two (segments are 'equal' if they overlap
     def __eq__(self, other):
         xmax = max(self.x, other.x)
         ymax = max(self.y, other.y)
@@ -96,26 +99,86 @@ class DisjointSegments:
 
 class DocImage:
     fname = ""
+    working_img_rgb = None
+    working_img_gray = None
     img_rgb = None
     img_gray = None
     w = 0
     h = 0
+    ww = 0
+    wh = 0
+    
+    @staticmethod
+    def resize( img, box, fit):
+        '''Downsample the image.
+        @param img: Image -  an Image-object
+        @param box: tuple(x, y) - the bounding box of the result image
+        @param fix: boolean - crop the image to fill the box
+        @param out: file-like-object - save the image into the output stream
+        '''
+        #preresize image with factor 2, 4, 8 and fast algorithm
+        factor = 1
+        while img.size[0]/factor > 2*box[0] and img.size[1]*2/factor > 2*box[1]:
+            factor *=2
 
-    def __init__(self, imgfile = None):
+        if factor > 1:
+            img.thumbnail((img.size[0]/factor, img.size[1]/factor), Image.NEAREST)
+
+        #calculate the cropping box and get the cropped part
+        if fit:
+            x1 = y1 = 0
+            x2, y2 = img.size
+            wRatio = 1.0 * x2/box[0]
+            hRatio = 1.0 * y2/box[1]
+            if hRatio > wRatio:
+                y1 = int(y2/2-box[1]*wRatio/2)
+                y2 = int(y2/2+box[1]*wRatio/2)
+            else:
+                x1 = int(x2/2-box[0]*hRatio/2)
+                x2 = int(x2/2+box[0]*hRatio/2)
+            img = img.crop((x1,y1,x2,y2))
+
+        #Resize the image with best quality algorithm ANTI-ALIAS
+        img.thumbnail(box, Image.ANTIALIAS)
+        return img
+
+        #save it into a file-like object
+    #    img.save(out, "JPEG", quality=100)
+    #resize
+
+
+    def __init__(self, imgfile = None, workingImgFile = None):
         if imgfile:
             #print "DocImage: loading ", imgfile
             self.fromFile(imgfile)
+        if workingImgFile:
+            #print "DocImage: loading ", origImgFile
+            self.fromWorkingFile(workingImgFile)
 
     def fromFile(self, imgfile):
         self.fname = imgfile
         self.img_rgb = cv2.imread(self.fname)
         self.init()
 
+    def fromWorkingFile(self, workingImgFile):
+        self.fname = workingImgFile
+        self.working_img_rgb = cv2.imread(self.fname)
+        if (self.working_img_rgb is None) :
+            temp_img = cv2.cvtColor(self.img_rgb, cv2.COLOR_RGB2BGR) 
+            pil_im = Image.fromarray(temp_img)
+            self.working_img_rgb = DocImage.resize(pil_im, (1920, 1080), False)
+            self.working_img_rgb = cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
+            
+            cv2.imwrite(workingImgFile, self.working_img_rgb) 
+        self.working_img_gray = cv2.cvtColor(self.working_img_rgb, cv2.COLOR_BGR2GRAY)
+        self.ww, self.wh = self.working_img_gray.shape[::-1]
+        print "W width = " + str(self.ww) + ", W ht = " + str(self.wh)
+
     def init(self):
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
         self.img_bin = preprocessing.binary_img(self.img_gray)
         self.w, self.h = self.img_gray.shape[::-1]
-        #print "width = " + str(self.w) + ", ht = " + str(self.h)
+        print "width = " + str(self.w) + ", ht = " + str(self.h)
 
     def fromImage(self, img_cv):
         self.img_rgb = img_cv
@@ -157,94 +220,291 @@ class DocImage:
     def self_to_image(self):
         return self.img_rgb
 
-    def find_segments(self, show_int, pause_int, known_segments = None):
+    def find_sections(self, show_int, pause_int, known_segments = None):
 
-        img = self.img_gray
+        if self.working_img_gray is None:
+            img = self.img_gray
+            totalArea = self.w * self.h
+        else:
+            img = self.working_img_gray
+            totalArea = self.ww * self.wh
         
         kernel1 = np.ones((2,2),np.uint8)
-        kernel2 = np.ones((1,1),np.uint8)
-
-        all_heights = [] 
-        
         
         def show_img(name, fname):
             if int(show_int) != 0:
+                screen_res = 1280.0, 720.0
+                scale_width = screen_res[0] / fname.shape[1]
+                scale_height = screen_res[1] / fname.shape[0]
+                scale = min(scale_width, scale_height)
+                window_width = int(fname.shape[1] * scale)
+                window_height = int(fname.shape[0] * scale)
+
+                cv2.namedWindow(name, cv2.WINDOW_NORMAL)
+                cv2.resizeWindow(name, window_width, window_height)
+
                 cv2.imshow(name, fname)
             if int(pause_int) != 0:
                 cv2.waitKey(0)
         
         show_img('Output0',img)
 
+        if self.working_img_gray is None:
+            factorX = float(1.0)
+            factorY = float(1.0)
+        else:
+            factorX = float(self.w) / float(self.ww)
+            factorY = float(self.h) / float(self.wh) 
+
+        ret,th1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+        show_img('Global Thresholding (v = 127)', th1)
+
+        borderSize = 5
+
+        crop_img = th1[borderSize:th1.shape[0]-(2*borderSize), 
+                        borderSize:th1.shape[1]-(2*borderSize)]
+        show_img('Cropped  Output',crop_img)
+
+        img= cv2.copyMakeBorder(crop_img,borderSize,borderSize,borderSize,borderSize,cv2.BORDER_CONSTANT,value=(0,0,0))
+        show_img('BorderedOutput',img)
+
+        height = img.shape[0];
+        width = img.shape[1];
+
+        # We will scan all the rows
+        whitePixels = []
+        ySectionBlankLines = [];
+        for i in xrange(img.shape[0]):
+            crop_img = img[i:i+1, 0:img.shape[1]]
+            whitePixel = cv2.countNonZero(crop_img)
+            whitePixels.append(whitePixel)
+            if (whitePixel >= (0.99 * (width - borderSize))): 
+                ySectionBlankLines.append(i)
+
+        ySectionStart = []
+        yJointSectionStart = []
+        ySectionEnd = []
+        yJointSectionEnd = []
+        sectionCount = 0
+        ySectionStart.insert(0,borderSize)
+        for i in range(len(ySectionBlankLines)):
+            if (ySectionStart[sectionCount] >= (ySectionBlankLines[i]-(2*borderSize))): 
+                ySectionStart.insert(sectionCount,ySectionBlankLines[i])
+            else:
+                ySectionEnd.insert(sectionCount,ySectionBlankLines[i])
+
+                sectionCount += 1
+                ySectionStart.insert(sectionCount,ySectionBlankLines[i])
+
+        ySectionEnd.insert(sectionCount, height - borderSize)
+        if (ySectionStart[sectionCount] >= (ySectionEnd[sectionCount]-(2*borderSize))): 
+            ySectionStart = ySectionStart[:sectionCount]
+            ySectionEnd = ySectionEnd[:sectionCount]
+        else:
+            ySectionStart = ySectionStart[:sectionCount+1]
+            ySectionEnd = ySectionEnd[:sectionCount+1]
+            
+        jointSectionCount = 0
+        yJointSectionStart.insert(jointSectionCount,ySectionStart[0])
+        yJointSectionEnd.insert(jointSectionCount,ySectionEnd[0])
+        for sectionCount in range(len(ySectionStart)):
+            if (sectionCount > 0):
+                currentHeight = ySectionEnd[sectionCount] - ySectionStart[sectionCount]
+                prevHeight = ySectionEnd[sectionCount-1] - ySectionStart[sectionCount-1]
+                gapFromPrev = ySectionStart[sectionCount] - ySectionEnd[sectionCount-1]
+                heightDiffFromPrev = abs(currentHeight - prevHeight)
+#                if((heightDiffFromPrev <= (2*borderSize)) and (gapFromPrev <= (3*borderSize))):
+                if((gapFromPrev <= (2.5*borderSize))):
+                    yJointSectionEnd.insert(jointSectionCount,ySectionEnd[sectionCount])
+                else:
+                    jointSectionCount += 1
+                    yJointSectionStart.insert(jointSectionCount,ySectionStart[sectionCount])
+                    yJointSectionEnd.insert(jointSectionCount,ySectionEnd[sectionCount])
+
+        yJointSectionStart = yJointSectionStart[:jointSectionCount+1]
+        yJointSectionEnd = yJointSectionEnd[:jointSectionCount+1]
+        
+        allSections = []
+#        for i in (xrange(len(yJointSectionEnd))):
+#            coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
+#            coordinates['x'] = int(0 * factorX)
+#            coordinates['y'] = int(yJointSectionStart[i] * factorY)
+#            coordinates['w'] = int(width * factorX)
+#            coordinates['h'] = int((yJointSectionEnd[i] - yJointSectionStart[i]) * factorY)
+#            allSections.append(ImgSegment(coordinates))
+
+#        print(whitePixels) 
+#        plt.barh(xrange(img.shape[0]),whitePixels)
+#        plt.show()
+
+        for j in (xrange(len(yJointSectionEnd))):
+            startY = yJointSectionStart[j]
+            endY = yJointSectionEnd[j]
+            # Now we will scan the columns
+            whitePixels = []
+            xSectionBlankLines = [];
+            for i in xrange(width):
+                crop_img = img[startY:endY, i:i+1]
+                whitePixel = cv2.countNonZero(crop_img)
+                whitePixels.append(whitePixel)
+                if (whitePixel >= (0.99 * (endY - startY))): 
+                    xSectionBlankLines.append(i)
+
+    #        print(whitePixels) 
+            xSectionStart = []
+            xSectionEnd = []
+            sectionCount = 0
+            xSectionStart.insert(sectionCount,borderSize)
+            for i in range(len(xSectionBlankLines)):
+                if (xSectionStart[sectionCount] >= (xSectionBlankLines[i]-(3*borderSize))): 
+                    xSectionStart.insert(sectionCount,xSectionBlankLines[i])
+                else:
+                    xSectionEnd.insert(sectionCount,xSectionBlankLines[i])
+                    sectionCount += 1
+                    xSectionStart.insert(sectionCount,xSectionBlankLines[i])
+
+            xSectionEnd.insert(sectionCount,width - borderSize) 
+
+            for i in (xrange(len(xSectionEnd))):
+                coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
+                cur_width = xSectionEnd[i] - xSectionStart[i]
+                if (cur_width <= (2 * borderSize)): continue 
+                coordinates['x'] = int(xSectionStart[i] * factorX)
+                coordinates['y'] = int(startY * factorY)
+                coordinates['w'] = int((xSectionEnd[i] - xSectionStart[i]) * factorX)
+                coordinates['h'] = int((endY - startY) * factorX)
+                allSections.append(ImgSegment(coordinates))
+
+
+#        print(whitePixels) 
+#        plt.plot(xrange(img.shape[1]),whitePixels)
+#        plt.show()
+
+#        print(allSections)
+        return allSections
+
+
+        
+    def find_segments(self, show_int, pause_int, known_segments = None):
+
+        if self.working_img_gray is None:
+            img = self.img_gray
+            totalArea = self.w * self.h
+        else:
+            img = self.working_img_gray
+            totalArea = self.ww * self.wh
+        
+        kernel1 = np.ones((2,2),np.uint8)
+        
+        def show_img(name, fname):
+            if int(show_int) != 0:
+                screen_res = 1280.0, 720.0
+                scale_width = screen_res[0] / fname.shape[1]
+                scale_height = screen_res[1] / fname.shape[0]
+                scale = min(scale_width, scale_height)
+                window_width = int(fname.shape[1] * scale)
+                window_height = int(fname.shape[0] * scale)
+
+                cv2.namedWindow(name, cv2.WINDOW_NORMAL)
+                cv2.resizeWindow(name, window_width, window_height)
+
+                cv2.imshow(name, fname)
+            if int(pause_int) != 0:
+                cv2.waitKey(0)
+        
+        show_img('Output0',img)
+
+        ret,th1 = cv2.threshold(img,127,255,cv2.THRESH_BINARY)
+        show_img('Global Thresholding (v = 127)', th1)
+
+        crop_img = th1[5:th1.shape[0]-10, 5:th1.shape[1]-10]
+        show_img('CroppedOutput',crop_img)
+
+        img= cv2.copyMakeBorder(crop_img,5,5,5,5,cv2.BORDER_CONSTANT,value=(0,0,0))
+        show_img('BorderedOutput',img)
+
         boxes_temp = np.zeros(img.shape[:2],np.uint8)
         print "boxes generated"
 
-        binary = preprocessing.binary_img(img)
-        show_img('BinaryOutput',binary)        
-        
+        binary = 255-img;
+
         dilation = cv2.dilate(binary,kernel1,iterations = 1)
         show_img('Dilation', dilation)
         
-        erosion = cv2.dilate(dilation,kernel1,iterations = 1)
-        show_img('Erosion', erosion)
+        dilation = cv2.dilate(dilation,kernel1,iterations = 1)
+        show_img('Dilation2', dilation)
 
-        edges = cv2.Canny(dilation,50,100)
-        show_img('Edges', edges)
+        if self.working_img_gray is None:
+            factorX = float(1.0)
+            factorY = float(1.0)
+        else:
+            factorX = float(self.w) / float(self.ww)
+            factorY = float(self.h) / float(self.wh) 
+#        print "factorx:"+str(factorX)+"factory:"+str(factorY)
 
-        dilation2 = cv2.dilate(edges,kernel1,iterations = 1)
-        show_img('Dilation9999', dilation2)
-        
-        inv9999 = 255-dilation2
-        show_img('inv9999', inv9999)
+# Bounds are a guess work, more can be on it.
+        lower_bound = totalArea / 3000; 
+        upper_bound = totalArea / 4; 
 
-        edges = cv2.dilate(edges,kernel1,iterations = 1)
-        ret,thresh = cv2.threshold(erosion,127,255,0)
+
+        ret,thresh = cv2.threshold(dilation,127,255,0)
         contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
         for c in contours:
             x,y,w,h = cv2.boundingRect(c)
-            #annotate(boxes_temp,(255,255,255),-1)
-            if h> 10:
-                all_heights.append(h)
-
-        std_dev = np.std(all_heights)
-        mn = np.mean(all_heights)
-        md = np.median(all_heights)
-
-        for xx in contours:
-            cv2.drawContours(edges,[xx],-1,(255,255,255),-1)
-        
-        show_img('edges2',edges)
-
-        ret,thresh = cv2.threshold(erosion,127,255,0)
-        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
-        for c in contours:
-            x,y,w,h = cv2.boundingRect(c)
-            #if (mn+(std_dev/2)<h):
+            if (((w*h) <= lower_bound or (w*h) >= upper_bound)) :
+                continue
             cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),-1)
-            #annotate(img,(255,0,0),2)
-        
-        show_img('boxes_temp',boxes_temp)
-        
+
+        show_img('Boxes_temp',boxes_temp)
+        print("Contours Len = "+str(len(contours)))
+
+#        ret,thresh = cv2.threshold(boxes_temp,127,255,0)
+#        contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+#        for c in contours:
+#            x,y,w,h = cv2.boundingRect(c)
+#            if (((w*h) <= lower_bound or (w*h) >= upper_bound)) :
+#                continue
+#            cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),-1)
+
+#        show_img('Boxes_temp 2',boxes_temp)
+#        print("Contours 2 Len = "+str(len(contours)))
+
+
+        allsegments = []
+
         ret,thresh = cv2.threshold(boxes_temp,127,255,0)
         contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        
-        allsegments = []
-        
+
+        print("Lower="+str(lower_bound)+" Upper="+str(upper_bound));
+
+        print("Contours 3 Len = "+str(len(contours)))
+
         for c in contours:
             coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
             x,y,w,h = cv2.boundingRect(c)
-            coordinates['x'] = x
-            coordinates['y'] = y
-            coordinates['w'] = w
-            coordinates['h'] = h
+#            print "x:"+str(x)+"y:"+str(y)+"w:"+str(w)+"h"+str(h)
+            if (((w*h) <= lower_bound or (w*h) >= upper_bound)) :
+                continue
+            cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),1)
+
+            coordinates['x'] = int(x * factorX)
+            coordinates['y'] = int(y * factorY)
+            coordinates['w'] = int(w * factorX)
+            coordinates['h'] = int(h * factorY)
+
+#            print "x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h'])
             allsegments.append(ImgSegment(coordinates))
+
+        show_img('Boxes_temp 3',boxes_temp)
+
 
         if known_segments is None:
             known_segments = DisjointSegments()
         disjoint_matches = known_segments.merge(allsegments);
         
-        # print "Disjoint Segments = " + json.dumps(disjoint_matches)
+#        print "Disjoint Segments    = " + json.dumps(disjoint_matches)
         return disjoint_matches
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
@@ -274,8 +534,20 @@ def main(args):
     sys.exit(0)
 
 def mainTEST(arg):
-    img = DocImage(arg)
-    img.annotate(img.find_segments(0,0))
+    [bpath, filename] = os.path.split(arg)
+    [fname, ext] = os.path.splitext(filename)
+
+    image = Image.open(arg).convert('RGB')
+    workingFilename = fname+"_working.jpg"
+    out = file(workingFilename, "w")
+    img = DocImage.resize(image, (1920,1080), False)
+    img.save(out, "JPEG", quality=100)
+    out.close()
+
+    img = DocImage(arg,fname+"_working.jpg")
+#    img.annotate(img.find_segments(0,0))
+    img.annotate(img.find_sections(1,1))
+#    img.annotate(img.find_segments(1,1))
     
     screen_res = 1280.0, 720.0
     scale_width = screen_res[0] / img.w

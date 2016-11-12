@@ -23,7 +23,7 @@ function Shape(x, y, w, h, fill, obj) {
     this.fill = fill || 'rgba(0,255,0,.2)';
     this.stroke = '#FFFF00';
     this.fontType = 'normal';
-    this.fontPoints = 20;
+    this.fontPoints = this.h - 10;
     this.fontName = 'Arial Unicode MS';
     this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
     this.fillStyle = 'black';
@@ -52,6 +52,9 @@ Shape.prototype = {
         } else if (this.state == "user_supplied") {
             this.stroke = 'rgba(255,255,0,1)';
             this.fill = 'rgba(0,255,0,.3)';
+        } else if (this.state == "user_deleted") {
+            // Dont draw
+            return;
         }
         if (this.displayTextAbove == true) {
             this.stroke = 'rgba(255,255,0,1)';
@@ -87,6 +90,7 @@ Shape.prototype = {
     increaseFont: function() {
         this.fontPoints++;
         this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
+        this.print();
         return this.fontPoints;
     },
 
@@ -94,6 +98,7 @@ Shape.prototype = {
     decreaseFont: function() {
         this.fontPoints--;
         this.font = this.fontType+" "+this.fontPoints+"pt "+this.fontName;
+        this.print();
         return this.fontPoints;
     },
 
@@ -237,14 +242,7 @@ function CanvasState(canvasId, dataURL, oid) {
         borderRadius: 0,
         onsubmit: function() {
             if (myState.selection) {
-                myState.selection.text = myState.inputText.value(); 
-                myState.selection.fontPoints = Math.round(myState.selection.h - 2/myState.scale);
-                myState.selection.font = myState.selection.fontType+" "+myState.selection.fontPoints+"pt "+myState.selection.fontName;
-                myState.valid = false;  
-                var oldState = myState.selection.getState();
-                myState.addActivity('StateChange',myState.selection, oldState,'user_supplied');
-                myState.selection.changeStateTo('user_supplied');
-                myState.inputText.value('');
+                myState.handleOnSubmit(); 
             } else {
                 alert("First select the area");
             }
@@ -276,7 +274,7 @@ function CanvasState(canvasId, dataURL, oid) {
 
     // **** Keep track of state! ****
 
-    this.mode = "E"; // Initializing with "E" edit mode. ("E"|"R"|"N") 
+    this.mode = "E"; // Initializing with "E" edit mode. ("E"|"R"|"N"|"S") 
     this.scale = 1; // Initialize with scale as 1 (range is 0.1 - 1.0) 
     this.scrollX = 0;
     this.scrollY = 0;
@@ -522,110 +520,10 @@ function CanvasState(canvasId, dataURL, oid) {
         var charPressed = e.which || e.keyCode;
 //        console.log("You pressed Key "+charPressed);
         if (charPressed == 9) {
-            if (myState.mode == "R") {
-                if (myState.selection) {
-                    myState.selection.resetDisplayText();
-                } else {
-                    console.log("No selection done ");
-                    return false;
-                }
-                var prevSelection = myState.selection;
-                if (e.shiftKey) {
-                    if (myState.selectionIndex == 0) {
-                        myState.selectionIndex = myState.shapes.length - 1;
-                    } else {
-                        myState.selectionIndex--;
-                    }
-                } else {
-                    if (myState.selectionIndex == (myState.shapes.length -1)) {
-                        myState.selectionIndex = 0;
-                    } else {
-                        myState.selectionIndex++;
-                    }
-                }
-                var newSelection = myState.shapes[myState.selectionIndex];
-                myState.selection = newSelection;
-                if (myState.selection.state != "user_accepted" ) { myState.selection.toggleDisplayText(); }
-
-                myState.scrollX = Math.round(window.scrollX);
-                myState.scrollY = Math.round(window.scrollY);
-//                console.log("ScrollX = "+myState.scrollX+" ScrollY = "+myState.scrollY);
-
-                var scrollLeft = myState.canvasContainer.scrollLeft; 
-                var scrollTop = myState.canvasContainer.scrollTop; 
-                var scrollWidth = myState.canvasContainer.scrollWidth;
-                var scrollHeight = myState.canvasContainer.scrollHeight;
-                var clientWidth = myState.canvasContainer.clientWidth;
-                var clientHeight = myState.canvasContainer.clientHeight;
-                var horizontalMove = 0;
-                var verticalMove = 0;
-//                console.log("ScrollHeight = "+scrollHeight+" clientHeight "+clientHeight);
-//                console.log("ScrollWidth = "+scrollWidth+" clientWidth "+clientWidth);
-
-                var hDistance = Math.abs(newSelection.x - prevSelection.x);
-//                console.log("H-Distance = "+hDistance);
-                //Check if the new selection is on right or left of viewport
-                if (newSelection.x > (scrollLeft + clientWidth)) {
-                    if (hDistance < (clientWidth/4)) { 
-                        horizontalMove = Math.min(clientWidth/4, 
-                                (scrollWidth - (scrollLeft + clientWidth)));
-                    } else if (hDistance > (clientWidth/2)) {
-                        horizontalMove = Math.min((hDistance+clientWidth/4), 
-                                (scrollWidth - (scrollLeft + clientWidth)));
-                    } else {
-                        horizontalMove = Math.min(clientWidth/2, 
-                                (scrollWidth - (scrollLeft + clientWidth)));
-                    }
-                } else if (newSelection.x < scrollLeft) {
-                    if (hDistance < (clientWidth/4)) { 
-                        horizontalMove = -(Math.min(clientWidth/4, scrollLeft));
-                    } else if (hDistance > (clientWidth/2)) {
-                        horizontalMove = -(Math.min((hDistance+clientWidth/4), 
-                                scrollLeft));
-                    } else {
-                        horizontalMove = -(Math.min(clientWidth/2, scrollLeft));
-                    }
-                }
-                horizontalMove = Math.round(horizontalMove);
-
-                var vDistance = Math.abs(newSelection.y - prevSelection.y);
-//                console.log("V-Distance = "+vDistance);
-                //Check if the new selection is on top or bottom of viewport
-                if (newSelection.y > (scrollTop + clientHeight)) {
-                    if (vDistance < (clientHeight/4)){ 
-                        verticalMove = Math.min(clientHeight/4, 
-                                (scrollHeight - (scrollTop + clientHeight)));
-                    } else if (vDistance > (clientHeight/2)) {
-                        verticalMove = Math.min((vDistance+clientHeight/4), 
-                                (scrollHeight - (scrollTop + clientHeight)));
-                    } else {
-                        verticalMove = Math.min(clientHeight/2, 
-                                (scrollHeight - (scrollTop + clientHeight)));
-                    }
-                } else if (newSelection.y < scrollTop) {
-                    if (vDistance < (clientHeight/4)){ 
-                        verticalMove = -(Math.min(clientHeight/4, scrollTop));
-                    } else if (vDistance > (clientHeight/2)) {
-                        verticalMove = -(Math.min((vDistance+clientHeight/4), 
-                                scrollTop));
-                    } else {
-                        verticalMove = -(Math.min(clientHeight/2, scrollTop));
-                    }
-                }
-                verticalMove = Math.round(verticalMove);
-
-//                console.log("Current Scroll by X: "+scrollLeft+" Y: "+scrollTop);
-//                console.log("Scrolling by X: "+horizontalMove+" Y: "+verticalMove);
-                myState.canvasContainer.scrollLeft =  scrollLeft + horizontalMove ; 
-                myState.canvasContainer.scrollTop =  scrollTop + verticalMove ; 
-                myState.valid = false;
-                // For logging purpose only
-//                scrollLeft = myState.canvasContainer.scrollLeft; 
-//                scrollTop = myState.canvasContainer.scrollTop; 
-//                console.log("New Scroll by X: "+scrollLeft+" Y: "+scrollTop);
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            myState.handleOnSubmit(); 
+            myState.handleTab(e); 
+            e.preventDefault();
+            e.stopPropagation();
         }
         // Undo operation called
         if (charPressed == 90 && e.ctrlKey) { 
@@ -667,10 +565,19 @@ function CanvasState(canvasId, dataURL, oid) {
         }else if (charPressed == 46) { // Del key triggered
 //            console.log("You pressed del key");
             //removing the shape from the array
-            myState.shapes.splice(myState.selectionIndex,1);
-            myState.selection = null;
-            myState.selectionIndex = null;
-            myState.valid = false; // Something's deleted so we must redraw
+            if (myState.mode != "S") {
+                var oldState = myState.selection.getState();
+                myState.addActivity('StateChange',myState.selection, oldState,'user_deleted');
+                myState.selection.changeStateTo('user_deleted');
+                myState.selection.resetDisplayText();
+                myState.valid = false; // Something's changed so we must redraw
+                e.preventDefault();
+                e.stopPropagation();
+            }
+//            myState.shapes.splice(myState.selectionIndex,1);
+//            myState.selection = null;
+//            myState.selectionIndex = null;
+//            myState.valid = false; // Something's deleted so we must redraw
         } else if (charPressed == 65) {
             if (myState.mode == "R") {
                 var oldState = myState.selection.getState();
@@ -700,6 +607,142 @@ function CanvasState(canvasId, dataURL, oid) {
     this.redoStack = []; // Items stores as {"Op",newShape,oldShape}
 //    this.interval = 30;
 //    setInterval(function() { myState.draw(); }, myState.interval);
+}
+
+CanvasState.prototype.handleOnSubmit = function() {
+    myState = this;
+    if (myState.selection) {
+        myState.selection.print();
+        var prevValue = myState.selection.text;
+        myState.selection.text = myState.inputText.value(); 
+//        myState.selection.fontPoints = Math.round(myState.selection.h - 5/myState.scale);
+//        myState.selection.font = myState.selection.fontType+" "+myState.selection.fontPoints+"pt "+myState.selection.fontName;
+        myState.valid = false;
+        console.log("Prev ="+prevValue+" New="+myState.selection.text);
+        if (myState.selection.text != prevValue) {
+            var oldState = myState.selection.getState();
+            myState.addActivity('StateChange',myState.selection, oldState,'user_supplied');
+            myState.selection.changeStateTo('user_supplied');
+        }
+        myState.inputText.value('');
+        myState.selection.print();
+    } else {
+        console.log("First select the area");
+    }
+}
+
+CanvasState.prototype.handleTab = function(e) {
+    myState = this;
+    if (myState.selection) {
+        myState.selection.resetDisplayText();
+    } else {
+        console.log("No selection done ");
+        return false;
+    }
+    var prevSelection = myState.selection;
+    var newSelection = prevSelection;
+    do {
+        if (e.shiftKey) {
+            if (myState.selectionIndex == 0) {
+                myState.selectionIndex = myState.shapes.length - 1;
+            } else {
+                myState.selectionIndex--;
+            }
+        } else {
+            if (myState.selectionIndex == (myState.shapes.length -1)) {
+                myState.selectionIndex = 0;
+            } else {
+                myState.selectionIndex++;
+            }
+        }
+        newSelection = myState.shapes[myState.selectionIndex];
+    } while(newSelection.state == "user_deleted");
+
+    myState.selection = newSelection;
+
+    if (myState.mode == "R") {
+        if (myState.selection.state != "user_accepted" ) { myState.selection.toggleDisplayText(); }
+    }
+    if (myState.mode == "E") {
+        myState.changeInputLocation(myState.selection);
+    } 
+
+    myState.scrollX = Math.round(window.scrollX);
+    myState.scrollY = Math.round(window.scrollY);
+//  console.log("ScrollX = "+myState.scrollX+" ScrollY = "+myState.scrollY);
+
+    var scrollLeft = myState.canvasContainer.scrollLeft; 
+    var scrollTop = myState.canvasContainer.scrollTop; 
+    var scrollWidth = myState.canvasContainer.scrollWidth;
+    var scrollHeight = myState.canvasContainer.scrollHeight;
+    var clientWidth = myState.canvasContainer.clientWidth;
+    var clientHeight = myState.canvasContainer.clientHeight;
+    var horizontalMove = 0;
+    var verticalMove = 0;
+//  console.log("ScrollHeight = "+scrollHeight+" clientHeight "+clientHeight);
+//  console.log("ScrollWidth = "+scrollWidth+" clientWidth "+clientWidth);
+
+    var hDistance = Math.abs((newSelection.x - prevSelection.x)*myState.scale);
+//  console.log("H-Distance = "+hDistance);
+    //Check if the new selection is on right or left of viewport
+    if ((newSelection.x*myState.scale) > (scrollLeft + clientWidth)) {
+        if (hDistance < (clientWidth/4)) { 
+            horizontalMove = Math.min(clientWidth/4, 
+                    (scrollWidth - (scrollLeft + clientWidth)));
+        } else if (hDistance > (clientWidth/2)) {
+            horizontalMove = Math.min((hDistance+clientWidth/4), 
+                    (scrollWidth - (scrollLeft + clientWidth)));
+        } else {
+            horizontalMove = Math.min(clientWidth/2, 
+                    (scrollWidth - (scrollLeft + clientWidth)));
+        }
+    } else if ((newSelection.x*myState.scale) < scrollLeft) {
+        if (hDistance < (clientWidth/4)) { 
+            horizontalMove = -(Math.min(clientWidth/4, scrollLeft));
+        } else if (hDistance > (clientWidth/2)) {
+            horizontalMove = -(Math.min((hDistance+clientWidth/4), 
+                    scrollLeft));
+        } else {
+            horizontalMove = -(Math.min(clientWidth/2, scrollLeft));
+        }
+    }
+    horizontalMove = Math.round(horizontalMove);
+
+    var vDistance = Math.abs((newSelection.y - prevSelection.y)*myState.scale);
+//    console.log("V-Distance = "+vDistance);
+    //Check if the new selection is on top or bottom of viewport
+    if ((newSelection.y*myState.scale) > (scrollTop + clientHeight)) {
+        if (vDistance < (clientHeight/4)){ 
+            verticalMove = Math.min(clientHeight/4, 
+                    (scrollHeight - (scrollTop + clientHeight)));
+        } else if (vDistance > (clientHeight/2)) {
+            verticalMove = Math.min((vDistance+clientHeight/4), 
+                    (scrollHeight - (scrollTop + clientHeight)));
+        } else {
+            verticalMove = Math.min(clientHeight/2, 
+                    (scrollHeight - (scrollTop + clientHeight)));
+        }
+    } else if ((newSelection.y*myState.scale) < scrollTop) {
+        if (vDistance < (clientHeight/4)){ 
+            verticalMove = -(Math.min(clientHeight/4, scrollTop));
+        } else if (vDistance > (clientHeight/2)) {
+            verticalMove = -(Math.min((vDistance+clientHeight/4), 
+                    scrollTop));
+        } else {
+            verticalMove = -(Math.min(clientHeight/2, scrollTop));
+        }
+    }
+    verticalMove = Math.round(verticalMove);
+
+//     console.log("Current Scroll by X: "+scrollLeft+" Y: "+scrollTop);
+//     console.log("Scrolling by X: "+horizontalMove+" Y: "+verticalMove);
+    myState.canvasContainer.scrollLeft =  scrollLeft + horizontalMove ; 
+    myState.canvasContainer.scrollTop =  scrollTop + verticalMove ; 
+    myState.valid = false;
+    // For logging purpose only
+//     scrollLeft = myState.canvasContainer.scrollLeft; 
+//     scrollTop = myState.canvasContainer.scrollTop; 
+//     console.log("New Scroll by X: "+scrollLeft+" Y: "+scrollTop);
 }
 
 CanvasState.prototype.addActivity = function(activityName, object, prevVal, newVal) {
@@ -794,15 +837,6 @@ CanvasState.prototype.addShape = function(shape) {
 
 CanvasState.prototype.clear = function() {
     this.ctx.clearRect(0, 0, this.width, this.height);
-}
-
-// Update the dimensions of all components of canvas.
-CanvasState.prototype.adjustAllComponentsToScale = function() {
-    var shapes = this.shapes;
-    var imageURL = this.imageURL;
-    var imageObj = new Image();
-    imageObj.src = imageURL;
-
 }
 
 // While draw is called as often as the INTERVAL variable demands,

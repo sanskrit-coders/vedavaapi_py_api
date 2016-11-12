@@ -5,9 +5,9 @@
   <head>
 <link rel="stylesheet" type="text/css" href="/static/css/default.css">
     {% if title %}
-    <title>IndicSearch: {{ title }}</title>
+    <title>IndicLibrary: {{ title }}</title>
     {% else %}
-    <title>IndicSearch: Visual Manuscript Decoder</title>
+    <title>IndicLibrary: Visual Manuscript Decoder</title>
     {% endif %}
 
     <script src="/static/js/jquery.min.js"></script>
@@ -25,19 +25,16 @@
     <div class="well well-sm" style="margin-bottom:1px; color:white; background-color:#6a5acd;">
     <div class="container">
     {% if title %}
-    <h4 style="text-align:center; font-weight:bold">IndicSearch: {{ title }}</h4>
+    <h4 style="text-align:center; font-weight:bold">IndicLibrary: {{ title }}</h4>
     {% else %}
-    <h4 style="text-align:center; font-weight:bold">IndicSearch: Visual Manuscript Decoder</h4>
+    <h4 style="text-align:center; font-weight:bold">IndicLibrary: Visual Manuscript Decoder</h4>
     {% endif %}
-    <!--div id="servermsg">
-        <div id="server" class="serverconsole">
-            Server Running on:
-        </div><br>
-        <div id="ctrlbtns" class="ctrlbtns">
-            <button id="upgrade_wlwizard" >Update Server</button>
-            <button id="reportbug" value="report bug">Report Bug</button>
+        <div id="oauthlogin" class="loginconsole">
+            {% if current_user.is_authenticated %}
+            <h5><span class="label label-sucess">Hi, {{ current_user.nickname }}!</span>
+            <span class="label label-info"><a href="{{ url_for('logout') }}"> Logout</a></span></h5>
+            {% endif %}
         </div>
-    </div-->
         <div id="console" title="Status Messages">
             Messages: 
         </div>
@@ -53,12 +50,14 @@
         --!>
         {% block content %}{% endblock %}
     </div>
+    <div class="hourglass" ></div>
 
 <script type="text/JavaScript">
 $(document).ready(function () {
      
      $(window).load(function() {
-        getserverinfo();
+        //$('.hourglass').show();
+        //getserverinfo();
     });
     var myurl = window.location.href;
     $('#server').html("Server Running on: "+myurl);
@@ -70,6 +69,7 @@ $(document).ready(function () {
 		var newwin="target=\"_blank\"";
         window.open('/bugzilla/enter_bug.cgi',newwin);
     });
+    $('.hourglass').hide();
 
 });
    

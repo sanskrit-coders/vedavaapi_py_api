@@ -1,5 +1,8 @@
+import os
+from os import path
 from flask import Flask, request, redirect, url_for, make_response, abort
 from flask import render_template
+from flask_login import current_user, login_required
 from werkzeug import secure_filename
 
 from pymongo import MongoClient
@@ -46,15 +49,19 @@ class Books:
     def importOne(self, book):
         pgidx = 0
         bpath = book['path']
+        if 'user' in book :
+            buser = book['user']
+        else:
+            buser = ""
             
         for page in book['pages']:
             try:
                 anno_id = self.indicdocs.annotations.insert( \
                     { 'bpath' : bpath, 'pgidx' : pgidx, \
-                        'anno' : [] })
+                        'anno' : [] , 'user': buser})
                 sec_id = self.indicdocs.sections.insert( \
                     { 'bpath' : bpath, 'pgidx' : pgidx, \
-                        'sections' : [] })
+                        'sections' : [] , 'user': buser})
                 #print "anno: " + str(anno_id) + ", sec: " + str(sec_id)
                 page['anno'] = anno_id
                 page['sections'] = sec_id
@@ -146,9 +153,12 @@ class Annotations:
             return False
 
         page = book['pages'][anno_obj['pgidx']]
+        [fname,ext] = os.path.splitext(page['fname']);
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+        workingImgPath = join(repodir(), join(anno_obj['bpath'], fname+"_working.jpg"))
         print "Image path = ", imgpath
-        page_img = DocImage(imgpath)
+        print "Working Image path = ", workingImgPath
+        page_img = DocImage(imgpath, workingImgPath)
 
         known_segments = DisjointSegments()
         for a in anno_obj['anno']:
@@ -228,6 +238,7 @@ class Sections:
     def __init__(self, indicdocs):
         self.indicdocs = indicdocs
         self.sections = indicdocs.db['sections']
+
     def get(self, sec_id):
         res = self.sections.find_one({'_id' : ObjectId(sec_id)})
         res['_id'] = str(res['_id'])
@@ -236,13 +247,39 @@ class Sections:
     def insert(self, sec):
         result = self.sections.insert_one(sec)
         return str(result.inserted_id)
+
     def update(self, sec_id, section):
         result = self.sections.update({'_id' : ObjectId(sec_id)}, section)
         return result['n'] > 0
 
 class Users:
-    def __init__(docdb):
-        self.users = docdb['users']
+    def __init__(self, indicdocs):
+        self.indicdocs = indicdocs
+        self.users = indicdocs.db['users']
+
+    def get(self, user_id):
+        res = self.users.find_one({'_id' : ObjectId(user_id)})
+        res['_id'] = str(res['_id'])
+        return res
+
+    def getBySocialId(self, social_id):
+        res = self.users.find_one({'social_id' : social_id})
+        if res is not None : res['_id'] = str(res['_id'])
+        return res
+
+    def insert(self, user_data):
+        result = self.users.insert_one(user_data)
+        result = self.get(result.inserted_id)
+        result['_id'] = str(result['_id'])
+        return result
+
+    def update(self, user_id, user_data):
+        result = self.users.update({'_id' : ObjectId(user_id)}, user_data)
+        return result['n'] > 0
+
+#class Users:
+#    def __init__(docdb):
+#        self.users = docdb['users']
 
 class IndicDocs:
     def __init__(self, dbname):
@@ -261,6 +298,7 @@ class IndicDocs:
             self.books = Books(self)
             self.annotations = Annotations(self)
             self.sections = Sections(self)
+            self.users = Users(self)
         except Exception as e:
             print("Error initializing MongoDB database; aborting.", e)
             sys.exit(1)

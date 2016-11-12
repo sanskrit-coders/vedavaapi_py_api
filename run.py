@@ -1,5 +1,7 @@
 #!/usr/bin/python -u
 import os
+from base64 import b64encode
+from os import urandom
 from os import walk, path
 from os.path import splitext, join
 import sys, getopt
@@ -14,7 +16,15 @@ import subprocess
 #from flask.ext.cors import CORS
 from config import *
 from indicdocs import *
-
+from oauth import *
+from flask import Flask, redirect, url_for, render_template
+from flask import render_template, flash, redirect, session, url_for, request, g
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, logout_user,\
+    current_user
+from oauth import OAuthSignIn
+import oauth
+import requests
 #from file import file_api
 from books import books_api
 
@@ -22,9 +32,118 @@ app = Flask(__name__)
 
 app.register_blueprint(books_api, url_prefix='/books')
 
+app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
+app.config['OAUTH_CREDENTIALS'] = {
+    'facebook': {
+        'id': '1706950096293019',
+        'secret': '1b2523ac7d0f4b7a73c410b2ec82586c'
+    },
+    'twitter': {
+        'id': 'jSd7EMZFTQlxjLFG4WLmAe2OX',
+        'secret': 'gvkh9fbbnKQXXbnqxfs8C0tCEqgNKKzoYJAWQQwtMG07UOPKAj'
+    }
+}
+
+lm = LoginManager(app)
+lm.login_view = 'index'
+
+class User():
+
+    def __init__(self, user_id, nickname = "Guest"):
+        self.user_id = user_id
+        self.nickname = nickname
+
+    def is_authenticated(self):
+        return True
+
+    def is_active(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.user_id
+
+
+def authorized_work(required_url,default_url):
+    if 'logstatus' in session :
+        print "Session Logstatus ", session['logstatus']
+        if session['logstatus']==1:
+            return render_template(required_url, title='Home')
+        else:
+            print "No-logstatus\n\n"
+            return redirect(url_for(default_url))
+    else:
+        return redirect(url_for(default_url))
+    
+
+@app.route('/homepage')
+def mainpage():
+    return authorized_work('home.html','index')
+
+@lm.user_loader
+def load_user(id):
+    u = getdb().users.get(id) 
+    if not u:
+        return None
+    return User(u['_id'], u['nickname'])
+
+
 @app.route('/')
-def default():
-    return render_template('home.html', title='Home')
+def index():
+    return render_template('index.html', title='Login')
+    #return render_template('home.html', title='Home')
+
+
+@app.route('/logout')
+def logout():
+    #obj = OAuthSignIn('facebook')
+    #payload = {'grant_type': 'client_credentials', 'client_id': obj.consumer_id, 'client_secret': obj.consumer_secret}
+    #resp = requests.post('https://graph.facebook.com/oauth/access_token?', params = payload)
+    #result = resp.text.split("=")[1]
+    #print "result=",result
+    #session.pop('social_id',None)
+    session['logstatus']=0
+    logout_user()
+    #current_user.authenticated=False
+    flash("Logged out successfully!", 'info')
+    return redirect(url_for('index'))
+
+
+@app.route('/authorize/<provider>')
+def oauth_authorize(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('index'))
+        #return redirect(url_for('mainpage'))
+    session['logstatus']=0
+    oauth = OAuthSignIn.get_provider(provider)
+    return oauth.authorize()
+
+
+@app.route('/callback/<provider>')
+def oauth_callback(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('mainpage'))
+    oauth = OAuthSignIn.get_provider(provider)
+    seq = oauth.callback()
+    print "Return Value = ", seq
+    if (len(seq) == 3) :
+        social_id, username, email = seq
+        logflag = 1 
+    else :
+        social_id, username, email,logflag = seq
+    if social_id is None:
+        flash('Authentication failed.')
+        return redirect(url_for('index'))
+    user = getdb().users.getBySocialId(social_id)
+    if not user:
+        user = getdb().users.insert({"social_id": social_id, "nickname": username, "email":email})
+    user = User(user['_id'], user['nickname'])
+    session['logstatus']=logflag
+    login_user(user, True)
+    return redirect(url_for('mainpage'))
+
 
 @app.route('/<filename>')
 def root(filename):

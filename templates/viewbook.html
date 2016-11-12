@@ -153,6 +153,7 @@ transform: scale(0.5);
             <ul class="dropdown-menu" role="menu">
                 <li><a onclick="changeMode('Edit')">Edit</a></li>
                 <li><a onclick="changeMode('Review')">Review</a></li>
+                <li><a onclick="changeMode('Section')">Section</a></li>
             </ul>
         </div>
     </div>
@@ -204,6 +205,8 @@ function changeMode(mode='Edit') {
         document.getElementById("modeButton").flag = "E";
     } else if (mode == 'Review') {
         document.getElementById("modeButton").flag = "R";
+    } else if (mode == 'Section') {
+        document.getElementById("modeButton").flag = "S";
     } else {
         document.getElementById("modeButton").flag = "N";
     }

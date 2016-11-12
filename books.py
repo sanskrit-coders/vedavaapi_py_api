@@ -6,7 +6,8 @@ import json,time
 from flask import jsonify
 from json import dumps
 from werkzeug import secure_filename
-from PIL import Image
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from PIL import Image, ImageFile
 import datetime
 from config import *
 from common import *
@@ -16,59 +17,32 @@ import csv
 import string
 from collections import OrderedDict
 from indicdocs import *
+from docimage import *
 import traceback
 app = Flask(__name__)
 from pprint import pprint
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 books_api = Blueprint('books_api', __name__)
 
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and \
             filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
-def resize(img, box, fit, out):
-    '''Downsample the image.
-    @param img: Image -  an Image-object
-    @param box: tuple(x, y) - the bounding box of the result image
-    @param fix: boolean - crop the image to fill the box
-    @param out: file-like-object - save the image into the output stream
-    '''
-    #preresize image with factor 2, 4, 8 and fast algorithm
-    factor = 1
-    while img.size[0]/factor > 2*box[0] and img.size[1]*2/factor > 2*box[1]:
-        factor *=2
-
-    if factor > 1:
-        img.thumbnail((img.size[0]/factor, img.size[1]/factor), Image.NEAREST)
-
-    #calculate the cropping box and get the cropped part
-    if fit:
-        x1 = y1 = 0
-        x2, y2 = img.size
-        wRatio = 1.0 * x2/box[0]
-        hRatio = 1.0 * y2/box[1]
-        if hRatio > wRatio:
-            y1 = int(y2/2-box[1]*wRatio/2)
-            y2 = int(y2/2+box[1]*wRatio/2)
-        else:
-            x1 = int(x2/2-box[0]*hRatio/2)
-            x2 = int(x2/2+box[0]*hRatio/2)
-        img = img.crop((x1,y1,x2,y2))
-
-    #Resize the image with best quality algorithm ANTI-ALIAS
-    img.thumbnail(box, Image.ANTIALIAS)
-
-    #save it into a file-like object
-    img.save(out, "JPEG", quality=100)
-#resize
-
 @books_api.route('/list', methods = ['GET', 'POST'])
 def getbooklist():
-    pattern = request.args.get('pattern')
-    print "books list filter = " + str(pattern)
-    binfo = {'books' : getdb().books.list(pattern) }
-    return myresult(binfo)
+    print "Session in books_api=",session['logstatus']
+    if 'logstatus' in session :
+        if session['logstatus']==1:
+            pattern = request.args.get('pattern')
+            print "books list filter = " + str(pattern)
+            binfo = {'books' : getdb().books.list(pattern) }
+            return myresult(binfo)
+        else:
+            return redirect(url_for('index'))
+    else:
+        return redirect(url_for('index'))
 
 @books_api.route('/get', methods = ['GET', 'POST'])
 def getbooksingle():
@@ -131,10 +105,18 @@ def delbook():
 
 @books_api.route('/view', methods = ['GET', 'POST'])
 def docustom():
-    return render_template("viewbook.html", \
-            bookpath=request.args.get('path'), title="Explore a Book")
+    if 'logstatus' in session :
+        if session['logstatus']==1:
+            return render_template("viewbook.html", \
+                bookpath=request.args.get('path'), title="Explore a Book")
+        else:
+            return redirect(url_for('index'))
+    else:
+        return redirect(url_for('index'))
+
 
 @books_api.route('/upload', methods = ['GET', 'POST'])
+@login_required
 def upload():
     """Handle uploading files."""
     form = request.form
@@ -151,35 +133,53 @@ def upload():
     except Exception as e:
         return myerror("Couldn't create upload directory: {}".format(abspath), e)
 
+    print "User Id: " + current_user.get_id()
     bookpath = abspath.replace(repodir() + "/", "")
-    book = { 
-        'author' : form.get("author"),
-        'title' : form.get("title"),
-        'pubdate' : form.get("date"),
-        'scantype' : form.get("scantype"),
-        'bgtype' : form.get("bgtype"),
-        'language' : form.get("language"),
-        'script' : form.get("script"),
-        'path' : bookpath,
-        'pages' : []
-    }
+    book = getdb().books.get(bookpath)
+    if (book is None):
+        book = {
+            'path' : bookpath,
+            'pages' : [],
+            'user' : current_user.get_id()
+        }
+    else: del book['_id']
+    if (not form.get("author")): book['author'] = form.get("author") 
+    if (not form.get("title")): book['title'] = form.get("title") 
+    if (not form.get("pubdate")): book['pubdate'] = form.get("pubdate") 
+    if (not form.get("scantype")): book['scantype'] = form.get("scantype") 
+    if (not form.get("bgtype")): book['bgtype'] = form.get("bgtype") 
+    if (not form.get("language")): book['language'] = form.get("language") 
+    if (not form.get("script")): book['script'] = form.get("script") 
+
     head, tail = os.path.split(abspath)
 
-    pages = []
+    pages = book['pages'] 
     for upload in request.files.getlist("file"):
         if file and allowed_file(upload.filename):
             filename = secure_filename(upload.filename)
         filename = upload.filename.rsplit("/")[0]
         destination = join(abspath, filename)
         upload.save(destination)
-
-        image = Image.open(join(abspath, filename)).convert('RGB')
-        thumbnailname = os.path.splitext(filename)[0]+"_thumb.jpg"
-        out = file(join(abspath, thumbnailname), "w")
-        img = resize(image, (400,400), True, out)
+        [fname,ext] = os.path.splitext(filename);
+        newFileName = fname + ".jpg";
+        tmpImage = cv2.imread(destination)
+        cv2.imwrite(join(abspath,newFileName),tmpImage)
+        
+        image = Image.open(join(abspath, newFileName)).convert('RGB')
+        workingFilename = os.path.splitext(filename)[0]+"_working.jpg"
+        out = file(join(abspath, workingFilename), "w")
+        img = DocImage.resize(image, (1920,1080), False)
+        img.save(out, "JPEG", quality=100)
         out.close()
 
-        page = { 'tname': thumbnailname, 'fname' : filename, 'anno' : [] }
+        image = Image.open(join(abspath, newFileName)).convert('RGB')
+        thumbnailname = os.path.splitext(filename)[0]+"_thumb.jpg"
+        out = file(join(abspath, thumbnailname), "w")
+        img = DocImage.resize(image, (400,400), True)
+        img.save(out, "JPEG", quality=100)
+        out.close()
+
+        page = { 'tname': thumbnailname, 'fname' : newFileName, 'anno' : [] }
         pages.append(page)
 
     book['pages'] = pages
@@ -189,7 +189,7 @@ def upload():
         with open(book_mfile, "w") as f:
             f.write(json.dumps(book, indent=4, sort_keys=True))
     except Exception as e:
-        return myerror("Error writing " + book_mfile + ":", e)
+        return myerror("Error writing " + book_mfile + " : ".format(e))
 
     if (getdb().books.importOne(book) == 0):
         return myerror("Error saving book details.")
