@@ -49,8 +49,8 @@ class FacebookSignIn(OAuthSignIn):
         print "Call-backUrl=",self.get_callback_url()
         ips = re.findall( r'[0-9]+(?:\.[0-9]+){3}',self.get_callback_url())
         callback_url=None
-        if not self.get_callback_url().__contains__("localhost"):
-            callback_url = self.get_callback_url().replace(ips[0],"localhost")
+        if not self.get_callback_url().__contains__("vedavaapi.org"):
+            callback_url = self.get_callback_url().replace(ips[0],"vedavaapi.org")
         else:
             callback_url=self.get_callback_url()
         print "callback_url_final=",callback_url

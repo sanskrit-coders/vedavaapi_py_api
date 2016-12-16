@@ -25,6 +25,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user,\
 from oauth import OAuthSignIn
 import oauth
 import requests
+import datetime
 #from file import file_api
 from books import books_api
 
@@ -47,17 +48,22 @@ app.config['OAUTH_CREDENTIALS'] = {
 lm = LoginManager(app)
 lm.login_view = 'index'
 
-class User():
+class User(object):
 
-    def __init__(self, user_id, nickname = "Guest"):
+    def __init__(self, user_id, nickname = "Guest",email=None, confirmed_on=False):
         self.user_id = user_id
         self.nickname = nickname
+        self.email = email
+        self.confirmed_on=confirmed_on
 
     def is_authenticated(self):
-        return True
+        if self.nickname=='Guest' and self.confirmed_on==True:
+            print "Confirmed=",self.confirmed_on
+            return True
 
     def is_active(self):
-        return True
+        if self.confirmed_on==True:
+            return True
 
     def is_anonymous(self):
         return False
@@ -105,11 +111,25 @@ def logout():
     #print "result=",result
     #session.pop('social_id',None)
     session['logstatus']=0
+    session['user']=None
     logout_user()
     #current_user.authenticated=False
     flash("Logged out successfully!", 'info')
     return redirect(url_for('index'))
 
+@app.route('/guestlogin', methods=['GET','POST'])
+def guestlogin():
+    print "Login using Guest....\n"
+    email = request.args.get('usermail')
+    print "email=",email
+    user = getdb().users.insert({"nickname":"Guest", "email":str(email),"confirmed":True,"confirmed_on":str(datetime.datetime.now())})
+    user = User(user['_id'], user['nickname'],user['email'],user['confirmed'])
+    if user.is_authenticated():
+        session['user']='Guest'
+        print "guest user!"
+        session['logstatus']=1
+        return redirect(url_for('mainpage'))
+    return redirect(url_for('index'))    
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
@@ -117,6 +137,7 @@ def oauth_authorize(provider):
         return redirect(url_for('index'))
         #return redirect(url_for('mainpage'))
     session['logstatus']=0
+    session['user'] = None
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
 
