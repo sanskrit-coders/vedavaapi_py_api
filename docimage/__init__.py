@@ -205,12 +205,16 @@ class DocImage:
         #   print str(r)
         return disjoint_matches
 
-    def find_recurrence(self, r, thres = 0.7, known_segments = None):
-        #print "Searching for recurrence of " + json.dumps(r)
-
+    def snippet(self, r):
         template_img = self.img_rgb[r.y:(r.y+r.h), r.x:(r.x+r.w)]
         template = DocImage()
         template.fromImage(template_img)
+        return template
+
+    def find_recurrence(self, r, thres = 0.7, known_segments = None):
+        #print "Searching for recurrence of " + json.dumps(r)
+
+        template = self.snippet(r)
 
         if known_segments is None:
             known_segments = DisjointSegments()
@@ -545,9 +549,10 @@ def mainTEST(arg):
     out.close()
 
     img = DocImage(arg,fname+"_working.jpg")
-#    img.annotate(img.find_segments(0,0))
-    img.annotate(img.find_sections(1,1))
-#    img.annotate(img.find_segments(1,1))
+    segments = img.find_segments(0,0)
+    img.annotate(segments)
+#    img.annotate(img.find_sections(1,1))
+    #img.annotate(img.find_segments(1,1))
     
     screen_res = 1280.0, 720.0
     scale_width = screen_res[0] / img.w
@@ -561,6 +566,12 @@ def mainTEST(arg):
 
     cv2.imshow('Final image', img.img_rgb)
     cv2.waitKey(0)
+
+    first_snippet = img.snippet(segments[0])
+    cv2.imshow('First snippet', first_snippet.img_rgb)
+    cv2.waitKey(0)
+
+
     cv2.destroyAllWindows()
     
 
