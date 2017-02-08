@@ -98,15 +98,6 @@ class DisjointSegments:
             del self.segments[i]
 
 class DocImage:
-    fname = ""
-    working_img_rgb = None
-    working_img_gray = None
-    img_rgb = None
-    img_gray = None
-    w = 0
-    h = 0
-    ww = 0
-    wh = 0
     
     @staticmethod
     def resize( img, box, fit):
@@ -148,6 +139,16 @@ class DocImage:
 
 
     def __init__(self, imgfile = None, workingImgFile = None):
+        self.fname = ""
+        self.working_img_rgb = None
+        self.working_img_gray = None
+        self.img_rgb = None
+        self.img_gray = None
+        self.w = 0
+        self.h = 0
+        self.ww = 0
+        self.wh = 0
+        
         if imgfile:
             #print "DocImage: loading ", imgfile
             self.fromFile(imgfile)
@@ -550,25 +551,29 @@ def mainTEST(arg):
 
     img = DocImage(arg,fname+"_working.jpg")
     segments = img.find_segments(0,0)
-    img.annotate(segments)
+
+    first_snippet = img.snippet(segments[5])
+    cv2.imshow('First snippet', first_snippet.img_rgb)
+    cv2.waitKey(0)
+    first_snippet.save(fname + "_snippet1.jpg")
+
+    anno_img = DocImage()
+    anno_img.fromImage(img.img_rgb)
+    anno_img.annotate(segments)
 #    img.annotate(img.find_sections(1,1))
     #img.annotate(img.find_segments(1,1))
     
     screen_res = 1280.0, 720.0
-    scale_width = screen_res[0] / img.w
-    scale_height = screen_res[1] / img.h
+    scale_width = screen_res[0] / anno_img.w
+    scale_height = screen_res[1] / anno_img.h
     scale = min(scale_width, scale_height)
-    window_width = int(img.w * scale)
-    window_height = int(img.h * scale)
+    window_width = int(anno_img.w * scale)
+    window_height = int(anno_img.h * scale)
 
     cv2.namedWindow('Final image', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Final image', window_width, window_height)
 
-    cv2.imshow('Final image', img.img_rgb)
-    cv2.waitKey(0)
-
-    first_snippet = img.snippet(segments[0])
-    cv2.imshow('First snippet', first_snippet.img_rgb)
+    cv2.imshow('Final image', anno_img.img_rgb)
     cv2.waitKey(0)
 
 
