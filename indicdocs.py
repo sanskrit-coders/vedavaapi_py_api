@@ -1,19 +1,11 @@
-import os
-from os import path
-from flask import Flask, request, redirect, url_for, make_response, abort
-from flask import render_template
-from flask_login import current_user, login_required
-from werkzeug import secure_filename
+from bson.objectid import ObjectId
+from pymongo.database import Database
 
 from pymongo import MongoClient
-from pymongo.database import Database
-from config import *
-from pprint import pprint
 
-from bson.objectid import ObjectId
-import json
+from config import *
 from docimage import *
-from operator import itemgetter, attrgetter, methodcaller
+
 
 #from gridfs import GridFS
 #from gridfs.errors import NoFile
@@ -37,7 +29,7 @@ class Books:
         return book.pages[idx]
 
     def getPageByName(self, book, pagename):
-        page = book.find({"pages.fname", name})
+        page = book.find({"pages.fname", pagename})
         return page
 
     def get(self, path):

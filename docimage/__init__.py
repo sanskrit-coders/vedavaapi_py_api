@@ -1,13 +1,13 @@
 import cv2
+import json
 import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image, ImageFile
-import preprocessing
-import sys, os
-import json 
-from operator import itemgetter, attrgetter
+import os
+import sys
 from pprint import pprint
-from os import path
+
+from PIL import Image
+
+import preprocessing
 
 
 class DotDict(dict):

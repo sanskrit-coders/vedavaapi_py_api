@@ -1,33 +1,19 @@
 #!/usr/bin/python -u
-import os
+import datetime
+import getopt
 from base64 import b64encode
-from os import urandom
-from os import walk, path
-from os.path import splitext, join
-import sys, getopt
-import re
-import glob
-import csv
 from sys import argv
+
 from flask import *
-from json import dumps
-from werkzeug import secure_filename
-import subprocess
-#from flask.ext.cors import CORS
-from config import *
+from flask_login import LoginManager, login_user, logout_user, \
+    current_user
+
+# from file import file_api
+from books import books_api
+# from flask.ext.cors import CORS
 from indicdocs import *
 from oauth import *
-from flask import Flask, redirect, url_for, render_template
-from flask import render_template, flash, redirect, session, url_for, request, g
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user,\
-    current_user
 from oauth import OAuthSignIn
-import oauth
-import requests
-import datetime
-#from file import file_api
-from books import books_api
 
 app = Flask(__name__)
 

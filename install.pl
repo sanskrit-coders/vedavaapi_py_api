@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
 
+use strict;
+use warnings FATAL => 'all';
 my $installroot = "/opt";
 my $installdir = "$installroot/indictools";
 my $mongodbinstalldir = "$installroot/mongodb";

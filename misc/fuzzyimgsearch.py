@@ -1,8 +1,9 @@
-import os, sys
-from array import array
-import json
 import argparse
+import json
 import shutil
+
+import os
+
 import config
 from indicdoc import *
 

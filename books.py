@@ -1,26 +1,13 @@
-import os
-from os import path
 from flask import *
-from functools import wraps
-import json,time
-from flask import jsonify
-from json import dumps
-from werkzeug import secure_filename
-from flask_login import LoginManager, login_user, logout_user, current_user, login_required
-from PIL import Image, ImageFile
-import datetime
-from config import *
+from flask_login import current_user, login_required
+from werkzeug.utils import secure_filename
+
 from common import *
-from uuid import uuid4
-import subprocess
-import csv
-import string
-from collections import OrderedDict
-from indicdocs import *
 from docimage import *
-import traceback
+from indicdocs import *
+from PIL import ImageFile
+
 app = Flask(__name__)
-from pprint import pprint
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 books_api = Blueprint('books_api', __name__)
