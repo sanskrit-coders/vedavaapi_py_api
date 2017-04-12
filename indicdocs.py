@@ -6,6 +6,12 @@ from pymongo import MongoClient
 from config import *
 from docimage import *
 
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
 
 #from gridfs import GridFS
 #from gridfs.errors import NoFile

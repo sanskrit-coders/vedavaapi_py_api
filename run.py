@@ -4,6 +4,7 @@ import getopt
 from base64 import b64encode
 from sys import argv
 
+import logging
 from flask import *
 from flask_login import LoginManager, login_user, logout_user, \
     current_user
@@ -14,6 +15,12 @@ from books import books_api
 from indicdocs import *
 from oauth import *
 from oauth import OAuthSignIn
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
+
 
 app = Flask(__name__)
 
@@ -289,11 +296,11 @@ def main(argv):
 
     setup_app(parms)
 
-    print "Available on the following URLs:"
+    logging.info("Available on the following URLs:")
     for line in mycheck_output(["/sbin/ifconfig"]).split("\n"):
         m = re.match('\s*inet addr:(.*?) .*', line)
         if m:
-            print "    http://" + m.group(1) + ":" + str(parms.myport) + "/"
+            logging.info("    http://" + m.group(1) + ":" + str(parms.myport) + "/")
     app.run(
         host="0.0.0.0",
         port=parms.myport,

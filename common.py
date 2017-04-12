@@ -1,15 +1,12 @@
-import sys,os
-import time
-from os import walk, path
-from os.path import splitext, join
-from json import dumps
-from config import *
-import signal
-import subprocess
-import re
-import shutil
 import glob
+import shutil
+import signal
+import time
+
 from flask import *
+
+from config import *
+
 
 def wl_batchprocess(args, cmd, func):
     wloads = args.get('wlnames').split(',')
@@ -120,7 +117,7 @@ def fork_work(wloadname, cmdname, func, parms = {}):
 def dummy_work(wdir, wloadname, cmdname):
     # Do the work of the child process here
     createdir(join(wdir, "parsed"))#creating directory called parsed
-    print "IP-addrs:",ipaddrs
+    print "IP-addrs: ???"
     print "in child, sleeping"
     time.sleep(10000)
     return 0

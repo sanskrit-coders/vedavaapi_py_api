@@ -36,5 +36,6 @@ Allows users to correct and uses them in subsequent text recognition.
     * gen_response()
     * myerror()
     * myresult()
+  * Logging functions which need to be replaced.
 * Can generate call graphs:
   * pyan.py --dot -c -e run.py |dot -Tpng > call_graphs/run.png

@@ -8,6 +8,12 @@ from pprint import pprint
 from PIL import Image
 
 import preprocessing
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
 
 
 class DotDict(dict):

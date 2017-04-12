@@ -8,6 +8,12 @@ import collections
 import subprocess
 from json import dumps
 from flask import *
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
 
 PORTNUM = 9000
 WORKDIR = "/tmp/scan2text"
@@ -33,7 +39,7 @@ def serverconfig():
 
 def setmypath(path):
 	global MYPATH
-	print "Setting my path to " + path
+	logging.info("Setting my path to " + path)
 	MYPATH = path
 
 def cmdpath(cmd):
@@ -44,7 +50,7 @@ def cmdpath(cmd):
 def setworkdir(arg,myport=PORTNUM):
     global WORKDIR
     wdir = join(arg,str(myport))
-    print "Setting root working directory to " +wdir
+    logging.info("Setting root working directory to " +wdir)
     WORKDIR = wdir
 
 def workdir():
@@ -76,7 +82,7 @@ def wlocaldir():
     return join(repodir(), wlocalprefix())
 
 def setwlocaldir(dir):
-    print "Setting local book repository to " + dir
+    logging.info("Setting local book repository to " + dir)
     addrepo(dir, wlocalprefix())
 
 def uploaddir():
@@ -85,6 +91,7 @@ def uploaddir():
 def userpath(user, dir):
     return join(userroot(user), dir)
 
+# TODO: Replace these with logging module.
 def loglevel():
     return LOG_LEVEL
 
@@ -93,38 +100,38 @@ def log(msg):
 
 def createdir(dir):
     if not path.exists(dir):
-        print "Creating " + dir + " ..." 
+        logging.info("Creating " + dir + " ...")
         try:
             os.makedirs(dir, 0777)
         except Exception as e:
-            print "Error: cannot create directory, aborting.\n",e
+            logging.error("Error: cannot create directory, aborting.\n" + str(e))
             sys.exit(1)
 
 def initworkdir(reset):
     if (reset):
-        print "Clearing previous contents of " + workdir()
+        logging.info("Clearing previous contents of " + workdir())
         os.system("rm -rf " + workdir());
 
-    print "Initializing work directory ..."
+    logging.info("Initializing work directory ...")
     createdir(workdir())
     createdir(pubroot())
 #    createdir(workdir() + "/users")
     createdir(DATADIR_SETTINGS)
     cfgfile = join(DATADIR_SETTINGS, "server_config.json")
     if reset:
-        print "Resetting server configuration to defaults"
+        logging.info("Resetting server configuration to defaults")
         os.system("rm -f " + cfgfile)
     if not os.path.exists(cfgfile):
         if os.path.exists(cmdpath("server_config.json")):
-            print "Importing derived metric definitions from", cmdpath("server_config.json")
+            logging.info("Importing derived metric definitions from" + cmdpath("server_config.json"))
             os.system("cp -a " + cmdpath("server_config.json") + " " + cfgfile)
-    print "Loading server configuration from ", cfgfile
+    logging.info("Loading server configuration from " + cfgfile)
     with open(cfgfile, "r") as f:
         global SERVER_CONFIG
         SERVER_CONFIG = json.load(f)
-    print "Configuration Settings: "
-    print json.dumps(SERVER_CONFIG, indent=4)
-    print "done."
+    logging.info("Configuration Settings: ")
+    logging.info(json.dumps(SERVER_CONFIG, indent=4))
+    logging.info("done.")
 
 def addrepo(d, reponame):
     if not isdir(d):
@@ -134,7 +141,7 @@ def addrepo(d, reponame):
     target = join(repodir(), reponame if reponame else book)
     createdir(dirname(target))
     if isdir(target) and not islink(target):
-        print "Cannot create symlink: target " + target + " exists."
+        logging.warn("Cannot create symlink: target " + target + " exists.")
         return
     if exists(target):
         os.remove(target)
@@ -161,7 +168,7 @@ def list_dirtree(rootdir):
     try: 
         contents = os.listdir(rootdir)
     except Exception as e:
-        print "Error listing "+rootdir+": ", e
+        logging.error("Error listing "+rootdir+": " + e)
         return all_data
     else:
         for item in contents:
@@ -192,7 +199,7 @@ def mycheck_output(cmd):
                 stderr=subprocess.PIPE, \
                 stdout=subprocess.PIPE).communicate()[0]
     except Exception as e:
-        print "Error in ", cmd,": ", e
+        logging.error("Error in " + cmd + ": " + e)
         return "error"
 
 def gen_response(status = 'ok', result = None):
