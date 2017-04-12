@@ -45,7 +45,7 @@ class Books:
             buser = book['user']
         else:
             buser = ""
-            
+
         for page in book['pages']:
             try:
                 anno_id = self.indicdocs.annotations.insert( \
@@ -67,7 +67,7 @@ class Books:
     def importAll(self, rootdir, pattern = None):
         print "Importing books into database from ", rootdir
         cmd = "find "+rootdir+" \( \( -path '*/.??*' \) -prune \) , \( -path '*.json' \) -follow -print; true"
-        try: 
+        try:
             results = mycheck_output(cmd)
         except Exception as e:
             print "Error in find: ", e
@@ -82,7 +82,7 @@ class Books:
             if pattern and not re.search(pattern, bpath, re.IGNORECASE):
                 continue
             winfo = {}
-            try: 
+            try:
                 with open(f) as fhandle:
                     book = json.load(fhandle)
                     #print json.dumps(book, indent=4)
@@ -120,7 +120,7 @@ class Annotations:
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
         print "Image path = ", imgpath
         page_img = DocImage(imgpath)
-        return page_img 
+        return page_img
 
     def insert(self, anno):
         id = self.annotations.insert(anno)
@@ -159,7 +159,7 @@ class Annotations:
                 continue
             a['score'] = float(1.0) # Set the max score for user-identified segments
             # Prevent image matcher from changing user-identified segments
-            known_segments.insert(a) 
+            known_segments.insert(a)
 
         matches = page_img.find_segments(0,0,known_segments)
         #print "Matches = " + json.dumps(matches)
@@ -194,11 +194,11 @@ class Annotations:
         for a in anno_obj['anno']:
             a = ImgSegment(a)
             if a.state == 'system_inferred':
-                known_segments.insert(a) 
+                known_segments.insert(a)
                 continue
             a['score'] = float(1.0) # Set the max score for user-identified segments
             # Prevent image matcher from changing user-identified segments
-            known_segments.insert(a) 
+            known_segments.insert(a)
             srch_segments.append(a)
 
         cfg = serverconfig()
@@ -299,9 +299,9 @@ class IndicDocs:
         print "Clearing IndicDocs database"
         self.client.drop_database(self.dbname)
         self.initialize()
-        
+
 #    def exists(self, document_or_id=None, **kwargs):
-#        return self.__fs.exists(document_or_id, **kwargs) 
+#        return self.__fs.exists(document_or_id, **kwargs)
 #
 #    def put(self, data, **kwargs):
 #        return self.__fs.put(data, **kwargs)

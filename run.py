@@ -34,21 +34,21 @@ app.config['OAUTH_CREDENTIALS'] = {
 lm = LoginManager(app)
 lm.login_view = 'index'
 
-class User(object):
 
-    def __init__(self, user_id, nickname = "Guest",email=None, confirmed_on=False):
+class User(object):
+    def __init__(self, user_id, nickname="Guest", email=None, confirmed_on=False):
         self.user_id = user_id
         self.nickname = nickname
         self.email = email
-        self.confirmed_on=confirmed_on
+        self.confirmed_on = confirmed_on
 
     def is_authenticated(self):
-        if self.nickname=='Guest' and self.confirmed_on==True:
-            print "Confirmed=",self.confirmed_on
+        if self.nickname == 'Guest' and self.confirmed_on == True:
+            print "Confirmed=", self.confirmed_on
             return True
 
     def is_active(self):
-        if self.confirmed_on==True:
+        if self.confirmed_on == True:
             return True
 
     def is_anonymous(self):
@@ -58,25 +58,26 @@ class User(object):
         return self.user_id
 
 
-def authorized_work(required_url,default_url):
-    if 'logstatus' in session :
+def authorized_work(required_url, default_url):
+    if 'logstatus' in session:
         print "Session Logstatus ", session['logstatus']
-        if session['logstatus']==1:
+        if session['logstatus'] == 1:
             return render_template(required_url, title='Home')
         else:
             print "No-logstatus\n\n"
             return redirect(url_for(default_url))
     else:
         return redirect(url_for(default_url))
-    
+
 
 @app.route('/homepage')
 def mainpage():
-    return authorized_work('home.html','index')
+    return authorized_work('home.html', 'index')
+
 
 @lm.user_loader
 def load_user(id):
-    u = getdb().users.get(id) 
+    u = getdb().users.get(id)
     if not u:
         return None
     return User(u['_id'], u['nickname'])
@@ -85,44 +86,47 @@ def load_user(id):
 @app.route('/')
 def index():
     return render_template('index.html', title='Login')
-    #return render_template('home.html', title='Home')
+    # return render_template('home.html', title='Home')
 
 
 @app.route('/logout')
 def logout():
-    #obj = OAuthSignIn('facebook')
-    #payload = {'grant_type': 'client_credentials', 'client_id': obj.consumer_id, 'client_secret': obj.consumer_secret}
-    #resp = requests.post('https://graph.facebook.com/oauth/access_token?', params = payload)
-    #result = resp.text.split("=")[1]
-    #print "result=",result
-    #session.pop('social_id',None)
-    session['logstatus']=0
-    session['user']=None
+    # obj = OAuthSignIn('facebook')
+    # payload = {'grant_type': 'client_credentials', 'client_id': obj.consumer_id, 'client_secret': obj.consumer_secret}
+    # resp = requests.post('https://graph.facebook.com/oauth/access_token?', params = payload)
+    # result = resp.text.split("=")[1]
+    # print "result=",result
+    # session.pop('social_id',None)
+    session['logstatus'] = 0
+    session['user'] = None
     logout_user()
-    #current_user.authenticated=False
+    # current_user.authenticated=False
     flash("Logged out successfully!", 'info')
     return redirect(url_for('index'))
 
-@app.route('/guestlogin', methods=['GET','POST'])
+
+@app.route('/guestlogin', methods=['GET', 'POST'])
 def guestlogin():
     print "Login using Guest....\n"
     email = request.args.get('usermail')
-    print "email=",email
-    user = getdb().users.insert({"nickname":"Guest", "email":str(email),"confirmed":True,"confirmed_on":str(datetime.datetime.now())})
-    user = User(user['_id'], user['nickname'],user['email'],user['confirmed'])
+    print "email=", email
+    user = getdb().users.insert(
+        {"nickname": "Guest", "email": str(email), "confirmed": True, "confirmed_on": str(datetime.datetime.now())})
+    user = User(user['_id'], user['nickname'], user['email'], user['confirmed'])
     if user.is_authenticated():
-        session['user']='Guest'
+        session['user'] = 'Guest'
         print "guest user!"
-        session['logstatus']=1
+        session['logstatus'] = 1
         return redirect(url_for('mainpage'))
-    return redirect(url_for('index'))    
+    return redirect(url_for('index'))
+
 
 @app.route('/authorize/<provider>')
 def oauth_authorize(provider):
     if not current_user.is_anonymous:
         return redirect(url_for('index'))
-        #return redirect(url_for('mainpage'))
-    session['logstatus']=0
+        # return redirect(url_for('mainpage'))
+    session['logstatus'] = 0
     session['user'] = None
     oauth = OAuthSignIn.get_provider(provider)
     return oauth.authorize()
@@ -135,19 +139,19 @@ def oauth_callback(provider):
     oauth = OAuthSignIn.get_provider(provider)
     seq = oauth.callback()
     print "Return Value = ", seq
-    if (len(seq) == 3) :
+    if (len(seq) == 3):
         social_id, username, email = seq
-        logflag = 1 
-    else :
-        social_id, username, email,logflag = seq
+        logflag = 1
+    else:
+        social_id, username, email, logflag = seq
     if social_id is None:
         flash('Authentication failed.')
         return redirect(url_for('index'))
     user = getdb().users.getBySocialId(social_id)
     if not user:
-        user = getdb().users.insert({"social_id": social_id, "nickname": username, "email":email})
+        user = getdb().users.insert({"social_id": social_id, "nickname": username, "email": email})
     user = User(user['_id'], user['nickname'])
-    session['logstatus']=logflag
+    session['logstatus'] = logflag
     login_user(user, True)
     return redirect(url_for('mainpage'))
 
@@ -156,16 +160,19 @@ def oauth_callback(provider):
 def root(filename):
     return app.send_static_file(filename)
 
+
 @app.route('/abspath/<path:filepath>')
 def readabs(filepath):
-    abspath="/"+filepath
-    #print "final-path:",abspath
+    abspath = "/" + filepath
+    # print "final-path:",abspath
     head, tail = os.path.split(abspath)
-    return send_from_directory(head,tail)
+    return send_from_directory(head, tail)
+
 
 @app.route('/relpath/<path:relpath>')
 def readrel(relpath):
     return (send_from_directory(workdir(), relpath))
+
 
 @app.route('/browse/<path:relpath>')
 def browsedir(relpath):
@@ -173,26 +180,28 @@ def browsedir(relpath):
     print fullpath
     return render_template("fancytree.html", abspath=fullpath)
 
-#@app.route('/<path:abspath>')
-#def details_dir(abspath):
+
+# @app.route('/<path:abspath>')
+# def details_dir(abspath):
 #	print "abspath:",abspath
 #	return render_template("fancytree.html", abspath='/'+abspath)
 
 @app.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
-    #print abspath
+    # print abspath
     data = list_dirtree("/" + abspath)
-    #print "Data:",json.dumps(data)
+    # print "Data:",json.dumps(data)
     return json.dumps(data)
+
 
 @app.route('/taillog/<string:nlines>/<path:filepath>')
 def getlog(nlines, filepath):
     lpath = join(repodir(), filepath)
     print "get logfile " + lpath
-    p = subprocess.Popen(['tail','-'+nlines,lpath], shell=False,
-    stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    p_stdout=p.stdout.read()
-    #print p_stdout
+    p = subprocess.Popen(['tail', '-' + nlines, lpath], shell=False,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    p_stdout = p.stdout.read()
+    # print p_stdout
     return '''
         <html>
         <meta http-equiv="refresh" content="15">
@@ -200,34 +209,38 @@ def getlog(nlines, filepath):
         </head>
         <body>
         <h1>Reading log file ''' + filepath + '''...</h1>
-        <div id="scbar" style="border:1px solid black;height:350px;width:600px;overflow-y:auto;white-space:pre"><p>'''+p_stdout+'''</p>
+        <div id="scbar" style="border:1px solid black;height:350px;width:600px;overflow-y:auto;white-space:pre"><p>''' + p_stdout + '''</p>
         </div>
         </body>
         </html>
-        '''   
+        '''
+
 
 (cmddir, cmdname) = os.path.split(argv[0])
 setmypath(os.path.abspath(cmddir))
 print "My path is " + mypath()
 
+
 def usage():
     print cmdname + " [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ..."
     exit(1)
 
+
 parms = DotDict({
-    'reset' : False,
-    'dbreset' : False,
-    'dbgFlag' : False,
-    'myport' : PORTNUM,
-    'localdir' : None,
-    'wdir' : workdir(),
-    'repos' : [],
-    })
+    'reset': False,
+    'dbreset': False,
+    'dbgFlag': False,
+    'myport': PORTNUM,
+    'localdir': None,
+    'wdir': workdir(),
+    'repos': [],
+})
+
 
 def setup_app(parms):
     setworkdir(parms.wdir, parms.myport)
     print cmdname + ": Using " + workdir() + " as working directory."
-    
+
     initworkdir(parms.reset)
 
     initdb(INDICDOC_DBNAME, parms.dbreset)
@@ -237,7 +250,7 @@ def setup_app(parms):
         if len(components) > 1:
             print "Importing " + components[0] + " as " + components[1]
             addrepo(components[0], components[1])
-        else: 
+        else:
             print "Importing " + components[0]
             addrepo(components[0], "")
 
@@ -250,6 +263,7 @@ def setup_app(parms):
     # Import all book metadata into the IndicDocs database
     getdb().books.importAll(repodir())
 
+
 def main(argv):
     try:
         opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])
@@ -260,7 +274,7 @@ def main(argv):
         if opt == '-h':
             usage()
         elif opt in ("-o", "--workdir"):
-	    parms.wdir=arg
+            parms.wdir = arg
         elif opt in ("-l", "--wloaddir"):
             parms.localdir = arg
         elif opt in ("-p", "--port"):
@@ -281,11 +295,12 @@ def main(argv):
         if m:
             print "    http://" + m.group(1) + ":" + str(parms.myport) + "/"
     app.run(
-      host ="0.0.0.0",
-      port = parms.myport,
-      debug = parms.dbgFlag,
-      use_reloader=False
-     )
+        host="0.0.0.0",
+        port=parms.myport,
+        debug=parms.dbgFlag,
+        use_reloader=False
+    )
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])

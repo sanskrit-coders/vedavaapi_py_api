@@ -3,10 +3,8 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from common import *
-from docimage import *
 from indicdocs import *
 from PIL import ImageFile
-
 app = Flask(__name__)
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True

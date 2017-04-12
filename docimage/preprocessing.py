@@ -232,5 +232,4 @@ def skew_correction(img):
 def preprocess(img):
     return skew_correction(img)
 
-cv2.waitKey(0)
 cv2.destroyAllWindows()

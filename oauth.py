@@ -118,5 +118,3 @@ class TwitterSignIn(OAuthSignIn):
         social_id = 'twitter$' + str(me.get('id'))
         username = me.get('screen_name')
         return social_id, username, None, 1   # Twitter does not provide email
-
-
