@@ -3,6 +3,9 @@ import shutil
 import signal
 import time
 
+import re
+from json import dumps
+
 from flask import *
 
 from config import *
@@ -110,7 +113,7 @@ def fork_work(wloadname, cmdname, func, parms = {}):
             os._exit(ret)
 
     # Parent
-    return 'Started. ' + urlize(join(wloadname, cmdname + "-log.txt"), \
+    return 'Started. ' + urlize(join(wloadname, cmdname + "-log.txt"),
             "Click for details", True)
 
 
@@ -129,8 +132,8 @@ def do_externalcmd(cmd):
     signal.signal(signal.SIGINT, handle_signal)
     signal.signal(signal.SIGCHLD, signal.SIG_IGN)
     signal.signal(signal.SIGHUP, signal.SIG_IGN)
-    proc = subprocess.Popen(cmd,shell=False, \
-        preexec_fn=os.setsid, \
+    proc = subprocess.Popen(cmd,shell=False,
+        preexec_fn=os.setsid,
         close_fds=True, stdout=sys.stdout, stderr=sys.stderr)
 
     subprocs.add(proc)
@@ -177,12 +180,12 @@ def wlparse(parms):
         pidfile = join(wdir, "parse.pid")
         if os.path.exists(pidfile):
             response.append({ "wlname" : w,
-                                "status" : "Parsing in progress; skipped." });
+                                "status" : "Parsing in progress; skipped." })
         else:
             resp = fork_work(w, "parse", do_parse, parms)
             print "return:",resp
             response.append({ "wlname" : w,
-                                "status" : resp});
+                                "status" : resp})
     return response
 
 def do_stop(w, cmdname, sig=signal.SIGINT):
@@ -198,14 +201,14 @@ def do_stop(w, cmdname, sig=signal.SIGINT):
                 #os.remove(pidfile)
                 response.append({ "wlname" : w,
                                 "status" : cmdname + " stopped (process id " + str(pid) + ")"
-                            });
+                            })
             except Exception as e:
                 print "Error: ", e
                 print "pidfile path:",pidfile
                 os.remove(pidfile)
     else:
         response.append({ "wlname" : w,
-                            "status" : cmdname + " not running." });
+                            "status" : cmdname + " not running." })
     return response
 
 def wlcstop(args):
