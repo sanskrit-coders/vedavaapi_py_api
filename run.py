@@ -255,10 +255,10 @@ def setup_app(parms):
     for a in parms.repos:
         components = a.split(':')
         if len(components) > 1:
-            print "Importing " + components[0] + " as " + components[1]
+            logging.info("Importing " + components[0] + " as " + components[1])
             addrepo(components[0], components[1])
         else:
-            print "Importing " + components[0]
+            logging.info("Importing " + components[0])
             addrepo(components[0], "")
 
     if parms.localdir:
