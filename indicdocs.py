@@ -1,6 +1,7 @@
 from bson.objectid import ObjectId
 from pymongo.database import Database
 
+import re
 from pymongo import MongoClient
 
 from config import *
@@ -18,7 +19,7 @@ logging.basicConfig(
 
 class Books:
     def __init__(self, indicdocs):
-        #print "Initializing books collection ..."
+        #logging.info("Initializing books collection ...")
         self.indicdocs = indicdocs
         self.books = indicdocs.db['books']
 
@@ -60,23 +61,23 @@ class Books:
                 sec_id = self.indicdocs.sections.insert( \
                     { 'bpath' : bpath, 'pgidx' : pgidx, \
                         'sections' : [] , 'user': buser})
-                #print "anno: " + str(anno_id) + ", sec: " + str(sec_id)
+                #logging.info("anno: " + str(anno_id) + ", sec: " + str(sec_id))
                 page['anno'] = anno_id
                 page['sections'] = sec_id
             except Exception as e:
-                print "Error inserting anno", e
+                logging.error("Error inserting anno "+ str(e))
             #print json.dumps(page, indent=4)
             pgidx = pgidx + 1
-        #print json.dumps(book, indent=4)
+        #logging.info(json.dumps(book, indent=4))
         self.insert(book)
 
     def importAll(self, rootdir, pattern = None):
-        print "Importing books into database from ", rootdir
+        logging.info("Importing books into database from " + rootdir)
         cmd = "find "+rootdir+" \( \( -path '*/.??*' \) -prune \) , \( -path '*.json' \) -follow -print; true"
         try:
             results = mycheck_output(cmd)
         except Exception as e:
-            print "Error in find: ", e
+            logging.error("Error in find: " + str(e))
             return 0
 
         nbooks = 0
@@ -84,20 +85,20 @@ class Books:
             if not f:
                 continue
             bpath, fname = os.path.split(f.replace(rootdir + "/", ""))
-            print "    "+bpath
+            logging.info("    "+bpath)
             if pattern and not re.search(pattern, bpath, re.IGNORECASE):
                 continue
             winfo = {}
             try:
                 with open(f) as fhandle:
                     book = json.load(fhandle)
-                    #print json.dumps(book, indent=4)
+                    #logging.info(json.dumps(book, indent=4))
                     book["path"] = bpath
                     if self.get(bpath) is None:
                         self.importOne(book)
                         nbooks = nbooks + 1
             except Exception as e:
-                print "Skipped book " + f + ". Error:", e
+                logging.info("Skipped book " + f + ". Error:" + str(e))
         return nbooks
 
 class Annotations:
@@ -124,7 +125,7 @@ class Annotations:
 
         page = book['pages'][anno_obj['pgidx']]
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
-        print "Image path = ", imgpath
+        logging.info("Image path = " + imgpath)
         page_img = DocImage(imgpath)
         return page_img
 
@@ -154,8 +155,8 @@ class Annotations:
         [fname,ext] = os.path.splitext(page['fname']);
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
         workingImgPath = join(repodir(), join(anno_obj['bpath'], fname+"_working.jpg"))
-        print "Image path = ", imgpath
-        print "Working Image path = ", workingImgPath
+        logging.info("Image path = " + imgpath)
+        logging.info("Working Image path = " + workingImgPath)
         page_img = DocImage(imgpath, workingImgPath)
 
         known_segments = DisjointSegments()
@@ -168,8 +169,8 @@ class Annotations:
             known_segments.insert(a)
 
         matches = page_img.find_segments(0,0,known_segments)
-        #print "Matches = " + json.dumps(matches)
-        #print "Segments = " + json.dumps(known_segments.segments)
+        #logging.info("Matches = " + json.dumps(matches))
+        #logging.info("Segments = " + json.dumps(known_segments.segments))
         for r in matches:
             # and propagate its text to them
             r['state'] = 'system_inferred'
@@ -192,7 +193,7 @@ class Annotations:
 
         page = book['pages'][anno_obj['pgidx']]
         imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
-        print "Image path = ", imgpath
+        logging.info("Image path = " + imgpath)
         page_img = DocImage(imgpath)
 
         known_segments = DisjointSegments()
@@ -210,14 +211,14 @@ class Annotations:
         cfg = serverconfig()
         thres = cfg['template_match']['threshold']
 
-        print "segments to propagate = " + json.dumps(srch_segments)
-        # print "Known segments = " + json.dumps(known_segments.segments)
+        logging.info("segments to propagate = " + json.dumps(srch_segments))
+        # logging.info("Known segments = " + json.dumps(known_segments.segments))
         # For each user-supplied annotation,
         for a in srch_segments:
             # Search for similar image segments within page
             # make sure they are spatially disjoint
             matches = page_img.find_recurrence(a, thres, known_segments)
-            #print "Matches = " + json.dumps(matches)
+            #logging.info("Matches = " + json.dumps(matches))
             for r in matches:
                 # and propagate its text to them
                 r['state'] = 'system_inferred'
@@ -225,7 +226,7 @@ class Annotations:
 
         known_segments.segments.sort()
         #for r in known_segments.segments:
-        #   print str(r)
+        #   logging.info(str(r))
         #print(known_segments.segments)
         #new_anno = sorted(DotDict(new_anno), key=attrgetter('x', 'y', 'w', 'h'))
         # Save the updated annotations
@@ -302,7 +303,7 @@ class IndicDocs:
             sys.exit(1)
 
     def reset(self):
-        print "Clearing IndicDocs database"
+        logging.info("Clearing IndicDocs database")
         self.client.drop_database(self.dbname)
         self.initialize()
 
@@ -363,7 +364,7 @@ def main(args):
     imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
     img = DocImage(imgpath)
 
-    #print json.dumps(matches)
+    #logging.info(json.dumps(matches))
     rects = anno_obj['anno']
     seeds = [r for r in rects if r['state'] != 'system_inferred']
     img.annotate(rects)

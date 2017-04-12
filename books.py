@@ -1,3 +1,4 @@
+import logging
 from flask import *
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
@@ -5,6 +6,12 @@ from werkzeug.utils import secure_filename
 from common import *
 from indicdocs import *
 from PIL import ImageFile
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
+
 app = Flask(__name__)
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -17,11 +24,11 @@ def allowed_file(filename):
 
 @books_api.route('/list', methods = ['GET', 'POST'])
 def getbooklist():
-    print "Session in books_api=",session['logstatus']
+    logging.info("Session in books_api="+ str(session['logstatus']))
     if 'logstatus' in session :
         if session['logstatus']==1:
             pattern = request.args.get('pattern')
-            print "books list filter = " + str(pattern)
+            logging.info("books list filter = " + str(pattern))
             binfo = {'books' : getdb().books.list(pattern) }
             return myresult(binfo)
         else:
@@ -32,7 +39,7 @@ def getbooklist():
 @books_api.route('/get', methods = ['GET', 'POST'])
 def getbooksingle():
     path = request.args.get('path')
-    print "book get by path = " + str(path)
+    logging.info("book get by path = " + str(path))
     binfo = getdb().books.get(path)
     #pprint(binfo)
     return myresult(binfo)
@@ -57,8 +64,8 @@ def pageanno(anno_id):
     elif request.method == 'POST':
         """modify/update the page annotation with id = anno_id"""
         anno = request.form.get('anno')
-        print "save page annotations by id = " + str(anno_id)
-        #print "save page annotations = " + anno
+        logging.info("save page annotations by id = " + str(anno_id))
+        #logging.info("save page annotations = " + anno)
         anno = json.loads(anno)
         res = getdb().annotations.update(anno_id, { 'anno' : anno })
         if res == True:
@@ -112,13 +119,13 @@ def upload():
         is_ajax = True
     abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
         else join(uploaddir(), bookpath)
-    print "uploading to " + abspath
+    logging.info("uploading to " + abspath)
     try:
         createdir(abspath)
     except Exception as e:
         return myerror("Couldn't create upload directory: {}".format(abspath), e)
 
-    print "User Id: " + current_user.get_id()
+    logging.info("User Id: " + current_user.get_id())
     bookpath = abspath.replace(repodir() + "/", "")
     book = getdb().books.get(bookpath)
     if (book is None):
