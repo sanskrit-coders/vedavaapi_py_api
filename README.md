@@ -18,5 +18,23 @@ Allows users to correct and uses them in subsequent text recognition.
 
 # Development
 ## Understanding the code
+* [run.py]() :
+  * starts the webservice
+  * creates local temporary and data directories
+  * sets up actions to be taken when various URL-s are accessed.
+    * Some of this is redirected to books_api in [books.py]() .
+* [indicdocs.py]() :
+  * Sets up database (an IndicDocs object) with initdb() and getdb()
+  * Declares various other data classes:
+    * Books
+    * Annotations
+    * Sections
+    * Users
+* [config.py]() contains various helper methods
+  * most of which are for setup and file operations.
+  * Some salient ones pertaining to formatting json responses are:
+    * gen_response()
+    * myerror()
+    * myresult()
 * Can generate call graphs:
   * pyan.py --dot -c -e run.py |dot -Tpng > call_graphs/run.png
