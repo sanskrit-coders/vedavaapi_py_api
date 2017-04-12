@@ -51,7 +51,7 @@ class User(object):
 
     def is_authenticated(self):
         if self.nickname == 'Guest' and self.confirmed_on == True:
-            print "Confirmed=", self.confirmed_on
+            logging.info("Confirmed=" + str( self.confirmed_on))
             return True
 
     def is_active(self):
@@ -67,11 +67,11 @@ class User(object):
 
 def authorized_work(required_url, default_url):
     if 'logstatus' in session:
-        print "Session Logstatus ", session['logstatus']
+        logging.info("Session Logstatus " + str( session['logstatus']))
         if session['logstatus'] == 1:
             return render_template(required_url, title='Home')
         else:
-            print "No-logstatus\n\n"
+            logging.info("No-logstatus\n\n")
             return redirect(url_for(default_url))
     else:
         return redirect(url_for(default_url))
@@ -102,7 +102,7 @@ def logout():
     # payload = {'grant_type': 'client_credentials', 'client_id': obj.consumer_id, 'client_secret': obj.consumer_secret}
     # resp = requests.post('https://graph.facebook.com/oauth/access_token?', params = payload)
     # result = resp.text.split("=")[1]
-    # print "result=",result
+    # logging.info("result=" + str(result))
     # session.pop('social_id',None)
     session['logstatus'] = 0
     session['user'] = None
@@ -114,15 +114,15 @@ def logout():
 
 @app.route('/guestlogin', methods=['GET', 'POST'])
 def guestlogin():
-    print "Login using Guest....\n"
+    logging.info("Login using Guest....\n")
     email = request.args.get('usermail')
-    print "email=", email
+    logging.info("email=" + str( email))
     user = getdb().users.insert(
         {"nickname": "Guest", "email": str(email), "confirmed": True, "confirmed_on": str(datetime.datetime.now())})
     user = User(user['_id'], user['nickname'], user['email'], user['confirmed'])
     if user.is_authenticated():
         session['user'] = 'Guest'
-        print "guest user!"
+        logging.info("guest user!")
         session['logstatus'] = 1
         return redirect(url_for('mainpage'))
     return redirect(url_for('index'))
@@ -145,7 +145,7 @@ def oauth_callback(provider):
         return redirect(url_for('mainpage'))
     oauth = OAuthSignIn.get_provider(provider)
     seq = oauth.callback()
-    print "Return Value = ", seq
+    logging.info("Return Value = " + str( seq))
     if (len(seq) == 3):
         social_id, username, email = seq
         logflag = 1
@@ -171,7 +171,7 @@ def root(filename):
 @app.route('/abspath/<path:filepath>')
 def readabs(filepath):
     abspath = "/" + filepath
-    # print "final-path:",abspath
+    # logging.info("final-path:" + str(abspath))
     head, tail = os.path.split(abspath)
     return send_from_directory(head, tail)
 
@@ -184,27 +184,27 @@ def readrel(relpath):
 @app.route('/browse/<path:relpath>')
 def browsedir(relpath):
     fullpath = join(workdir(), relpath)
-    print fullpath
+    logging.info(fullpath)
     return render_template("fancytree.html", abspath=fullpath)
 
 
 # @app.route('/<path:abspath>')
 # def details_dir(abspath):
-#	print "abspath:",abspath
+#	logging.info("abspath:" + str(abspath))
 #	return render_template("fancytree.html", abspath='/'+abspath)
 
 @app.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
     # print abspath
     data = list_dirtree("/" + abspath)
-    # print "Data:",json.dumps(data)
+    # logging.info("Data:" + str(json.dumps(data)))
     return json.dumps(data)
 
 
 @app.route('/taillog/<string:nlines>/<path:filepath>')
 def getlog(nlines, filepath):
     lpath = join(repodir(), filepath)
-    print "get logfile " + lpath
+    logging.info("get logfile " + lpath)
     p = subprocess.Popen(['tail', '-' + nlines, lpath], shell=False,
                          stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
     p_stdout = p.stdout.read()
@@ -225,11 +225,11 @@ def getlog(nlines, filepath):
 
 (cmddir, cmdname) = os.path.split(argv[0])
 setmypath(os.path.abspath(cmddir))
-print "My path is " + mypath()
+logging.info("My path is " + mypath())
 
 
 def usage():
-    print cmdname + " [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ..."
+    logging.info(cmdname + " [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
     exit(1)
 
 
@@ -246,7 +246,7 @@ parms = DotDict({
 
 def setup_app(parms):
     setworkdir(parms.wdir, parms.myport)
-    print cmdname + ": Using " + workdir() + " as working directory."
+    logging.info(cmdname + ": Using " + workdir() + " as working directory.")
 
     initworkdir(parms.reset)
 
