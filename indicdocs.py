@@ -17,6 +17,7 @@ logging.basicConfig(
 #from gridfs import GridFS
 #from gridfs.errors import NoFile
 
+# Encapsulates the books collection.
 class Books:
     def __init__(self, indicdocs):
         #logging.info("Initializing books collection ...")
@@ -55,11 +56,11 @@ class Books:
 
         for page in book['pages']:
             try:
-                anno_id = self.indicdocs.annotations.insert( \
-                    { 'bpath' : bpath, 'pgidx' : pgidx, \
+                anno_id = self.indicdocs.annotations.insert(
+                    { 'bpath' : bpath, 'pgidx' : pgidx,
                         'anno' : [] , 'user': buser})
-                sec_id = self.indicdocs.sections.insert( \
-                    { 'bpath' : bpath, 'pgidx' : pgidx, \
+                sec_id = self.indicdocs.sections.insert(
+                    { 'bpath' : bpath, 'pgidx' : pgidx,
                         'sections' : [] , 'user': buser})
                 #logging.info("anno: " + str(anno_id) + ", sec: " + str(sec_id))
                 page['anno'] = anno_id
@@ -101,6 +102,7 @@ class Books:
                 logging.info("Skipped book " + f + ". Error:" + str(e))
         return nbooks
 
+# Encapsulates the annotations collection.
 class Annotations:
     def __init__(self, indicdocs):
         self.indicdocs = indicdocs
@@ -233,6 +235,7 @@ class Annotations:
         self.update(anno_id, { 'anno' : known_segments.segments })
         return True
 
+# Encapsulates the sections collection.
 class Sections:
     def __init__(self, indicdocs):
         self.indicdocs = indicdocs
@@ -251,6 +254,7 @@ class Sections:
         result = self.sections.update({'_id' : ObjectId(sec_id)}, section)
         return result['n'] > 0
 
+# Encapsulates the users collection.
 class Users:
     def __init__(self, indicdocs):
         self.indicdocs = indicdocs
@@ -280,6 +284,7 @@ class Users:
 #    def __init__(docdb):
 #        self.users = docdb['users']
 
+# Encapsulates the main database.
 class IndicDocs:
     def __init__(self, dbname):
         self.dbname = dbname

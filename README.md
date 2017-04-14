@@ -25,7 +25,7 @@ Allows users to correct and uses them in subsequent text recognition.
     * Some of this is redirected to books_api in [books.py]() .
 * [indicdocs.py]() :
   * Sets up database (an IndicDocs object) with initdb() and getdb()
-  * Declares various other data classes:
+  * Declares various other pymongo db collection containers, with methods for create /update / insert operations:
     * Books
     * Annotations
     * Sections
