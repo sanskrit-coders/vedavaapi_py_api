@@ -15,22 +15,23 @@ class TestDBRoundTrip(unittest.TestCase):
 
   def test_BookPortion(self):
     book_portion = data_containers.BookPortion.from_details(
-      title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")
+      title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha", targets=[data_containers.Target(container_id="xyz")])
 
     json = jsonpickle.encode(book_portion)
     logging.info("json pickle is " + json)
 
     book_portions = self.test_db.db.book_portions
-    result = book_portions.update({"path" : book_portion.path}, book_portion.__dict__, upsert=True)
+    logging.debug(book_portion.toJsonMap())
+    result = book_portions.update({"path" : book_portion.path}, book_portion.toJsonMap(), upsert=True)
     logging.debug("update result is "  + str(result))
 
     book_portion_retrieved = data_containers.BookPortion.from_dict(
       book_portions.find_one({"path" : book_portion.path}))
 
-    logging.info(str(book_portion.__dict__))
-    logging.info(str(book_portion_retrieved.__dict__))
+    logging.info(str(book_portion.toJsonMap()))
+    logging.info(str(book_portion_retrieved.toJsonMap()))
     # TODO: fix below.
-    self.assertEqual(book_portion.equals_ignore_id(book_portion_retrieved))
+    self.assertTrue(book_portion.equals_ignore_id(book_portion_retrieved))
 
 if __name__ == '__main__':
   unittest.main()
