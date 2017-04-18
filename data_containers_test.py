@@ -45,8 +45,7 @@ class TestDBRoundTrip(unittest.TestCase):
     result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
     logging.debug("update result is "  + str(result))
 
-    annotation_retrieved = data_containers.ImageAnnotation()
-    annotation_retrieved.set_from_dict(annotations.find_one(annotation.toJsonMap()))
+    annotation_retrieved = data_containers.JsonObject.make_from_dict(annotations.find_one(annotation.toJsonMap()))
 
     logging.info(str(annotation_retrieved.toJsonMap()))
     self.assertTrue(annotation.equals_ignore_id(annotation_retrieved))
@@ -64,11 +63,6 @@ class TestDBRoundTrip(unittest.TestCase):
     logging.debug("update result is "  + str(result))
 
     annotation_retrieved = data_containers.JsonObject.make_from_dict(annotations.find_one(annotation.toJsonMap()))
-    logging.info("annotation_retrieved has text " + annotation_retrieved.content.text)
-
-
-    annotation_retrieved = data_containers.TextAnnotation()
-    annotation_retrieved.set_from_dict(annotations.find_one(annotation.toJsonMap()))
     logging.info("annotation_retrieved has text " + annotation_retrieved.content.text)
 
     logging.info(str(annotation_retrieved.toJsonMap()))
