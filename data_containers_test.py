@@ -85,5 +85,30 @@ class TestDBRoundTrip(unittest.TestCase):
     self.assertTrue(annotation.equals_ignore_id(annotation_retrieved))
 
 
+  def test_FullSentence(self):
+    # Add text annotation
+    target_image_id = ObjectId()
+    annotation = data_containers.TextAnnotation.from_details(targets=[
+      data_containers.Target.from_details(container_id=str(target_image_id))],
+      source=data_containers.AnnotationSource.from_details("someOCRProgram", "xyz.py"), content=data_containers.TextContent.from_details(u"रामो विग्रवान् धर्मः।"))
+    logging.debug(annotation.toJsonMap())
+
+    annotations = self.test_db.db.annotations
+
+    result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
+    logging.debug("update result is "  + str(result))
+
+    samsAdhanI_source = data_containers.AnnotationSource.from_details("samsAdhanI", "xyz.py")
+    # Add pada annotations
+    annotation = data_containers.PadaAnnotation.from_details(targets=[
+      data_containers.TextTarget.from_details(container_id=str(target_image_id))],
+      source=samsAdhanI_source)
+    logging.debug(annotation.toJsonMap())
+
+    result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
+    logging.debug("update result is "  + str(result))
+
+
+
 if __name__ == '__main__':
   unittest.main()

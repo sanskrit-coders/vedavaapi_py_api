@@ -11,6 +11,7 @@ logging.basicConfig(
 
 TYPE_FIELD = "py/object"
 
+
 class JsonObject(object):
   def __init__(self):
     self.set_type()
@@ -59,7 +60,7 @@ class JsonObject(object):
 
   def set_from_id(self, collection, id):
     return self.set_from_dict(
-      collection.find_one({"_id" : ObjectId(id)}))
+      collection.find_one({"_id": ObjectId(id)}))
 
   def toJsonMap(self):
     jsonMap = {}
@@ -71,7 +72,6 @@ class JsonObject(object):
       else:
         jsonMap[key] = value
     return jsonMap
-
 
   def equals_ignore_id(self, other):
     # Makes a unicode copy.
@@ -106,7 +106,7 @@ class Target(JsonObject):
 
 class BookPortion(JsonObject):
   @classmethod
-  def from_details(cls, title, authors, path, targets = []):
+  def from_details(cls, title, authors, path, targets=[]):
     book_portion = BookPortion()
     book_portion.title = title
     book_portion.authors = authors
@@ -117,8 +117,9 @@ class BookPortion(JsonObject):
   @classmethod
   def from_path(cls, collection, path):
     book_portion = BookPortion()
-    book_portion.set_from_dict(collection.find_one({"path" : path}))
+    book_portion.set_from_dict(collection.find_one({"path": path}))
     return book_portion
+
 
 class AnnotationSource(JsonObject):
   @classmethod
@@ -146,6 +147,8 @@ class ImageTarget(Target):
     target.y2 = y2
     return target
 
+
+# Targets: ImageTarget for a BookPortion
 class ImageAnnotation(Annotation):
   @classmethod
   def from_details(cls, targets, source):
@@ -153,9 +156,10 @@ class ImageAnnotation(Annotation):
     annotation.set_base_details(targets, source)
     return annotation
 
+
 class TextContent(JsonObject):
   @classmethod
-  def from_details(cls, text, language = "UNK", encoding = "UNK"):
+  def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
     text_content.text = text
     text_content.language = language
@@ -163,11 +167,88 @@ class TextContent(JsonObject):
     return text_content
 
 
+# Targets: ImageAnnotation(s)
 class TextAnnotation(Annotation):
-
   @classmethod
-  def from_details(self, targets, source, content):
+  def from_details(cls, targets, source, content):
     annotation = TextAnnotation()
     annotation.set_base_details(targets, source)
     annotation.content = content
     return annotation
+
+
+class TinantaDetails(JsonObject):
+  @classmethod
+  def from_details(cls, targets, source, lakAra, puruSha, vachana):
+    annotation = TinantaDetails()
+    annotation.set_base_details(targets, source)
+    annotation.lakAra = lakAra
+    annotation.puruSha = puruSha
+    annotation.vachana = vachana
+    return annotation
+
+
+class SubantaDetails(JsonObject):
+  @classmethod
+  def from_details(cls, targets, source, linga, vibhakti, vachana):
+    annotation = SubantaDetails()
+    annotation.set_base_details(targets, source)
+    annotation.linga = linga
+    annotation.vibhakti = vibhakti
+    annotation.vachana = vachana
+    return annotation
+
+
+class TextTarget(Target):
+  @classmethod
+  def from_details(cls, container_id, start_offset=-1, end_offset=-1):
+    target = TextTarget()
+    target.container_id = container_id
+    target.start_offset = start_offset
+    target.end_offset = end_offset
+    return target
+
+
+# Targets: TextTarget pointing to TextAnnotation
+class PadaAnnotation(Annotation):
+  @classmethod
+  def from_details(cls, targets, source, word, root, tinanta_details, subanta_details):
+    annotation = PadaAnnotation()
+    annotation.set_base_details(targets, source)
+    annotation.word = word
+    annotation.root = root
+    annotation.tinanta_details = tinanta_details
+    annotation.subanta_details = subanta_details
+    return annotation
+
+
+# Targets: two PadaAnnotations
+class SandhiAnnotation(Annotation):
+  @classmethod
+  def from_details(cls, targets, source, combined_string, type = "UNK"):
+    annotation = SandhiAnnotation()
+    annotation.set_base_details(targets, source)
+    annotation.combined_string = combined_string
+    annotation.type = type
+    return annotation
+
+
+# Targets: two or more PadaAnnotations
+class SamaasaAnnotation(Annotation):
+  @classmethod
+  def from_details(cls, targets, source, combined_string, type = "UNK"):
+    annotation = SamaasaAnnotation()
+    annotation.set_base_details(targets, source)
+    annotation.combined_string = combined_string
+    annotation.type = type
+    return annotation
+
+
+# Targets: PadaAnnotations
+class PadavibhaagaAnnotation(Annotation):
+  @classmethod
+  def from_details(self, targets, source):
+    annotation = PadavibhaagaAnnotation()
+    annotation.set_base_details(targets, source)
+    return annotation
+
