@@ -167,7 +167,7 @@ class TextContent(JsonObject):
     return text_content
 
 
-# Targets: ImageAnnotation(s)
+# Targets: ImageAnnotation(s) or  TextAnnotation
 class TextAnnotation(Annotation):
   @classmethod
   def from_details(cls, targets, source, content):

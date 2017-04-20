@@ -95,18 +95,25 @@ class TestDBRoundTrip(unittest.TestCase):
 
     annotations = self.test_db.db.annotations
 
-    result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
-    logging.debug("update result is "  + str(result))
+    from pymongo import ReturnDocument
+    updatedDoc = annotations.find_one_and_update(annotation.toJsonMap(),  { "$set": annotation.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    logging.debug(updatedDoc)
+    annotation = data_containers.JsonObject.make_from_dict(updatedDoc)
+    logging.debug(annotation.toJsonMap())
+
+    updatedDoc = annotations.find_one_and_update(annotation.toJsonMap(),  { "$set": annotation.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    annotation = data_containers.JsonObject.make_from_dict(updatedDoc)
+    logging.debug(annotation.toJsonMap())
 
     samsAdhanI_source = data_containers.AnnotationSource.from_details("samsAdhanI", "xyz.py")
     # Add pada annotations
-    annotation = data_containers.PadaAnnotation.from_details(targets=[
-      data_containers.TextTarget.from_details(container_id=str(target_image_id))],
-      source=samsAdhanI_source)
-    logging.debug(annotation.toJsonMap())
-
-    result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
-    logging.debug("update result is "  + str(result))
+    # annotation = data_containers.PadaAnnotation.from_details(targets=[
+    #   data_containers.TextTarget.from_details(container_id=str(target_image_id))],
+    #   source=samsAdhanI_source)
+    # logging.debug(annotation.toJsonMap())
+    #
+    # result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
+    # logging.debug("update result is "  + str(result))
 
 
 

@@ -2,6 +2,8 @@ from bson.objectid import ObjectId
 from pymongo.database import Database
 
 import re
+
+import pymongo
 from pymongo import MongoClient
 
 from config import *
@@ -13,6 +15,8 @@ logging.basicConfig(
     level=logging.DEBUG,
     format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
+
+logging.info(pymongo.__version__)
 
 #from gridfs import GridFS
 #from gridfs.errors import NoFile
