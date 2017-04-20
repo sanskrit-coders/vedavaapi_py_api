@@ -62,6 +62,9 @@ class JsonObject(object):
     return self.set_from_dict(
       collection.find_one({"_id": ObjectId(id)}))
 
+  def toJsonMapViaPickle(self):
+    return json_util.loads(jsonpickle.encode(self))
+
   def toJsonMap(self):
     jsonMap = {}
     for key, value in self.__dict__.iteritems():
@@ -179,24 +182,22 @@ class TextAnnotation(Annotation):
 
 class TinantaDetails(JsonObject):
   @classmethod
-  def from_details(cls, targets, source, lakAra, puruSha, vachana):
-    annotation = TinantaDetails()
-    annotation.set_base_details(targets, source)
-    annotation.lakAra = lakAra
-    annotation.puruSha = puruSha
-    annotation.vachana = vachana
-    return annotation
+  def from_details(cls, lakAra, puruSha, vachana):
+    obj = TinantaDetails()
+    obj.lakAra = lakAra
+    obj.puruSha = puruSha
+    obj.vachana = vachana
+    return obj
 
 
 class SubantaDetails(JsonObject):
   @classmethod
-  def from_details(cls, targets, source, linga, vibhakti, vachana):
-    annotation = SubantaDetails()
-    annotation.set_base_details(targets, source)
-    annotation.linga = linga
-    annotation.vibhakti = vibhakti
-    annotation.vachana = vachana
-    return annotation
+  def from_details(cls, linga, vibhakti, vachana):
+    obj = SubantaDetails()
+    obj.linga = linga
+    obj.vibhakti = vibhakti
+    obj.vachana = vachana
+    return obj
 
 
 class TextTarget(Target):
@@ -212,7 +213,7 @@ class TextTarget(Target):
 # Targets: TextTarget pointing to TextAnnotation
 class PadaAnnotation(Annotation):
   @classmethod
-  def from_details(cls, targets, source, word, root, tinanta_details, subanta_details):
+  def from_details(cls, targets, source, word, root, tinanta_details = None, subanta_details = None):
     annotation = PadaAnnotation()
     annotation.set_base_details(targets, source)
     annotation.word = word

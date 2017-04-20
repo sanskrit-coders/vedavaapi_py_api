@@ -5,6 +5,7 @@ import unittest
 
 import jsonpickle
 from bson import ObjectId
+from pymongo import ReturnDocument
 
 import data_containers
 from indicdocs import IndicDocs
@@ -88,32 +89,32 @@ class TestDBRoundTrip(unittest.TestCase):
   def test_FullSentence(self):
     # Add text annotation
     target_image_id = ObjectId()
-    annotation = data_containers.TextAnnotation.from_details(targets=[
+    text_annotation = data_containers.TextAnnotation.from_details(targets=[
       data_containers.Target.from_details(container_id=str(target_image_id))],
       source=data_containers.AnnotationSource.from_details("someOCRProgram", "xyz.py"), content=data_containers.TextContent.from_details(u"रामो विग्रवान् धर्मः।"))
-    logging.debug(annotation.toJsonMap())
+    logging.debug(text_annotation.toJsonMap())
 
     annotations = self.test_db.db.annotations
 
-    from pymongo import ReturnDocument
-    updatedDoc = annotations.find_one_and_update(annotation.toJsonMap(),  { "$set": annotation.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
-    logging.debug(updatedDoc)
-    annotation = data_containers.JsonObject.make_from_dict(updatedDoc)
-    logging.debug(annotation.toJsonMap())
-
-    updatedDoc = annotations.find_one_and_update(annotation.toJsonMap(),  { "$set": annotation.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
-    annotation = data_containers.JsonObject.make_from_dict(updatedDoc)
-    logging.debug(annotation.toJsonMap())
+    updated_doc = annotations.find_one_and_update(text_annotation.toJsonMap(),  { "$set": text_annotation.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    logging.debug(updated_doc)
+    text_annotation = data_containers.JsonObject.make_from_dict(updated_doc)
+    logging.debug(text_annotation.toJsonMap())
 
     samsAdhanI_source = data_containers.AnnotationSource.from_details("samsAdhanI", "xyz.py")
+
     # Add pada annotations
-    # annotation = data_containers.PadaAnnotation.from_details(targets=[
-    #   data_containers.TextTarget.from_details(container_id=str(target_image_id))],
-    #   source=samsAdhanI_source)
-    # logging.debug(annotation.toJsonMap())
-    #
-    # result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
-    # logging.debug("update result is "  + str(result))
+    pada_annotation_rAmaH = data_containers.PadaAnnotation.from_details(targets=[
+      data_containers.TextTarget.from_details(container_id=str(text_annotation._id))],
+      source=samsAdhanI_source, word="रामः", root="राम", subanta_details=data_containers.SubantaDetails.from_details(linga = "पुम्", vibhakti = 1, vachana = 1))
+    json_str = jsonpickle.encode(pada_annotation_rAmaH)
+    logging.info("json_str pickle is " + json_str)
+    logging.debug(pada_annotation_rAmaH.toJsonMap())
+    logging.debug(pada_annotation_rAmaH.toJsonMapViaPickle())
+    updated_doc = annotations.find_one_and_update(pada_annotation_rAmaH.toJsonMap(),  { "$set": pada_annotation_rAmaH.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    logging.debug(updated_doc)
+    pada_annotation_rAmaH = data_containers.JsonObject.make_from_dict(updated_doc)
+    logging.debug(pada_annotation_rAmaH.toJsonMap())
 
 
 
