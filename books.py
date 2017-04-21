@@ -1,10 +1,11 @@
+from PIL import ImageFile
 from flask import *
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from common import *
+from flask_helper import gen_error_response, myresult
 from indicdocs import *
-from PIL import ImageFile
 
 logging.basicConfig(
   level=logging.DEBUG,

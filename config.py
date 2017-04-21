@@ -218,23 +218,6 @@ def mycheck_output(cmd):
     return "error"
 
 
-def gen_response(status='ok', result=None):
-  retobj = {}
-  retobj = {'status': status}
-  if not result is None:
-    retobj['result'] = result
-  return make_response(json.dumps(retobj))
-  # return json.dumps(retobj)
-
-
-def gen_error_response(msg):
-  return gen_response(status=msg)
-
-
-def myresult(res=None):
-  return gen_response(result=res)
-
-
 # function to check if an input url exists or not(for csv visualizer)
 def check(url):
   try:
