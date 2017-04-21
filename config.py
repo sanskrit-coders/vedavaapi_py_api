@@ -108,15 +108,6 @@ def userpath(user, dir):
   return join(userroot(user), dir)
 
 
-# TODO: Replace these with logging module.
-def loglevel():
-  return LOG_LEVEL
-
-
-def log(msg):
-  if loglevel() > 0: print(msg)
-
-
 def createdir(dir):
   if not path.exists(dir):
     logging.info("Creating " + dir + " ...")
@@ -236,7 +227,7 @@ def gen_response(status='ok', result=None):
   # return json.dumps(retobj)
 
 
-def myerror(msg):
+def gen_error_response(msg):
   return gen_response(status=msg)
 
 

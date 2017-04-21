@@ -71,7 +71,7 @@ def pageanno(anno_id):
         if res == True:
             x = myresult("Annotation saved successfully.")
         else:
-            x = myerror("error saving annotation.")
+            x = gen_error_response("error saving annotation.")
         return x
 
 @books_api.route('/page/sections', methods = ['GET', 'POST'])
@@ -123,7 +123,9 @@ def upload():
     try:
         createdir(abspath)
     except Exception as e:
-        return myerror("Couldn't create upload directory: {}".format(abspath), e)
+        error_obj = gen_error_response("Couldn't create upload directory: {}".format(abspath), e)
+        logging.error(error_obj)
+        return error_obj
 
     logging.info("User Id: " + current_user.get_id())
     bookpath = abspath.replace(repodir() + "/", "")
@@ -181,10 +183,10 @@ def upload():
         with open(book_mfile, "w") as f:
             f.write(json.dumps(book, indent=4, sort_keys=True))
     except Exception as e:
-        return myerror("Error writing " + book_mfile + " : ".format(e))
+        return gen_error_response("Error writing " + book_mfile + " : ".format(e))
 
     if (getdb().books.importOne(book) == 0):
-        return myerror("Error saving book details.")
+        return gen_error_response("Error saving book details.")
 
     response_msg = "Book upload Successful for " + bookpath
     return myresult(response_msg)
