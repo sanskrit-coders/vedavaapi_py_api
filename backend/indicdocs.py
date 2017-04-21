@@ -1,15 +1,13 @@
+import logging
+import pymongo
+import re
 from bson.objectid import ObjectId
 from pymongo.database import Database
 
-import re
-
-import pymongo
 from pymongo import MongoClient
 
-from config import *
+from backend.config import *
 from docimage import *
-
-import logging
 
 logging.basicConfig(
     level=logging.DEBUG,

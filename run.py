@@ -4,15 +4,14 @@ import getopt
 from base64 import b64encode
 from sys import argv
 
-import logging
 from flask import *
 from flask_login import LoginManager, login_user, logout_user, \
-    current_user
+  current_user
 
+# from flask.ext.cors import CORS
+from backend.indicdocs import *
 # from file import file_api
 from books import books_api
-# from flask.ext.cors import CORS
-from indicdocs import *
 from oauth import *
 from oauth import OAuthSignIn
 

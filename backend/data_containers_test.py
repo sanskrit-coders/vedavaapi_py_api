@@ -5,7 +5,6 @@ import unittest
 
 import jsonpickle
 from bson import ObjectId
-from pymongo import ReturnDocument
 
 import data_containers
 from indicdocs import IndicDocs

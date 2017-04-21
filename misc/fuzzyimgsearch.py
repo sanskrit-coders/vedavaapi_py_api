@@ -4,7 +4,7 @@ import shutil
 
 import os
 
-import config
+from backend import config
 from indicdoc import *
 
 configobj = config.Config()

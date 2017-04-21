@@ -1,16 +1,14 @@
 import glob
+import logging
+import re
 import shutil
 import signal
 import time
 
-import re
+from flask import *
 from json import dumps
 
-from flask import *
-
-from config import *
-
-import logging
+from backend.config import *
 
 logging.basicConfig(
   level=logging.DEBUG,
