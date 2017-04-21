@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+from pymongo import ReturnDocument
 
 import jsonpickle
 from bson import ObjectId, json_util
@@ -15,6 +16,21 @@ TYPE_FIELD = "py/object"
 class JsonObject(object):
   def __init__(self):
     self.set_type()
+
+  @classmethod
+  def make_from_dict(cls, input_dict):
+    dict_without_id = input_dict
+    _id = dict_without_id.pop("_id", None)
+    obj = jsonpickle.decode(json_util.dumps(dict_without_id))
+    obj._id = _id
+    obj.set_type_recursively()
+    logging.info(obj)
+    return obj
+
+  @classmethod
+  def make_from_pickledstring(cls, pickle):
+    obj = jsonpickle.decode(pickle)
+    return obj
 
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)
@@ -32,22 +48,7 @@ class JsonObject(object):
             item.set_type_recursively()
 
   def __str__(self):
-    return str(self.__dict__)
-
-  @classmethod
-  def make_from_dict(cls, input_dict):
-    dict_without_id = input_dict
-    _id = dict_without_id.pop("_id", None)
-    obj = jsonpickle.decode(json_util.dumps(dict_without_id))
-    obj._id = _id
-    obj.set_type_recursively()
-    logging.info(obj)
-    return obj
-
-  @classmethod
-  def make_from_pickledstring(cls, pickle):
-    obj = jsonpickle.decode(pickle)
-    return obj
+    return jsonpickle.encode(self)
 
   def set_from_dict(self, input_dict):
     for key, value in input_dict.iteritems():
@@ -83,7 +84,7 @@ class JsonObject(object):
         return {key: to_unicode(value) for key, value in input.iteritems()}
       elif isinstance(input, list):
         return [to_unicode(element) for element in input]
-      elif isinstance(input, unicode):
+      elif  isinstance(input, unicode) or isinstance(input, str):
         return input.encode('utf-8')
       else:
         return input
@@ -98,6 +99,10 @@ class JsonObject(object):
     # logging.debug(dict2)
     return dict1 == dict2
 
+  def update_collection(self, some_collection):
+    updated_doc = some_collection.find_one_and_update(self.toJsonMap(),  { "$set": self.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    return JsonObject.make_from_dict(updated_doc)
+
 
 class Target(JsonObject):
   @classmethod
@@ -106,14 +111,29 @@ class Target(JsonObject):
     target.container_id = container_id
     return target
 
+  @classmethod
+  def from_ids(cls, container_ids):
+    target = Target()
+    return [Target.from_details(str(container_id)) for container_id in container_ids]
+
+  @classmethod
+  def from_containers(cls, containers):
+    return Target.from_ids(container_ids = [container._id for container in containers])
+
 
 class BookPortion(JsonObject):
   @classmethod
   def from_details(cls, title, authors, path, targets=[]):
     book_portion = BookPortion()
+    assert isinstance(title, str)
     book_portion.title = title
+    for author in authors:
+      assert isinstance(author, str)
     book_portion.authors = authors
+    assert isinstance(path, str)
     book_portion.path = path
+    for target in targets:
+      assert isinstance(target, Target)
     book_portion.targets = targets
     return book_portion
 
@@ -135,7 +155,10 @@ class AnnotationSource(JsonObject):
 
 class Annotation(JsonObject):
   def set_base_details(self, targets, source):
+    for target in targets:
+      assert isinstance(target, Target)
     self.targets = targets
+    assert isinstance(source, AnnotationSource)
     self.source = source
 
 
@@ -144,6 +167,10 @@ class ImageTarget(Target):
   def from_details(cls, container_id, x1=-1, y1=-1, x2=-1, y2=-1):
     target = ImageTarget()
     target.container_id = container_id
+    assert isinstance(x1, int)
+    assert isinstance(y1, int)
+    assert isinstance(x2, int)
+    assert isinstance(y2, int)
     target.x1 = x1
     target.y1 = y1
     target.x2 = x2
@@ -164,6 +191,9 @@ class TextContent(JsonObject):
   @classmethod
   def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
+    assert  isinstance(text, unicode) or isinstance(text, str)
+    assert isinstance(language, str)
+    assert isinstance(encoding, str)
     text_content.text = text
     text_content.language = language
     text_content.encoding = encoding
@@ -176,6 +206,7 @@ class TextAnnotation(Annotation):
   def from_details(cls, targets, source, content):
     annotation = TextAnnotation()
     annotation.set_base_details(targets, source)
+    assert isinstance(content, TextContent)
     annotation.content = content
     return annotation
 
@@ -184,6 +215,9 @@ class TinantaDetails(JsonObject):
   @classmethod
   def from_details(cls, lakAra, puruSha, vachana):
     obj = TinantaDetails()
+    assert  isinstance(lakAra, unicode) or isinstance(lakAra, str)
+    assert  isinstance(puruSha, unicode) or isinstance(puruSha, str)
+    assert  isinstance(vachana, unicode) or isinstance(vachana, str)
     obj.lakAra = lakAra
     obj.puruSha = puruSha
     obj.vachana = vachana
@@ -194,6 +228,9 @@ class SubantaDetails(JsonObject):
   @classmethod
   def from_details(cls, linga, vibhakti, vachana):
     obj = SubantaDetails()
+    assert  isinstance(linga, unicode) or isinstance(linga, str)
+    assert isinstance(vibhakti, int)
+    assert isinstance(vachana, int)
     obj.linga = linga
     obj.vibhakti = vibhakti
     obj.vachana = vachana
@@ -204,6 +241,9 @@ class TextTarget(Target):
   @classmethod
   def from_details(cls, container_id, start_offset=-1, end_offset=-1):
     target = TextTarget()
+    assert isinstance(container_id, str)
+    assert isinstance(start_offset, int)
+    assert isinstance(end_offset, int)
     target.container_id = container_id
     target.start_offset = start_offset
     target.end_offset = end_offset
@@ -216,6 +256,10 @@ class PadaAnnotation(Annotation):
   def from_details(cls, targets, source, word, root, tinanta_details = None, subanta_details = None):
     annotation = PadaAnnotation()
     annotation.set_base_details(targets, source)
+    assert  isinstance(word, unicode) or isinstance(word, str)
+    assert  isinstance(root, unicode) or isinstance(root, str)
+    assert isinstance(tinanta_details, TinantaDetails) or tinanta_details is None
+    assert isinstance(subanta_details, SubantaDetails) or subanta_details is None
     annotation.word = word
     annotation.root = root
     annotation.tinanta_details = tinanta_details
@@ -229,6 +273,8 @@ class SandhiAnnotation(Annotation):
   def from_details(cls, targets, source, combined_string, type = "UNK"):
     annotation = SandhiAnnotation()
     annotation.set_base_details(targets, source)
+    assert  isinstance(combined_string, unicode) or isinstance(combined_string, str)
+    assert  isinstance(type, unicode) or isinstance(type, str)
     annotation.combined_string = combined_string
     annotation.type = type
     return annotation
@@ -240,6 +286,8 @@ class SamaasaAnnotation(Annotation):
   def from_details(cls, targets, source, combined_string, type = "UNK"):
     annotation = SamaasaAnnotation()
     annotation.set_base_details(targets, source)
+    assert  isinstance(combined_string, unicode) or isinstance(combined_string, str)
+    assert  isinstance(type, unicode) or isinstance(type, str)
     annotation.combined_string = combined_string
     annotation.type = type
     return annotation
