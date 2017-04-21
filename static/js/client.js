@@ -145,38 +145,38 @@ function browse(bname){
     window.open('/books/browse/' + encodeURIComponent(bname));
 }
 
-function doexplore(wlparms, cmd)
+function doexplore(wlparams, cmd)
 {   
-        var formparms = get_wlform(wlparms.wlnames, 'wlactions');
-        console.log("Command is :"+cmd+"wlname is:"+wlparms.wlnames);
-        console.log(serialize(formparms));
-        window.open('/books/' + cmd + '?' +serialize(formparms), '_blank');
-        //window.open('/books/' + cmd + '?' +formparms, '_blank');
+        var formparams = get_wlform(wlparams.wlnames, 'wlactions');
+        console.log("Command is :"+cmd+"wlname is:"+wlparams.wlnames);
+        console.log(serialize(formparams));
+        window.open('/books/' + cmd + '?' +serialize(formparams), '_blank');
+        //window.open('/books/' + cmd + '?' +formparams, '_blank');
 
 }
 
 function get_wlform(wlnames, formname) {
     document.getElementById('wlnames').value=wlnames;
-    var formparms = get_formparms(formname);
-    //console.log(formparms);
-    //var formparms = $('#'+formname).serialize();
-    return formparms;
+    var formparams = get_formparams(formname);
+    //console.log(formparams);
+    //var formparams = $('#'+formname).serialize();
+    return formparams;
 }
 
 function docmd(wlname, cmd)
 {
-        var formparms = get_wlform(wlname, 'wlactions');
-        book_process(formparms, cmd);
+        var formparams = get_wlform(wlname, 'wlactions');
+        book_process(formparams, cmd);
       //book_process({ "wlnames": wlname }, cmd);
 }
 
 
-function book_process(wlparms, cmd)
+function book_process(wlparams, cmd)
 {
     $(".hourglass").show();
-    //console.log(wlparms);
+    //console.log(wlparams);
     var $consolediv = $('#console');
-    $.getJSON('/books/'+cmd+'?' + serialize(wlparms), function(data){
+    $.getJSON('/books/'+cmd+'?' + serialize(wlparams), function(data){
         if (! mychkstatus(data))
             return;
         data = data['result'];
@@ -211,7 +211,7 @@ function get_selbooks(table,isAll)
 		idx[wlname] = "$"+this.name+"$";
         selbooks.push(wlname);
     });
-    var wlparms = { "books" : selbooks,"idx":idx };
-    //console.log(wlparms);
-    return wlparms;
+    var wlparams = { "books" : selbooks,"idx":idx };
+    //console.log(wlparams);
+    return wlparams;
 }

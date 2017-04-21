@@ -23,8 +23,8 @@ alert("Fill All Fields !");
 var workloadname = document.getElementById('wlname').value;
 var ipaddress = document.getElementById('ipadd').value
 var viewdiv =  document.getElementById("viewcontent");
-  var plot_parms = {workloadname,ipaddress};
-  //var data=serialize(plot_parms);
+  var plot_params = {workloadname,ipaddress};
+  //var data=serialize(plot_params);
   $.get('/addnew?wlname=' +workloadname+'&ipadd='+ipaddress, function(data){
         //$plotdiv.html(data);
        // $(".hourglass").hide();

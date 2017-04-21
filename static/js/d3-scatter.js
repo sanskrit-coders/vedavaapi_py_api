@@ -3,7 +3,7 @@
  * http://www.d3noob.org/2013/01/adding-tooltips-to-d3js-graph.html */
 
 
-function plot_scatter_d3(plotid, plot_parms)
+function plot_scatter_d3(plotid, plot_params)
 {
     var divname = 'plot' + plotid;
     var divtag = '#' + divname;
@@ -13,8 +13,8 @@ function plot_scatter_d3(plotid, plot_parms)
         width = $mydiv.parent().width() - margin.left - margin.right,
         height = $mydiv.parent().height() - margin.top - margin.bottom;
 
-//    plot_parms['xfield'] = "ELAPSED_USECS.D";
-//    plot_parms['yfields'] = "LBA.I";
+//    plot_params['xfield'] = "ELAPSED_USECS.D";
+//    plot_params['yfields'] = "LBA.I";
     /* 
     * value accessor - returns the value to encode for a given data object.
     * scale - maps value to a visual display encoding, such as a pixel position.
@@ -23,13 +23,13 @@ function plot_scatter_d3(plotid, plot_parms)
     */ 
 
     // setup x 
-    var xValue = function(d) { return d[plot_parms['xfield']];}, // data -> value
+    var xValue = function(d) { return d[plot_params['xfield']];}, // data -> value
         xScale = d3.scale.linear().range([0, width]), // value -> display
         xMap = function(d) { return xScale(xValue(d));}, // data -> display
         xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
     // setup y
-    var yValue = function(d) { return d[plot_parms['yfields']];}, // data -> value
+    var yValue = function(d) { return d[plot_params['yfields']];}, // data -> value
         yScale = d3.scale.linear().range([height, 0]), // value -> display
         yMap = function(d) { return yScale(yValue(d));}, // data -> display
         yAxis = d3.svg.axis().scale(yScale).orient("left");
@@ -51,7 +51,7 @@ function plot_scatter_d3(plotid, plot_parms)
         .style("opacity", 0);
 
     // load data
-    var csv_url = "/getdata?" + serialize(plot_parms) + '&name=plot' + plotid;
+    var csv_url = "/getdata?" + serialize(plot_params) + '&name=plot' + plotid;
     d3.csv(csv_url, function(error, data) {
         var newkeys = {};
         for (var key in data[0]) {
@@ -81,7 +81,7 @@ function plot_scatter_d3(plotid, plot_parms)
             .attr("x", width)
             .attr("y", -6)
             .style("text-anchor", "end")
-            .text(plot_parms['xfield']);
+            .text(plot_params['xfield']);
 
         // y-axis
         svg.append("g")
@@ -93,7 +93,7 @@ function plot_scatter_d3(plotid, plot_parms)
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text(plot_parms['yfields']);
+            .text(plot_params['yfields']);
 
         // draw dots
         svg.selectAll(".dot")
@@ -108,8 +108,8 @@ function plot_scatter_d3(plotid, plot_parms)
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(plot_parms['xfield'] + " = " + xValue(d) 
-                    + "<br>" + plot_parms['yfields'] + " = " + yValue(d))
+                tooltip.html(plot_params['xfield'] + " = " + xValue(d)
+                    + "<br>" + plot_params['yfields'] + " = " + yValue(d))
                     .style("left", (d3.event.pageX + 5) + "px")
                     .style("top", (d3.event.pageY - 28) + "px");
             })

@@ -233,7 +233,7 @@ def usage():
     exit(1)
 
 
-parms = DotDict({
+params = DotDict({
     'reset': False,
     'dbreset': False,
     'dbgFlag': False,
@@ -244,15 +244,15 @@ parms = DotDict({
 })
 
 
-def setup_app(parms):
-    setworkdir(parms.wdir, parms.myport)
+def setup_app(params):
+    setworkdir(params.wdir, params.myport)
     logging.info(cmdname + ": Using " + workdir() + " as working directory.")
 
-    initworkdir(parms.reset)
+    initworkdir(params.reset)
 
-    initdb(INDICDOC_DBNAME, parms.dbreset)
+    initdb(INDICDOC_DBNAME, params.dbreset)
 
-    for a in parms.repos:
+    for a in params.repos:
         components = a.split(':')
         if len(components) > 1:
             logging.info("Importing " + components[0] + " as " + components[1])
@@ -261,8 +261,8 @@ def setup_app(parms):
             logging.info("Importing " + components[0])
             addrepo(components[0], "")
 
-    if parms.localdir:
-        setwlocaldir(parms.localdir)
+    if params.localdir:
+        setwlocaldir(params.localdir)
     if not path.exists(wlocaldir()):
         setwlocaldir(DATADIR_BOOKS)
     os.chdir(workdir())
@@ -281,30 +281,30 @@ def main(argv):
         if opt == '-h':
             usage()
         elif opt in ("-o", "--workdir"):
-            parms.wdir = arg
+            params.wdir = arg
         elif opt in ("-l", "--wloaddir"):
-            parms.localdir = arg
+            params.localdir = arg
         elif opt in ("-p", "--port"):
-            parms.myport = int(arg)
+            params.myport = int(arg)
         elif opt in ("-r", "--reset"):
-            parms.reset = True
+            params.reset = True
         elif opt in ("-R", "--dbreset"):
-            parms.dbreset = True
+            params.dbreset = True
         elif opt in ("-d", "--debug"):
-            parms.dbgFlag = True
-    parms.repos = args
+            params.dbgFlag = True
+    params.repos = args
 
-    setup_app(parms)
+    setup_app(params)
 
     logging.info("Available on the following URLs:")
     for line in mycheck_output(["/sbin/ifconfig"]).split("\n"):
         m = re.match('\s*inet addr:(.*?) .*', line)
         if m:
-            logging.info("    http://" + m.group(1) + ":" + str(parms.myport) + "/")
+            logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
     app.run(
         host="0.0.0.0",
-        port=parms.myport,
-        debug=parms.dbgFlag,
+        port=params.myport,
+        debug=params.dbgFlag,
         use_reloader=False
     )
 
@@ -312,4 +312,4 @@ def main(argv):
 if __name__ == "__main__":
     main(sys.argv[1:])
 else:
-    setup_app(parms)
+    setup_app(params)

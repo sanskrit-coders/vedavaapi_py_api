@@ -5,6 +5,8 @@ from pymongo import ReturnDocument
 import jsonpickle
 from bson import ObjectId, json_util
 
+import common
+
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
@@ -84,7 +86,7 @@ class JsonObject(object):
         return {key: to_unicode(value) for key, value in input.iteritems()}
       elif isinstance(input, list):
         return [to_unicode(element) for element in input]
-      elif  isinstance(input, unicode) or isinstance(input, str):
+      elif common.check_class(input, [str, unicode]):
         return input.encode('utf-8')
       else:
         return input
@@ -100,7 +102,8 @@ class JsonObject(object):
     return dict1 == dict2
 
   def update_collection(self, some_collection):
-    updated_doc = some_collection.find_one_and_update(self.toJsonMap(),  { "$set": self.toJsonMap()}, upsert = True, return_document=ReturnDocument.AFTER)
+    updated_doc = some_collection.find_one_and_update(self.toJsonMap(), {"$set": self.toJsonMap()}, upsert=True,
+                                                      return_document=ReturnDocument.AFTER)
     return JsonObject.make_from_dict(updated_doc)
 
 
@@ -118,22 +121,22 @@ class Target(JsonObject):
 
   @classmethod
   def from_containers(cls, containers):
-    return Target.from_ids(container_ids = [container._id for container in containers])
+    return Target.from_ids(container_ids=[container._id for container in containers])
 
 
 class BookPortion(JsonObject):
   @classmethod
-  def from_details(cls, title, authors, path, targets=[]):
+  def from_details(cls, title, authors, path, targets=None):
     book_portion = BookPortion()
-    assert isinstance(title, str)
+    assert common.check_class(title, [str])
     book_portion.title = title
-    for author in authors:
-      assert isinstance(author, str)
+    assert common.check_list_item_types(authors, [str, unicode])
     book_portion.authors = authors
     assert isinstance(path, str)
     book_portion.path = path
-    for target in targets:
-      assert isinstance(target, Target)
+
+    targets = targets or []
+    assert common.check_list_item_types(targets, [Target])
     book_portion.targets = targets
     return book_portion
 
@@ -148,6 +151,8 @@ class AnnotationSource(JsonObject):
   @classmethod
   def from_details(cls, type, id):
     source = AnnotationSource()
+    assert isinstance(type, str)
+    assert isinstance(id, str)
     source.type = type
     source.id = id
     return source
@@ -191,7 +196,7 @@ class TextContent(JsonObject):
   @classmethod
   def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
-    assert  isinstance(text, unicode) or isinstance(text, str)
+    assert common.check_class(text, [str, unicode])
     assert isinstance(language, str)
     assert isinstance(encoding, str)
     text_content.text = text
@@ -215,9 +220,9 @@ class TinantaDetails(JsonObject):
   @classmethod
   def from_details(cls, lakAra, puruSha, vachana):
     obj = TinantaDetails()
-    assert  isinstance(lakAra, unicode) or isinstance(lakAra, str)
-    assert  isinstance(puruSha, unicode) or isinstance(puruSha, str)
-    assert  isinstance(vachana, unicode) or isinstance(vachana, str)
+    assert common.check_class(lakAra, [str, unicode])
+    assert common.check_class(puruSha, [str, unicode])
+    assert common.check_class(vachana, [str, unicode])
     obj.lakAra = lakAra
     obj.puruSha = puruSha
     obj.vachana = vachana
@@ -228,7 +233,7 @@ class SubantaDetails(JsonObject):
   @classmethod
   def from_details(cls, linga, vibhakti, vachana):
     obj = SubantaDetails()
-    assert  isinstance(linga, unicode) or isinstance(linga, str)
+    assert common.check_class(linga, [str, unicode])
     assert isinstance(vibhakti, int)
     assert isinstance(vachana, int)
     obj.linga = linga
@@ -253,11 +258,12 @@ class TextTarget(Target):
 # Targets: TextTarget pointing to TextAnnotation
 class PadaAnnotation(Annotation):
   @classmethod
-  def from_details(cls, targets, source, word, root, tinanta_details = None, subanta_details = None):
+  def from_details(cls, targets, source, word, root, tinanta_details=None, subanta_details=None):
     annotation = PadaAnnotation()
+    common.check_list_item_types(targets, [TextTarget, Target])
     annotation.set_base_details(targets, source)
-    assert  isinstance(word, unicode) or isinstance(word, str)
-    assert  isinstance(root, unicode) or isinstance(root, str)
+    assert common.check_class(word, [str, unicode])
+    assert common.check_class(root, [str, unicode])
     assert isinstance(tinanta_details, TinantaDetails) or tinanta_details is None
     assert isinstance(subanta_details, SubantaDetails) or subanta_details is None
     annotation.word = word
@@ -270,11 +276,11 @@ class PadaAnnotation(Annotation):
 # Targets: two PadaAnnotations
 class SandhiAnnotation(Annotation):
   @classmethod
-  def from_details(cls, targets, source, combined_string, type = "UNK"):
+  def from_details(cls, targets, source, combined_string, type="UNK"):
     annotation = SandhiAnnotation()
     annotation.set_base_details(targets, source)
-    assert  isinstance(combined_string, unicode) or isinstance(combined_string, str)
-    assert  isinstance(type, unicode) or isinstance(type, str)
+    assert common.check_class(combined_string, [str, unicode])
+    assert common.check_class(type, [str, unicode])
     annotation.combined_string = combined_string
     annotation.type = type
     return annotation
@@ -283,11 +289,11 @@ class SandhiAnnotation(Annotation):
 # Targets: two or more PadaAnnotations
 class SamaasaAnnotation(Annotation):
   @classmethod
-  def from_details(cls, targets, source, combined_string, type = "UNK"):
+  def from_details(cls, targets, source, combined_string, type="UNK"):
     annotation = SamaasaAnnotation()
     annotation.set_base_details(targets, source)
-    assert  isinstance(combined_string, unicode) or isinstance(combined_string, str)
-    assert  isinstance(type, unicode) or isinstance(type, str)
+    assert common.check_class(combined_string, [str, unicode])
+    assert common.check_class(type, [str, unicode])
     annotation.combined_string = combined_string
     annotation.type = type
     return annotation
@@ -300,4 +306,3 @@ class PadavibhaagaAnnotation(Annotation):
     annotation = PadavibhaagaAnnotation()
     annotation.set_base_details(targets, source)
     return annotation
-

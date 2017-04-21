@@ -278,8 +278,8 @@ function loadpage(reparse = false) {
     window.cState = canvasStateList.get('pageCanvas',"",curpage);
     window.cState.anno_id = anno_id;
 
-    parms = { 'reparse' : reparse };
-    $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(parms), function(data){
+    params = { 'reparse' : reparse };
+    $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(params), function(data){
         if (! mychkstatus(data))
             return;
 //        console.log("Page Anno: " + JSON.stringify(data.result));

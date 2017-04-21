@@ -9,9 +9,9 @@ function serialize(obj){
     return s;
 };
 
-function get_formparms(formname, fieldname_filter)
+function get_formparams(formname, fieldname_filter)
 {
-    var form_parms = {};
+    var form_params = {};
     var myform = document.forms[formname];
     for (i=0; i < myform.elements.length; i++) {
         var fname = myform.elements[i].name;
@@ -26,7 +26,7 @@ function get_formparms(formname, fieldname_filter)
             $('#' + name + ' :selected').each(function() {
                 vals.push($(this).val());
             });
-            form_parms[name] = vals;
+            form_params[name] = vals;
         }
         //added code for checkbox value
         else if(myform.elements[i].type=="checkbox") {
@@ -34,15 +34,15 @@ function get_formparms(formname, fieldname_filter)
                 var name = myform.elements[i].name;
 				if(name!="") {
 					var $select = $('[name=' + name+'][type=checkbox]');
-					form_parms[name] = $select.val();
+					form_params[name] = $select.val();
 				}
             }
         }
         else if (myform.elements[i].type != 'button') {
-            form_parms[myform.elements[i].name] = myform.elements[i].value;
+            form_params[myform.elements[i].name] = myform.elements[i].value;
         } 
     }
-    return form_parms;
+    return form_params;
 }
 
 function mychkstatus(resp, okstr, errstr)
