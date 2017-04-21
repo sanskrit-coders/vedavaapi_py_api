@@ -32,10 +32,14 @@ Allows users to correct and uses them in subsequent text recognition.
     * Users
 * [config.py]() contains various helper methods
   * most of which are for setup and file operations.
+* [flask_helper.py]() contains various helper methods
   * Some salient ones pertaining to formatting json responses are:
     * gen_response()
     * myerror()
     * myresult()
   * Logging functions which need to be replaced.
+* [data_containers.py]() defines
+  * various objects such as BookPortion, Annotation, SandhiAnnotation.
+  * json helper methods to (de)serialize them to json while writing to the database.
 * Can generate call graphs:
   * pyan.py --dot -c -e run.py |dot -Tpng > call_graphs/run.png
