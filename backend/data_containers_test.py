@@ -146,6 +146,7 @@ class TestDBRoundTrip(unittest.TestCase):
                                                                                          pada_annotation_vigrahavAn]),
                                                                                      source=samsAdhanI_source,
                                                                                      combined_string=u"रामो विग्रहवान्")
+    sandhi_annotation_rAmovigrahavAn = sandhi_annotation_rAmovigrahavAn.update_collection(annotations)
     logging.debug(sandhi_annotation_rAmovigrahavAn.toJsonMap())
 
     sandhi_annotation_rAmoavigrahavAn = data_containers.SandhiAnnotation.from_details(targets=

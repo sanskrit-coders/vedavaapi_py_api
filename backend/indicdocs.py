@@ -31,8 +31,8 @@ class Books:
         return self.books.find({'path': book["path"]}).count()
 
     def list(self, pattern=None):
-        cursor = self.books.find({}, {'_id' : False, 'pages' : False})
-        matches = [b for b in cursor if not pattern or re.search(pattern, b['path'])]
+        iter = self.books.find({}, {'_id' : False, 'pages' : False})
+        matches = [b for b in iter if not pattern or re.search(pattern, b['path'])]
         return matches
 
     def getPageByIdx(self, book, idx):
@@ -164,6 +164,7 @@ class Annotations:
         page_img = DocImage(imgpath, workingImgPath)
 
         known_segments = DisjointSegments()
+        # Give me all the non-overlapping user-touched segments in this page.
         for a in anno_obj['anno']:
             a = ImgSegment(a)
             if a.state == 'system_inferred':
@@ -172,6 +173,7 @@ class Annotations:
             # Prevent image matcher from changing user-identified segments
             known_segments.insert(a)
 
+        # Create segments taking into account known_segments
         matches = page_img.find_segments(0,0,known_segments)
         #logging.info("Matches = " + json.dumps(matches))
         #logging.info("Segments = " + json.dumps(known_segments.segments))

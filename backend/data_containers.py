@@ -168,6 +168,7 @@ class Annotation(JsonObject):
 
 
 class ImageTarget(Target):
+  # TODO use w, h instead.
   @classmethod
   def from_details(cls, container_id, x1=-1, y1=-1, x2=-1, y2=-1):
     target = ImageTarget()

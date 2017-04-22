@@ -119,10 +119,11 @@ def docustom():
 
 
 @books_api.route('/upload', methods=['GET', 'POST'])
-@login_required
+# @login_required TODO: Code fails if this is uncommented.
 def upload():
   """Handle uploading files."""
   form = request.form
+  logging.info("uploading " + str(form))
   bookpath = (form.get('uploadpath')).replace(" ", "_")
   # Is the upload using Ajax, or a direct POST by the form?
   is_ajax = False
@@ -138,14 +139,19 @@ def upload():
     logging.error(error_obj)
     return error_obj
 
-  logging.info("User Id: " + current_user.get_id())
+  if current_user is None:
+    user_id = None
+  else:
+    user_id = current_user.get_id()
+
+  logging.info("User Id: " + str(user_id))
   bookpath = abspath.replace(repodir() + "/", "")
   book = getdb().books.get(bookpath)
   if (book is None):
     book = {
       'path': bookpath,
       'pages': [],
-      'user': current_user.get_id()
+      'user': user_id
     }
   else:
     del book['_id']
@@ -166,8 +172,8 @@ def upload():
     filename = upload.filename.rsplit("/")[0]
     destination = join(abspath, filename)
     upload.save(destination)
-    [fname, ext] = os.path.splitext(filename);
-    newFileName = fname + ".jpg";
+    [fname, ext] = os.path.splitext(filename)
+    newFileName = fname + ".jpg"
     tmpImage = cv2.imread(destination)
     cv2.imwrite(join(abspath, newFileName), tmpImage)
 
