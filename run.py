@@ -9,7 +9,7 @@ from flask_login import LoginManager, login_user, logout_user, \
   current_user
 
 # from flask.ext.cors import CORS
-from backend.indicdocs import *
+from backend.collections import *
 # from file import file_api
 from books import books_api
 from oauth import *

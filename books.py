@@ -3,7 +3,7 @@ from flask import *
 from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
-from backend.indicdocs import *
+from backend.collections import *
 from common import *
 from flask_helper import gen_error_response, myresult
 

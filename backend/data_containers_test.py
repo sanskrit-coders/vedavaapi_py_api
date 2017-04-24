@@ -7,7 +7,7 @@ import jsonpickle
 from bson import ObjectId
 
 import data_containers
-from indicdocs import IndicDocs
+from collections import IndicDocs
 
 logging.basicConfig(
   level=logging.DEBUG,
