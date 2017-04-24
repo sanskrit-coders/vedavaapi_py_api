@@ -7,7 +7,7 @@ import jsonpickle
 from bson import ObjectId
 
 import data_containers
-from collections import IndicDocs
+from collections import DBWrapper
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -16,7 +16,7 @@ logging.basicConfig(
 
 
 class TestDBRoundTrip(unittest.TestCase):
-  test_db = IndicDocs("test_db")
+  test_db = DBWrapper("test_db")
 
   def test_PickleDepickle(self):
     book_portion = data_containers.BookPortion.from_details(
