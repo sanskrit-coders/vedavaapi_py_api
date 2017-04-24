@@ -1,9 +1,10 @@
 from PIL import ImageFile
 from flask import *
-from flask_login import current_user, login_required
+from flask_login import current_user
 from werkzeug.utils import secure_filename
 
 from backend.collections import *
+from backend.db import get_db
 from common import *
 from flask_helper import gen_error_response, myresult
 
@@ -32,7 +33,7 @@ def getbooklist():
     if session['logstatus'] == 1:
       pattern = request.args.get('pattern')
       logging.info("books list filter = " + str(pattern))
-      binfo = {'books': getdb().books.list(pattern)}
+      binfo = {'books': get_db().books.list(pattern)}
       return myresult(binfo)
     else:
       return redirect(url_for('index'))
@@ -44,7 +45,7 @@ def getbooklist():
 def getbooksingle():
   path = request.args.get('path')
   logging.info("book get by path = " + str(path))
-  binfo = getdb().books.get(path)
+  binfo = get_db().books.get(path)
   # pprint(binfo)
   return myresult(binfo)
 
@@ -53,8 +54,8 @@ def getbooksingle():
 def getpagesegment(anno_id):
   if request.method == 'GET':
     """return the page annotation with id = anno_id"""
-    getdb().annotations.segment(anno_id)
-    anno = getdb().annotations.get(anno_id)
+    get_db().annotations.segment(anno_id)
+    anno = get_db().annotations.get(anno_id)
     return myresult(anno)
 
 
@@ -64,8 +65,8 @@ def pageanno(anno_id):
     """return the page annotation with id = anno_id"""
     reparse = json.loads(request.args.get('reparse'))
     if reparse:
-      getdb().annotations.propagate(anno_id)
-    anno = getdb().annotations.get(anno_id)
+      get_db().annotations.propagate(anno_id)
+    anno = get_db().annotations.get(anno_id)
     return myresult(anno)
   elif request.method == 'POST':
     """modify/update the page annotation with id = anno_id"""
@@ -73,7 +74,7 @@ def pageanno(anno_id):
     logging.info("save page annotations by id = " + str(anno_id))
     # logging.info("save page annotations = " + anno)
     anno = json.loads(anno)
-    res = getdb().annotations.update(anno_id, {'anno': anno})
+    res = get_db().annotations.update(anno_id, {'anno': anno})
     if res == True:
       x = myresult("Annotation saved successfully.")
     else:
@@ -84,7 +85,7 @@ def pageanno(anno_id):
 @books_api.route('/page/sections', methods=['GET', 'POST'])
 def getpagesections():
   myid = request.args.get('id')
-  sec = getdb().sections.get(myid)
+  sec = get_db().sections.get(myid)
   return myresult(sec)
 
 
@@ -146,7 +147,7 @@ def upload():
 
   logging.info("User Id: " + str(user_id))
   bookpath = abspath.replace(repodir() + "/", "")
-  book = getdb().books.get(bookpath)
+  book = get_db().books.get(bookpath)
   if (book is None):
     book = {
       'path': bookpath,
@@ -203,7 +204,7 @@ def upload():
   except Exception as e:
     return gen_error_response("Error writing " + book_mfile + " : ".format(e))
 
-  if (getdb().books.importOne(book) == 0):
+  if (get_db().books.importOne(book) == 0):
     return gen_error_response("Error saving book details.")
 
   response_msg = "Book upload Successful for " + bookpath

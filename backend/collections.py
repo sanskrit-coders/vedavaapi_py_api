@@ -1,4 +1,3 @@
-import logging
 import pymongo
 import re
 from bson.objectid import ObjectId
@@ -20,19 +19,23 @@ logging.info(pymongo.__version__)
 # from gridfs import GridFS
 # from gridfs.errors import NoFile
 
+class CollectionWrapper(object):
+  def __init__(self, db_collection):
+    logging.info("Initializing collection :" + str(db_collection))
+    self.db_collection = db_collection
+
 # Encapsulates the book_portions collection.
-class BookPortions:
-  def __init__(self, indicdocs):
-    # logging.info("Initializing books collection ...")
-    self.indicdocs = indicdocs
-    self.books = indicdocs.db['book_portions']
+class BookPortions(CollectionWrapper):
+  def __init__(self, db_collection):
+    logging.info("Initializing collection :" + str(db_collection))
+    super(BookPortions, self).__init__(db_collection)
 
   def insert(self, book):
-    self.books.update({"path": book["path"]}, book, upsert=True)
-    return self.books.find({'path': book["path"]}).count()
+    self.db_collection.update({"path": book["path"]}, book, upsert=True)
+    return self.db_collection.find({'path': book["path"]}).count()
 
   def list(self, pattern=None):
-    iter = self.books.find({}, {'_id': False, 'pages': False})
+    iter = self.db_collection.find({}, {'_id': False, 'pages': False})
     matches = [b for b in iter if not pattern or re.search(pattern, b['path'])]
     return matches
 
@@ -44,7 +47,7 @@ class BookPortions:
     return page
 
   def get(self, path):
-    book = self.books.find_one({'path': path})
+    book = self.db_collection.find_one({'path': path})
     if book is not None:
       book['_id'] = str(book['_id'])
     return book
@@ -107,10 +110,10 @@ class BookPortions:
 
 
 # Encapsulates the annotations collection.
-class Annotations:
-  def __init__(self, indicdocs):
-    self.indicdocs = indicdocs
-    self.annotations = indicdocs.db['annotations']
+class Annotations(CollectionWrapper):
+  def __init__(self, db_collection):
+    logging.info("Initializing collection :" + str(db_collection))
+    super(Annotations, self).__init__(db_collection)
 
   def get(self, anno_id):
     res = self.annotations.find_one({'_id': ObjectId(anno_id)})
@@ -242,10 +245,9 @@ class Annotations:
 
 
 # Encapsulates the sections collection.
-class Sections:
-  def __init__(self, indicdocs):
-    self.indicdocs = indicdocs
-    self.sections = indicdocs.db['sections']
+class Sections(CollectionWrapper):
+  def __init__(self, db_collection):
+    super(Sections, self).__init__(db_collection)
 
   def get(self, sec_id):
     res = self.sections.find_one({'_id': ObjectId(sec_id)})
@@ -262,10 +264,9 @@ class Sections:
 
 
 # Encapsulates the users collection.
-class Users:
-  def __init__(self, indicdocs):
-    self.indicdocs = indicdocs
-    self.users = indicdocs.db['users']
+class Users(CollectionWrapper):
+  def __init__(self, db_collection):
+    super(Users, self).__init__(db_collection)
 
   def get(self, user_id):
     res = self.users.find_one({'_id': ObjectId(user_id)})
@@ -308,10 +309,10 @@ class DBWrapper:
       self.db = self.client[self.dbname]
       if not isinstance(self.db, Database):
         raise TypeError("database must be an instance of Database")
-      self.books = BookPortions(self)
-      self.annotations = Annotations(self)
-      self.sections = Sections(self)
-      self.users = Users(self)
+      self.books = BookPortions(self.db['book_portions'])
+      self.annotations = Annotations(self.db['annotations'])
+      self.sections = Sections(self.db['sections'])
+      self.users = Users(self.db['users'])
     except Exception as e:
       print("Error initializing MongoDB database; aborting.", e)
       sys.exit(1)
@@ -320,81 +321,3 @@ class DBWrapper:
     logging.info("Clearing IndicDocs database")
     self.client.drop_database(self.dbname)
     self.initialize()
-
-
-# def exists(self, document_or_id=None, **kwargs):
-#        return self.__fs.exists(document_or_id, **kwargs)
-#
-#    def put(self, data, **kwargs):
-#        return self.__fs.put(data, **kwargs)
-#
-#    def get(self, file_id):
-#        return self.__fs.get(file_id)
-#
-#    def get_last_version(self, filename=None, **kwargs):
-#        return self.__fs.get_last_version(filename, **kwargs)
-#
-#    def list(self):
-#        return self.__fs.list()
-#
-#    def insert_literals(self, file_id, document):
-#        record = {'files_id':file_id, "data":document}
-#        self.__literals.update({'files_id':file_id}, record, upsert = True)
-##        result = self.__literals.insert(record)
-#        return self.__literals.find({'files_id':file_id})
-#
-#    def find_literals(self, file_id):
-#        return self.__literals.find({'files_id':file_id})
-
-db_wrapper = None
-
-
-def initdb(dbname, reset=False):
-  global db_wrapper
-  db_wrapper = DBWrapper(dbname)
-  if reset:
-    db_wrapper.reset()
-
-
-def getdb():
-  return db_wrapper
-
-
-def main(args):
-  setworkdir(workdir())
-  initworkdir(False)
-  setwlocaldir(DATADIR_BOOKS)
-  initdb(INDICDOC_DBNAME, False)
-
-  anno_id = args[0]
-  getdb().annotations.propagate(anno_id)
-
-  # Get the annotations from anno_id
-  anno_obj = getdb().annotations.get(anno_id)
-  if not anno_obj:
-    return False
-
-  # Get the containing book
-  book = getdb().books.get(anno_obj['bpath'])
-  if not book:
-    return False
-
-  page = book['pages'][anno_obj['pgidx']]
-  imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
-  img = DocImage(imgpath)
-
-  # logging.info(json.dumps(matches))
-  rects = anno_obj['anno']
-  seeds = [r for r in rects if r['state'] != 'system_inferred']
-  img.annotate(rects)
-  img.annotate(seeds, (0, 255, 0))
-  cv2.namedWindow('Annotated image', cv2.WINDOW_NORMAL)
-  cv2.imshow('Annotated image', img.img_rgb)
-  cv2.waitKey(0)
-  cv2.destroyAllWindows()
-
-  sys.exit(0)
-
-
-if __name__ == "__main__":
-  main(sys.argv[1:])

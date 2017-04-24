@@ -11,6 +11,7 @@ from flask_login import LoginManager, login_user, logout_user, \
 # from flask.ext.cors import CORS
 from backend.collections import *
 # from file import file_api
+from backend.db import initdb, get_db
 from books import books_api
 from oauth import *
 from oauth import OAuthSignIn
@@ -83,7 +84,7 @@ def mainpage():
 
 @lm.user_loader
 def load_user(id):
-    u = getdb().users.get(id)
+    u = get_db().users.get(id)
     if not u:
         return None
     return User(u['_id'], u['nickname'])
@@ -116,7 +117,7 @@ def guestlogin():
     logging.info("Login using Guest....\n")
     email = request.args.get('usermail')
     logging.info("email=" + str( email))
-    user = getdb().users.insert(
+    user = get_db().users.insert(
         {"nickname": "Guest", "email": str(email), "confirmed": True, "confirmed_on": str(datetime.datetime.now())})
     user = User(user['_id'], user['nickname'], user['email'], user['confirmed'])
     if user.is_authenticated():
@@ -153,9 +154,9 @@ def oauth_callback(provider):
     if social_id is None:
         flash('Authentication failed.')
         return redirect(url_for('index'))
-    user = getdb().users.getBySocialId(social_id)
+    user = get_db().users.getBySocialId(social_id)
     if not user:
-        user = getdb().users.insert({"social_id": social_id, "nickname": username, "email": email})
+        user = get_db().users.insert({"social_id": social_id, "nickname": username, "email": email})
     user = User(user['_id'], user['nickname'])
     session['logstatus'] = logflag
     login_user(user, True)
@@ -267,7 +268,7 @@ def setup_app(params):
     os.chdir(workdir())
 
     # Import all book metadata into the IndicDocs database
-    getdb().books.importAll(repodir())
+    get_db().books.importAll(repodir())
 
 
 def main(argv):
