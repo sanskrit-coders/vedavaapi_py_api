@@ -126,10 +126,7 @@ def upload():
   form = request.form
   logging.info("uploading " + str(form))
   bookpath = (form.get('uploadpath')).replace(" ", "_")
-  # Is the upload using Ajax, or a direct POST by the form?
-  is_ajax = False
-  if form.get("__ajax", None) == "true":
-    is_ajax = True
+
   abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
     else join(uploaddir(), bookpath)
   logging.info("uploading to " + abspath)

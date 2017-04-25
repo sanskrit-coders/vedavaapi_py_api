@@ -43,15 +43,15 @@ class TestDBRoundTrip(unittest.TestCase):
       targets=[data_containers.Target.from_details(container_id="xyz")])
 
     book_portions = self.test_db.db.book_portions
-    logging.debug(book_portion.toJsonMap())
-    result = book_portions.update({"path": book_portion.path}, book_portion.toJsonMap(), upsert=True)
+    logging.debug(book_portion.to_json_map())
+    result = book_portions.update({"path": book_portion.path}, book_portion.to_json_map(), upsert=True)
     logging.debug("update result is " + str(result))
 
     book_portion_retrieved = data_containers.JsonObject.make_from_dict(
       book_portions.find_one({"path": "myrepo/halAyudha"}))
     logging.info(book_portion_retrieved.__class__)
-    logging.info(str(book_portion_retrieved.toJsonMap()))
-    logging.info(book_portion.toJsonMap())
+    logging.info(str(book_portion_retrieved.to_json_map()))
+    logging.info(book_portion.to_json_map())
     self.assertTrue(book_portion.equals_ignore_id(book_portion_retrieved))
 
   def test_ImageAnnotation(self):
@@ -61,15 +61,15 @@ class TestDBRoundTrip(unittest.TestCase):
       source=data_containers.AnnotationSource.from_details("someProgram", "xyz.py"))
 
     annotations = self.test_db.db.annotations
-    logging.debug(annotation.toJsonMap())
+    logging.debug(annotation.to_json_map())
 
-    result = annotations.update(annotation.toJsonMap(), annotation.toJsonMap(), upsert=True)
+    result = annotations.update(annotation.to_json_map(), annotation.to_json_map(), upsert=True)
     logging.debug("update result is " + str(result))
 
-    annotation_retrieved = data_containers.JsonObject.make_from_dict(annotations.find_one(annotation.toJsonMap()))
+    annotation_retrieved = data_containers.JsonObject.make_from_dict(annotations.find_one(annotation.to_json_map()))
     logging.info(annotation_retrieved.__class__)
 
-    logging.info(str(annotation_retrieved.toJsonMap()))
+    logging.info(str(annotation_retrieved.to_json_map()))
     self.assertTrue(annotation.equals_ignore_id(annotation_retrieved))
 
   def test_TextAnnotation(self):
@@ -80,11 +80,11 @@ class TestDBRoundTrip(unittest.TestCase):
       content=data_containers.TextContent.from_details(u"इदं नभसि म्भीषण"))
 
     annotations = self.test_db.db.annotations
-    logging.debug(text_annotation_original.toJsonMap())
+    logging.debug(text_annotation_original.to_json_map())
     text_annotation = text_annotation_original.update_collection(annotations)
     logging.info("annotation_retrieved has text " + text_annotation.content.text)
 
-    logging.info(str(text_annotation.toJsonMap()))
+    logging.info(str(text_annotation.to_json_map()))
     self.assertTrue(text_annotation_original.equals_ignore_id(text_annotation))
 
   def test_FullSentence(self):
@@ -94,12 +94,12 @@ class TestDBRoundTrip(unittest.TestCase):
       data_containers.Target.from_details(container_id=str(target_image_id))],
       source=data_containers.AnnotationSource.from_details("someOCRProgram", "xyz.py"),
       content=data_containers.TextContent.from_details(u"रामो विग्रवान् धर्मः।"))
-    logging.debug(text_annotation.toJsonMap())
+    logging.debug(text_annotation.to_json_map())
 
     annotations = self.test_db.db.annotations
 
     text_annotation = text_annotation.update_collection(annotations)
-    logging.debug(text_annotation.toJsonMap())
+    logging.debug(text_annotation.to_json_map())
 
     samsAdhanI_source = data_containers.AnnotationSource.from_details("samsAdhanI", "xyz.py")
 
@@ -109,35 +109,35 @@ class TestDBRoundTrip(unittest.TestCase):
       source=samsAdhanI_source, word=u"रामः", root=u"राम",
       subanta_details=data_containers.SubantaDetails.from_details(linga=u"पुम्", vibhakti=1, vachana=1))
     pada_annotation_rAmaH = pada_annotation_rAmaH.update_collection(annotations)
-    logging.debug(pada_annotation_rAmaH.toJsonMap())
+    logging.debug(pada_annotation_rAmaH.to_json_map())
 
     pada_annotation_vigrahavAn = data_containers.PadaAnnotation.from_details(targets=[
       data_containers.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"विग्रहवान्", root=u"विग्रहवत्",
       subanta_details=data_containers.SubantaDetails.from_details(linga=u"पुम्", vibhakti=1, vachana=1))
     pada_annotation_vigrahavAn = pada_annotation_vigrahavAn.update_collection(annotations)
-    logging.debug(pada_annotation_vigrahavAn.toJsonMap())
+    logging.debug(pada_annotation_vigrahavAn.to_json_map())
 
     pada_annotation_avigrahavAn = data_containers.PadaAnnotation.from_details(targets=[
       data_containers.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"अविग्रहवान्", root=u"अविग्रहवत्",
       subanta_details=data_containers.SubantaDetails.from_details(linga=u"पुम्", vibhakti=1, vachana=1))
     pada_annotation_avigrahavAn = pada_annotation_avigrahavAn.update_collection(annotations)
-    logging.debug(pada_annotation_avigrahavAn.toJsonMap())
+    logging.debug(pada_annotation_avigrahavAn.to_json_map())
 
     pada_annotation_dharmaH = data_containers.PadaAnnotation.from_details(targets=[
       data_containers.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"धर्मः", root=u"धर्म",
       subanta_details=data_containers.SubantaDetails.from_details(linga=u"पुम्", vibhakti=1, vachana=1))
     pada_annotation_dharmaH = pada_annotation_dharmaH.update_collection(annotations)
-    logging.debug(pada_annotation_dharmaH.toJsonMap())
+    logging.debug(pada_annotation_dharmaH.to_json_map())
 
     pada_annotation_na = data_containers.PadaAnnotation.from_details(targets=[
       data_containers.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"न", root=u"न",
       subanta_details=data_containers.SubantaDetails.from_details(linga=u"पुम्", vibhakti=1, vachana=1))
     pada_annotation_na = pada_annotation_na.update_collection(annotations)
-    logging.debug(pada_annotation_na.toJsonMap())
+    logging.debug(pada_annotation_na.to_json_map())
 
     sandhi_annotation_rAmovigrahavAn = data_containers.SandhiAnnotation.from_details(targets=
                                                                                      data_containers.TextTarget.from_containers(
@@ -147,7 +147,7 @@ class TestDBRoundTrip(unittest.TestCase):
                                                                                      source=samsAdhanI_source,
                                                                                      combined_string=u"रामो विग्रहवान्")
     sandhi_annotation_rAmovigrahavAn = sandhi_annotation_rAmovigrahavAn.update_collection(annotations)
-    logging.debug(sandhi_annotation_rAmovigrahavAn.toJsonMap())
+    logging.debug(sandhi_annotation_rAmovigrahavAn.to_json_map())
 
     sandhi_annotation_rAmoavigrahavAn = data_containers.SandhiAnnotation.from_details(targets=
                                                                                       data_containers.TextTarget.from_containers(
@@ -156,7 +156,7 @@ class TestDBRoundTrip(unittest.TestCase):
                                                                                           pada_annotation_avigrahavAn]),
                                                                                       source=samsAdhanI_source,
                                                                                       combined_string=u"रामो विग्रहवान्")
-    logging.debug(sandhi_annotation_rAmoavigrahavAn.toJsonMap())
+    logging.debug(sandhi_annotation_rAmoavigrahavAn.to_json_map())
 
 
 if __name__ == '__main__':

@@ -7,18 +7,18 @@ from backend.collections import DBWrapper
 from backend.config import setworkdir, workdir, initworkdir, setwlocaldir, DATADIR_BOOKS, INDICDOC_DBNAME, repodir
 from docimage import DocImage
 
-indicdocs_db = None
+__indicdocs_db = None
 
 
 def initdb(dbname, reset=False):
-  global indicdocs_db
-  indicdocs_db = DBWrapper(dbname)
+  global __indicdocs_db
+  __indicdocs_db = DBWrapper(dbname)
   if reset:
-    indicdocs_db.reset()
+    __indicdocs_db.reset()
 
 
 def get_db():
-  return indicdocs_db
+  return __indicdocs_db
 
 
 def main(args):

@@ -13,11 +13,8 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-logging.info(pymongo.__version__)
+logging.info("pymongo version is " + pymongo.__version__)
 
-
-# from gridfs import GridFS
-# from gridfs.errors import NoFile
 
 class CollectionWrapper(object):
   def __init__(self, db_collection):
@@ -98,14 +95,14 @@ class BookPortions(CollectionWrapper):
       winfo = {}
       try:
         with open(f) as fhandle:
-          book = json.load(fhandle)
-          # logging.info(json.dumps(book, indent=4))
-          book["path"] = bpath
+          book_data = json.load(fhandle)
+          # logging.info(json.dumps(book_data, indent=4))
+          book_data["path"] = bpath
           if self.get(bpath) is None:
-            self.importOne(book)
+            self.importOne(book_data)
             nbooks = nbooks + 1
       except Exception as e:
-        logging.info("Skipped book " + f + ". Error:" + str(e))
+        logging.info("Skipped book_data " + f + ". Error:" + str(e))
     return nbooks
 
 

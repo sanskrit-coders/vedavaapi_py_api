@@ -18,13 +18,13 @@ logging.basicConfig(
 
 def check_class(obj, allowed_types):
   results = [isinstance(obj, some_type) for some_type in allowed_types]
-  logging.debug(results)
+  # logging.debug(results)
   return (True in results)
 
 
 def check_list_item_types(some_list, allowed_types):
   check_class_results = [check_class(item, allowed_types=allowed_types) for item in some_list]
-  logging.debug(check_class_results)
+  # logging.debug(check_class_results)
   return not (False in check_class_results)
 
 

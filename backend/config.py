@@ -112,7 +112,7 @@ def createdir(dir):
   if not path.exists(dir):
     logging.info("Creating " + dir + " ...")
     try:
-      os.makedirs(dir, 0777)
+      os.makedirs(dir)
     except Exception as e:
       logging.error("Error: cannot create directory, aborting.\n" + str(e))
       sys.exit(1)

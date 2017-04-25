@@ -37,7 +37,7 @@ class ImgSegment(DotDict):
 
     def __cmp__(self, other):
         if self == other:
-            print str(self) + " overlaps " + str(other)
+            logging.info(str(self) + " overlaps " + str(other))
             return 0
         elif (self.y < other.y) or ((self.y == other.y) and (self.x < other.x)):
             return -1
@@ -179,13 +179,13 @@ class DocImage:
             cv2.imwrite(workingImgFile, self.working_img_rgb) 
         self.working_img_gray = cv2.cvtColor(self.working_img_rgb, cv2.COLOR_BGR2GRAY)
         self.ww, self.wh = self.working_img_gray.shape[::-1]
-        print "W width = " + str(self.ww) + ", W ht = " + str(self.wh)
+        logging.info("W width = " + str(self.ww) + ", W ht = " + str(self.wh))
 
     def init(self):
         self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
         self.img_bin = preprocessing.binary_img(self.img_gray)
         self.w, self.h = self.img_gray.shape[::-1]
-        print "width = " + str(self.w) + ", ht = " + str(self.h)
+        logging.info("width = " + str(self.w) + ", ht = " + str(self.h))
 
     def fromImage(self, img_cv):
         self.img_rgb = img_cv
@@ -209,7 +209,7 @@ class DocImage:
         disjoint_matches = known_segments.merge(matches)
         known_segments.segments.sort()
         #for r in known_segments.segments:
-        #   print str(r)
+        #   logging.info(str(r))
         return disjoint_matches
 
     def snippet(self, r):
@@ -219,7 +219,7 @@ class DocImage:
         return template
 
     def find_recurrence(self, r, thres = 0.7, known_segments = None):
-        #print "Searching for recurrence of " + json.dumps(r)
+        #logging.info("Searching for recurrence of " + json.dumps(r))
 
         template = self.snippet(r)
 
@@ -435,7 +435,7 @@ class DocImage:
         show_img('BorderedOutput',img)
 
         boxes_temp = np.zeros(img.shape[:2],np.uint8)
-        print "boxes generated"
+        logging.info("boxes generated")
 
         binary = 255-img;
 
@@ -451,7 +451,7 @@ class DocImage:
         else:
             factorX = float(self.w) / float(self.ww)
             factorY = float(self.h) / float(self.wh) 
-#        print "factorx:"+str(factorX)+"factory:"+str(factorY)
+#        logging.info("factorx:"+str(factorX)+"factory:"+str(factorY))
 
 # Bounds are a guess work, more can be on it.
         lower_bound = totalArea / 3000; 
@@ -495,7 +495,7 @@ class DocImage:
         for c in contours:
             coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
             x,y,w,h = cv2.boundingRect(c)
-#            print "x:"+str(x)+"y:"+str(y)+"w:"+str(w)+"h"+str(h)
+#            logging.info("x:"+str(x)+"y:"+str(y)+"w:"+str(w)+"h"+str(h))
             if (((w*h) <= lower_bound or (w*h) >= upper_bound)) :
                 continue
             cv2.rectangle(boxes_temp,(x,y),(x+w,y+h),(255,0,0),1)
@@ -505,7 +505,7 @@ class DocImage:
             coordinates['w'] = int(w * factorX)
             coordinates['h'] = int(h * factorY)
 
-#            print "x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h'])
+#            logging.info("x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h']))
             allsegments.append(ImgSegment(coordinates))
 
         show_img('Boxes_temp 3',boxes_temp)
@@ -515,7 +515,7 @@ class DocImage:
             known_segments = DisjointSegments()
         disjoint_matches = known_segments.merge(allsegments)
         
-#        print "Disjoint Segments    = " + json.dumps(disjoint_matches)
+#        logging.info("Disjoint Segments    = " + json.dumps(disjoint_matches))
         return disjoint_matches
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
@@ -528,12 +528,12 @@ def main(args):
     rect = DotDict({ 'x' : int(args[1]), \
              'y' : int(args[2]), \
              'w' : int(args[3]), 'h' : int(args[4]), 'score' : float(1.0) })
-    print "Template rect = " + json.dumps(rect)
+    logging.info("Template rect = " + json.dumps(rect))
     matches = img.find_recurrence(rect, 0.7)
     pprint(matches)
-    print "Total", len(matches), "matches found."
+    logging.info("Total", len(matches), "matches found.")
 
-    #print json.dumps(matches)
+    #logging.info(json.dumps(matches))
     img.annotate(matches)
     img.annotate([rect], (0,255,0))
 

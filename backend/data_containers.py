@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
+
 from pymongo import ReturnDocument
 
 import jsonpickle
+import jsonschema
 from bson import ObjectId, json_util
 
 import common
@@ -12,8 +15,12 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
+jsonpickle.set_encoder_options('simplejson', indent=2)
+
 TYPE_FIELD = "py/object"
 
+__location__ = os.path.realpath(
+  os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class JsonObject(object):
   def __init__(self):
@@ -65,16 +72,16 @@ class JsonObject(object):
     return self.set_from_dict(
       collection.find_one({"_id": ObjectId(id)}))
 
-  def toJsonMapViaPickle(self):
+  def to_json_map_via_pickle(self):
     return json_util.loads(jsonpickle.encode(self))
 
-  def toJsonMap(self):
+  def to_json_map(self):
     jsonMap = {}
     for key, value in self.__dict__.iteritems():
       if isinstance(value, JsonObject):
-        jsonMap[key] = value.toJsonMap()
+        jsonMap[key] = value.to_json_map()
       elif isinstance(value, list):
-        jsonMap[key] = [item.toJsonMap() if isinstance(item, JsonObject) else item for item in value]
+        jsonMap[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         jsonMap[key] = value
     return jsonMap
@@ -91,23 +98,39 @@ class JsonObject(object):
       else:
         return input
 
-    dict1 = to_unicode(self.toJsonMap())
+    dict1 = to_unicode(self.to_json_map())
     dict1.pop("_id", None)
     # logging.debug(self.__dict__)
     # logging.debug(dict1)
-    dict2 = to_unicode(other.toJsonMap())
+    dict2 = to_unicode(other.to_json_map())
     dict2.pop("_id", None)
     # logging.debug(other.__dict__)
     # logging.debug(dict2)
     return dict1 == dict2
 
   def update_collection(self, some_collection):
-    updated_doc = some_collection.find_one_and_update(self.toJsonMap(), {"$set": self.toJsonMap()}, upsert=True,
+    updated_doc = some_collection.find_one_and_update(self.to_json_map(), {"$set": self.to_json_map()}, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     return JsonObject.make_from_dict(updated_doc)
 
+  def validate_schema(self):
+    jsonschema.validate(self.to_json_map(), self.schema)
+
+
 
 class Target(JsonObject):
+  schema = {
+    {
+      "type": "object",
+      "properties": {
+        "container_id": {
+          "type": "string"
+        }
+      },
+      "required": ["container_id"]
+    }
+  }
+
   @classmethod
   def from_details(cls, container_id):
     target = Target()
@@ -125,6 +148,31 @@ class Target(JsonObject):
 
 
 class BookPortion(JsonObject):
+  schema = {
+    {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "targets": {
+          "type": "array",
+          "items": Target.schema
+        }
+      },
+      "required": ["path"]
+    }
+  }
+
   @classmethod
   def from_details(cls, title, authors, path, targets=None):
     book_portion = BookPortion()
