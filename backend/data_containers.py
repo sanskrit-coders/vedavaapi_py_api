@@ -33,7 +33,7 @@ class JsonObject(object):
     obj = jsonpickle.decode(json_util.dumps(dict_without_id))
     obj._id = _id
     obj.set_type_recursively()
-    logging.info(obj)
+    # logging.debug(obj)
     return obj
 
   @classmethod
@@ -140,7 +140,7 @@ class JsonObjectNode(JsonObject):
   def update_collection(self, some_collection):
     self.content = self.content.update_collection(some_collection)
     for child in self.children:
-      child.targets = [str(self.content._id)]
+      child.content.targets = [Target.from_details(str(self.content._id))]
       child.update_collection(some_collection)
 
 

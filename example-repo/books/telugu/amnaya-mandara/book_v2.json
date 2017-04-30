@@ -1,0 +1,20 @@
+{
+  "py/object": "backend.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "backend.data_containers.BookPortion",
+    "path": "local/telugu/amnaya-mandara"
+  },
+  "children": [
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "IMG_0256_srimahaganapati.jpg",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}

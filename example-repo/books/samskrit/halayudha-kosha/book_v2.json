@@ -1,0 +1,75 @@
+{
+  "py/object": "backend.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "backend.data_containers.BookPortion",
+    "path": "local/samskrit/halayudha-kosha"
+  },
+  "children": [
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o9.jpg",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o5.jpg",
+        "title": "pg_1",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o6.jpg",
+        "title": "pg_2",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o12.jpg",
+        "title": "pg_3",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o8.jpg",
+        "title": "pg_4",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "o10.jpg",
+        "title": "pg_5",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}

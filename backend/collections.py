@@ -77,7 +77,8 @@ class BookPortions(CollectionWrapper):
           book_data["path"] = bpath
           book = data_containers.BookPortion.from_path(self.db_collection, bpath)
           # TODO - Add a not below.
-          if hasattr(book, "_id"):
+          if not hasattr(book, "_id"):
+            logging.info("Importing afresh! %s " % json.dumps(book_data, indent=2))
             pages = []
             page_index = 0
             for page in book_data['pages']:
@@ -90,8 +91,7 @@ class BookPortions(CollectionWrapper):
               page_index = page_index + 1
 
             book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
-            logging.debug(str(book_portion_node))
-            book_portion_node.update_collection(self.db_collection)
+            # logging.debug(str(book_portion_node))
 
 
             abspath = join(rootdir, bpath)
@@ -102,9 +102,11 @@ class BookPortions(CollectionWrapper):
                 f.write(str(book_portion_node))
             except Exception as e:
               return logging.error("Error writing " + book_mfile + " : ".format(e))
+            book_portion_node.update_collection(self.db_collection)
+            logging.debug(str(book_portion_node))
             nbooks = nbooks + 1
       except Exception as e:
-        logging.error("Skipped book_data " + f + ". Error:" + str(e))
+        logging.error("Skipped book_data " + str(f) + ". Error:" + str(e))
     return nbooks
 
 

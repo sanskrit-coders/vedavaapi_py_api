@@ -50,6 +50,7 @@ class DBWrapper:
 
 def initdb(dbname, reset=False):
   global __indicdocs_db
+  logging.info("Initializing database")
   __indicdocs_db = DBWrapper(dbname)
   if reset:
     __indicdocs_db.reset()

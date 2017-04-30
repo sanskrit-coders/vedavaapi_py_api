@@ -1,0 +1,130 @@
+{
+  "py/object": "backend.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "backend.data_containers.BookPortion",
+    "path": "local/kannada/skt-dict"
+  },
+  "children": [
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img1.png",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img2.png",
+        "title": "pg_1",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img3.png",
+        "title": "pg_2",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img4.png",
+        "title": "pg_3",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img5.png",
+        "title": "pg_4",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img6.png",
+        "title": "pg_5",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img7.png",
+        "title": "pg_6",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img8.png",
+        "title": "pg_7",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img9.png",
+        "title": "pg_8",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img10.png",
+        "title": "pg_9",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "backend.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "backend.data_containers.BookPortion",
+        "path": "img11.png",
+        "title": "pg_10",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}
