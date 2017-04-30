@@ -18,6 +18,8 @@ logging.basicConfig(
 
 def check_class(obj, allowed_types):
   results = [isinstance(obj, some_type) for some_type in allowed_types]
+  if (False in results):
+    logging.debug(obj.__class__)
   # logging.debug(results)
   return (True in results)
 

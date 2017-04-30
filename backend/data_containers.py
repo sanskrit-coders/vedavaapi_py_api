@@ -60,13 +60,14 @@ class JsonObject(object):
     return jsonpickle.encode(self)
 
   def set_from_dict(self, input_dict):
-    for key, value in input_dict.iteritems():
-      if isinstance(value, list):
-        setattr(self, key, [JsonObject.make_from_dict(item) if isinstance(item, dict) else item for item in value])
-      elif isinstance(value, dict):
-        setattr(self, key, JsonObject.make_from_dict(value))
-      else:
-        setattr(self, key, value)
+    if input_dict:
+      for key, value in input_dict.iteritems():
+        if isinstance(value, list):
+          setattr(self, key, [JsonObject.make_from_dict(item) if isinstance(item, dict) else item for item in value])
+        elif isinstance(value, dict):
+          setattr(self, key, JsonObject.make_from_dict(value))
+        else:
+          setattr(self, key, value)
 
   def set_from_id(self, collection, id):
     return self.set_from_dict(
@@ -109,26 +110,49 @@ class JsonObject(object):
     return dict1 == dict2
 
   def update_collection(self, some_collection):
+    if hasattr(self, "schema"):
+      self.validate_schema()
     updated_doc = some_collection.find_one_and_update(self.to_json_map(), {"$set": self.to_json_map()}, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     return JsonObject.make_from_dict(updated_doc)
 
   def validate_schema(self):
-    jsonschema.validate(self.to_json_map(), self.schema)
+    json_map = self.to_json_map()
+    json_map.pop("_id", None)
+    jsonschema.validate(json_map, self.schema)
 
+
+
+# Not intended to be written to the database as is. Portions are expected to be extracted and written.
+class JsonObjectNode(JsonObject):
+  @classmethod
+  def from_details(cls, content, children=None):
+    if children is None:
+      children = []
+    node = JsonObjectNode()
+    assert isinstance(content, JsonObject)
+    node.content = content
+    logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
+    assert common.check_list_item_types(children, [JsonObjectNode])
+    node.children = children
+    return node
+
+  def update_collection(self, some_collection):
+    self.content = self.content.update_collection(some_collection)
+    for child in self.children:
+      child.targets = [str(self.content._id)]
+      child.update_collection(some_collection)
 
 
 class Target(JsonObject):
   schema = {
-    {
-      "type": "object",
-      "properties": {
-        "container_id": {
-          "type": "string"
-        }
-      },
-      "required": ["container_id"]
-    }
+    "type": "object",
+    "properties": {
+      "container_id": {
+        "type": "string"
+      }
+    },
+    "required": ["container_id"]
   }
 
   @classmethod
@@ -149,42 +173,44 @@ class Target(JsonObject):
 
 class BookPortion(JsonObject):
   schema = {
-    {
-      "type": "object",
-      "properties": {
-        "title": {
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string"
+      },
+      "path": {
+        "type": "string"
+      },
+      "authors": {
+        "type": "array",
+        "items": {
           "type": "string"
-        },
-        "path": {
-          "type": "string"
-        },
-        "authors": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "targets": {
-          "type": "array",
-          "items": Target.schema
         }
       },
-      "required": ["path"]
-    }
+      "targets": {
+        "type": "array",
+        "items": Target.schema
+      }
+    },
+    "required": ["path"]
   }
 
   @classmethod
-  def from_details(cls, title, authors, path, targets=None):
+  def from_details(cls, path, title, authors=None, targets=None):
+    if authors is None:
+      authors = []
     book_portion = BookPortion()
-    assert common.check_class(title, [str])
+    assert common.check_class(title, [str]), title
     book_portion.title = title
-    assert common.check_list_item_types(authors, [str, unicode])
+    assert common.check_list_item_types(authors, [str, unicode]), authors
     book_portion.authors = authors
-    assert isinstance(path, str)
+    assert common.check_class(path, [str, unicode]), path
+    # logging.debug(str(book_portion))
     book_portion.path = path
 
     targets = targets or []
     assert common.check_list_item_types(targets, [Target])
+    logging.debug(str(book_portion))
     book_portion.targets = targets
     return book_portion
 
@@ -192,6 +218,9 @@ class BookPortion(JsonObject):
   def from_path(cls, collection, path):
     book_portion = BookPortion()
     book_portion.set_from_dict(collection.find_one({"path": path}))
+    if not hasattr(book_portion, "path"):
+      logging.info("Did not find %s in the db" % path)
+      book_portion.path = path
     return book_portion
 
 

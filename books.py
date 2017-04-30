@@ -3,7 +3,9 @@ from flask import *
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
+from backend import data_containers
 from backend.collections import *
+import backend.data_containers
 from backend.db import get_db
 from common import *
 from flask_helper import gen_error_response, myresult
@@ -144,30 +146,19 @@ def upload():
 
   logging.info("User Id: " + str(user_id))
   bookpath = abspath.replace(repodir() + "/", "")
-  book = get_db().books.get(bookpath)
-  if (book is None):
-    book = {
-      'path': bookpath,
-      'pages': [],
-      'user': user_id
-    }
-  else:
-    del book['_id']
-  if (not form.get("author")): book['author'] = form.get("author")
-  if (not form.get("title")): book['title'] = form.get("title")
-  if (not form.get("pubdate")): book['pubdate'] = form.get("pubdate")
-  if (not form.get("scantype")): book['scantype'] = form.get("scantype")
-  if (not form.get("bgtype")): book['bgtype'] = form.get("bgtype")
-  if (not form.get("language")): book['language'] = form.get("language")
-  if (not form.get("script")): book['script'] = form.get("script")
 
-  head, tail = os.path.split(abspath)
+  book = data_containers.BookPortion.from_path(get_db().books, bookpath)
 
-  pages = book['pages']
+  if (not form.get("title")): book.title = form.get("title")
+  if (not form.get("author")): book.authors = [form.get("author")]
+
+  pages = []
+  page_index = -1
   for upload in request.files.getlist("file"):
-    if file and allowed_file(upload.filename):
-      filename = secure_filename(upload.filename)
+    page_index = page_index + 1
     filename = upload.filename.rsplit("/")[0]
+    if file and allowed_file(filename):
+      filename = secure_filename(filename)
     destination = join(abspath, filename)
     upload.save(destination)
     [fname, ext] = os.path.splitext(filename)
@@ -189,20 +180,26 @@ def upload():
     img.save(out, "JPEG", quality=100)
     out.close()
 
-    page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
+    # Obsolete:
+    # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
+    page = backend.JsonObjectNode.from_details(content=data_containers.BookPortion.from_details(title = "pg_%000d" % page_index, path=newFileName))
     pages.append(page)
 
   book['pages'] = pages
 
-  book_mfile = join(abspath, "book.json")
+  book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
+
+  book_mfile = join(abspath, "book_v2.json")
   try:
     with open(book_mfile, "w") as f:
-      f.write(json.dumps(book, indent=4, sort_keys=True))
+      f.write(str(book_portion_node))
   except Exception as e:
     return gen_error_response("Error writing " + book_mfile + " : ".format(e))
 
-  if (get_db().books.importOne(book) == 0):
-    return gen_error_response("Error saving book details.")
+  try:
+    book_portion_node.update_collection(get_db().books)
+  except Exception as e:
+    return gen_error_response("Error saving book details." + " : ".format(e))
 
   response_msg = "Book upload Successful for " + bookpath
   return myresult(response_msg)

@@ -44,6 +44,8 @@ class TestDBRoundTrip(unittest.TestCase):
 
     book_portions = self.test_db.db.book_portions
     logging.debug(book_portion.to_json_map())
+    book_portion.validate_schema()
+
     result = book_portions.update({"path": book_portion.path}, book_portion.to_json_map(), upsert=True)
     logging.debug("update result is " + str(result))
 

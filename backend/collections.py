@@ -5,6 +5,8 @@ from pymongo.database import Database
 
 from pymongo import MongoClient
 
+import backend
+from backend import data_containers
 from backend.config import *
 from docimage import *
 
@@ -49,35 +51,9 @@ class BookPortions(CollectionWrapper):
       book['_id'] = str(book['_id'])
     return book
 
-  def importOne(self, book):
-    pgidx = 0
-    bpath = book['path']
-    if 'user' in book:
-      buser = book['user']
-    else:
-      buser = ""
-
-    for page in book['pages']:
-      try:
-        anno_id = self.indicdocs.annotations.insert(
-          {'bpath': bpath, 'pgidx': pgidx,
-           'anno': [], 'user': buser})
-        sec_id = self.indicdocs.sections.insert(
-          {'bpath': bpath, 'pgidx': pgidx,
-           'sections': [], 'user': buser})
-        # logging.info("anno: " + str(anno_id) + ", sec: " + str(sec_id))
-        page['anno'] = anno_id
-        page['sections'] = sec_id
-      except Exception as e:
-        logging.error("Error inserting anno " + str(e))
-      # print json.dumps(page, indent=4)
-      pgidx = pgidx + 1
-    # logging.info(json.dumps(book, indent=4))
-    self.insert(book)
-
   def importAll(self, rootdir, pattern=None):
     logging.info("Importing books into database from " + rootdir)
-    cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*.json' \) -follow -print; true"
+    cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book.json' \) -follow -print; true"
     try:
       results = mycheck_output(cmd)
     except Exception as e:
@@ -85,6 +61,7 @@ class BookPortions(CollectionWrapper):
       return 0
 
     nbooks = 0
+
     for f in results.split("\n"):
       if not f:
         continue
@@ -98,11 +75,36 @@ class BookPortions(CollectionWrapper):
           book_data = json.load(fhandle)
           # logging.info(json.dumps(book_data, indent=4))
           book_data["path"] = bpath
-          if self.get(bpath) is None:
-            self.importOne(book_data)
+          book = data_containers.BookPortion.from_path(self.db_collection, bpath)
+          # TODO - Add a not below.
+          if hasattr(book, "_id"):
+            pages = []
+            page_index = 0
+            for page in book_data['pages']:
+              page_obj = data_containers.BookPortion.from_details(
+                title = "pg_%000d" % page_index, path=page['fname'])
+              # logging.debug(str(page_obj))
+              page_node = data_containers.JsonObjectNode.from_details(content=page_obj)
+              logging.debug(str(page_node))
+              pages.append(page_node)
+              page_index = page_index + 1
+
+            book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
+            logging.debug(str(book_portion_node))
+            book_portion_node.update_collection(self.db_collection)
+
+
+            abspath = join(rootdir, bpath)
+            book_mfile = join(abspath, "book_v2.json")
+            logging.info("writing to " + book_mfile)
+            try:
+              with open(book_mfile, "w") as f:
+                f.write(str(book_portion_node))
+            except Exception as e:
+              return logging.error("Error writing " + book_mfile + " : ".format(e))
             nbooks = nbooks + 1
       except Exception as e:
-        logging.info("Skipped book_data " + f + ". Error:" + str(e))
+        logging.error("Skipped book_data " + f + ". Error:" + str(e))
     return nbooks
 
 
@@ -290,31 +292,3 @@ class Users(CollectionWrapper):
 #    def __init__(docdb):
 #        self.users = docdb['users']
 
-# Encapsulates the main database.
-class DBWrapper:
-  def __init__(self, dbname):
-    self.dbname = dbname
-    self.initialize()
-
-  #        if not database.write_concern.acknowledged:
-  #            raise ConfigurationError('database must use '
-  #                                     'acknowledged write_concern')
-
-  def initialize(self):
-    try:
-      self.client = MongoClient()
-      self.db = self.client[self.dbname]
-      if not isinstance(self.db, Database):
-        raise TypeError("database must be an instance of Database")
-      self.books = BookPortions(self.db['book_portions'])
-      self.annotations = Annotations(self.db['annotations'])
-      self.sections = Sections(self.db['sections'])
-      self.users = Users(self.db['users'])
-    except Exception as e:
-      print("Error initializing MongoDB database; aborting.", e)
-      sys.exit(1)
-
-  def reset(self):
-    logging.info("Clearing IndicDocs database")
-    self.client.drop_database(self.dbname)
-    self.initialize()

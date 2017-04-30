@@ -2,12 +2,50 @@ import sys
 from os.path import join
 
 import cv2
+from pymongo.database import Database
 
-from backend.collections import DBWrapper
+import logging
+from pymongo import MongoClient
+
+from backend.collections import BookPortions, Annotations, Sections, Users
 from backend.config import setworkdir, workdir, initworkdir, setwlocaldir, DATADIR_BOOKS, INDICDOC_DBNAME, repodir
 from docimage import DocImage
 
+logging.basicConfig(
+  level=logging.DEBUG,
+  format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
+)
+
 __indicdocs_db = None
+
+# Encapsulates the main database.
+class DBWrapper:
+  def __init__(self, dbname):
+    self.dbname = dbname
+    self.initialize()
+
+  #        if not database.write_concern.acknowledged:
+  #            raise ConfigurationError('database must use '
+  #                                     'acknowledged write_concern')
+
+  def initialize(self):
+    try:
+      self.client = MongoClient()
+      self.db = self.client[self.dbname]
+      if not isinstance(self.db, Database):
+        raise TypeError("database must be an instance of Database")
+      self.books = BookPortions(self.db['book_portions'])
+      self.annotations = Annotations(self.db['annotations'])
+      self.sections = Sections(self.db['sections'])
+      self.users = Users(self.db['users'])
+    except Exception as e:
+      print("Error initializing MongoDB database; aborting.", e)
+      sys.exit(1)
+
+  def reset(self):
+    logging.info("Clearing IndicDocs database")
+    self.client.drop_database(self.dbname)
+    self.initialize()
 
 
 def initdb(dbname, reset=False):
