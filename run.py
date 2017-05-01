@@ -6,11 +6,12 @@ from sys import argv
 
 from flask import *
 from flask_login import LoginManager, login_user, logout_user, \
-  current_user
+    current_user
 
 # from flask.ext.cors import CORS
 from backend.collections import *
 # from file import file_api
+from backend.data_containers import User
 from backend.db import initdb, get_db
 from books import books_api
 from oauth import *
@@ -40,29 +41,6 @@ app.config['OAUTH_CREDENTIALS'] = {
 
 lm = LoginManager(app)
 lm.login_view = 'index'
-
-
-class User(object):
-    def __init__(self, user_id, nickname="Guest", email=None, confirmed_on=False):
-        self.user_id = user_id
-        self.nickname = nickname
-        self.email = email
-        self.confirmed_on = confirmed_on
-
-    def is_authenticated(self):
-        if self.nickname == 'Guest' and self.confirmed_on == True:
-            logging.info("Confirmed=" + str( self.confirmed_on))
-            return True
-
-    def is_active(self):
-        if self.confirmed_on == True:
-            return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return self.user_id
 
 
 def authorized_work(required_url, default_url):

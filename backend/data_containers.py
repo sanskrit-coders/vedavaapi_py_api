@@ -406,3 +406,26 @@ class PadavibhaagaAnnotation(Annotation):
     annotation = PadavibhaagaAnnotation()
     annotation.set_base_details(targets, source)
     return annotation
+
+
+class User(JsonObject):
+    def __init__(self, user_id, nickname="Guest", email=None, confirmed_on=False):
+        self.user_id = user_id
+        self.nickname = nickname
+        self.email = email
+        self.confirmed_on = confirmed_on
+
+    def is_authenticated(self):
+        if self.nickname == 'Guest' and self.confirmed_on == True:
+            logging.info("Confirmed=" + str( self.confirmed_on))
+            return True
+
+    def is_active(self):
+        if self.confirmed_on == True:
+            return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.user_id

@@ -193,16 +193,16 @@ class Sections(CollectionWrapper):
     super(Sections, self).__init__(db_collection)
 
   def get(self, sec_id):
-    res = self.sections.find_one({'_id': ObjectId(sec_id)})
+    res = self.db_collection.find_one({'_id': ObjectId(sec_id)})
     res['_id'] = str(res['_id'])
     return res
 
   def insert(self, sec):
-    result = self.sections.insert_one(sec)
+    result = self.db_collection.insert_one(sec)
     return str(result.inserted_id)
 
   def update(self, sec_id, section):
-    result = self.sections.update({'_id': ObjectId(sec_id)}, section)
+    result = self.db_collection.update({'_id': ObjectId(sec_id)}, section)
     return result['n'] > 0
 
 
@@ -212,27 +212,21 @@ class Users(CollectionWrapper):
     super(Users, self).__init__(db_collection)
 
   def get(self, user_id):
-    res = self.users.find_one({'_id': ObjectId(user_id)})
+    res = self.db_collection.find_one({'_id': ObjectId(user_id)})
     res['_id'] = str(res['_id'])
     return res
 
   def getBySocialId(self, social_id):
-    res = self.users.find_one({'social_id': social_id})
+    res = self.db_collection.find_one({'social_id': social_id})
     if res is not None: res['_id'] = str(res['_id'])
     return res
 
   def insert(self, user_data):
-    result = self.users.insert_one(user_data)
+    result = self.db_collection.insert_one(user_data)
     result = self.get(result.inserted_id)
     result['_id'] = str(result['_id'])
     return result
 
   def update(self, user_id, user_data):
-    result = self.users.update({'_id': ObjectId(user_id)}, user_data)
+    result = self.db_collection.update({'_id': ObjectId(user_id)}, user_data)
     return result['n'] > 0
-
-
-# class Users:
-#    def __init__(docdb):
-#        self.users = docdb['users']
-
