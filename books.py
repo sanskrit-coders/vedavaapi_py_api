@@ -35,7 +35,7 @@ def getbooklist():
     if session['logstatus'] == 1:
       pattern = request.args.get('pattern')
       logging.info("books list filter = " + str(pattern))
-      binfo = {'books': get_db().books.list(pattern)}
+      binfo = {'books': get_db().books.list_books(pattern)}
       return flask_helper.gen_response(result=binfo)
     else:
       return redirect(url_for('index'))

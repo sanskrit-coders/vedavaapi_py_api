@@ -1,11 +1,13 @@
-from flask import make_response, json
+from bson import json_util
+
+from flask import make_response
 
 
 def gen_response(status='ok', result=None):
   retobj = {'status': status}
   if not result is None:
     retobj['result'] = result
-  return make_response(json.dumps(retobj))
+  return make_response(json_util.dumps(retobj))
   # return json.dumps(retobj)
 
 

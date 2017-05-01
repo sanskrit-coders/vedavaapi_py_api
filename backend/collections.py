@@ -33,8 +33,8 @@ class BookPortions(CollectionWrapper):
     self.db_collection.update({"path": book["path"]}, book, upsert=True)
     return self.db_collection.find({'path': book["path"]}).count()
 
-  def list(self, pattern=None):
-    iter = self.db_collection.find({}, {'_id': False, 'pages': False})
+  def list_books(self, pattern=None):
+    iter = self.db_collection.find({"targets" : {"$exists" : False}})
     matches = [b for b in iter if not pattern or re.search(pattern, b['path'])]
     return matches
 
