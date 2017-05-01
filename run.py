@@ -268,7 +268,7 @@ def setup_app(params):
     os.chdir(workdir())
 
     # Import all book metadata into the IndicDocs database
-    get_db().books.importAll(repodir())
+    get_db().importAll(repodir())
 
 
 def main(argv):
@@ -297,7 +297,7 @@ def main(argv):
     setup_app(params)
 
     logging.info("Available on the following URLs:")
-    for line in mycheck_output(["/sbin/ifconfig"]).split("\n"):
+    for line in run_command(["/sbin/ifconfig"]).split("\n"):
         m = re.match('\s*inet addr:(.*?) .*', line)
         if m:
             logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")

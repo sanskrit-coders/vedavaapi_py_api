@@ -10,8 +10,4 @@ def gen_response(status='ok', result=None):
 
 
 def gen_error_response(msg):
-  return gen_response(status=msg)
-
-
-def myresult(res=None):
-  return gen_response(result=res)
+  return make_response({'status': msg})

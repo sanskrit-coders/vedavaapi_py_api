@@ -51,35 +51,6 @@ class BookPortions(CollectionWrapper):
       book['_id'] = str(book['_id'])
     return book
 
-  def importAll(self, rootdir, pattern=None):
-    logging.info("Importing books into database from " + rootdir)
-    cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
-    try:
-      results = mycheck_output(cmd)
-    except Exception as e:
-      logging.error("Error in find: " + str(e))
-      return 0
-
-    nbooks = 0
-
-    for f in results.split("\n"):
-      if not f:
-        continue
-      bpath, fname = os.path.split(f.replace(rootdir + "/", ""))
-      logging.info("    " + bpath)
-      if pattern and not re.search(pattern, bpath, re.IGNORECASE):
-        continue
-      book = data_containers.BookPortion.from_path(self.db_collection, bpath)
-      book_portion_node = data_containers.JsonObject.read_from_file(f)
-      if hasattr(book, "_id"):
-        logging.info("Book already present %s" % bpath)
-      else:
-        logging.info("Importing afresh! %s " % book_portion_node)
-        book_portion_node.update_collection(self.db_collection)
-        logging.debug(str(book_portion_node))
-        nbooks = nbooks + 1
-    return nbooks
-
 
 # Encapsulates the annotations collection.
 class Annotations(CollectionWrapper):

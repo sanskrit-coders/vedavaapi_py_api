@@ -8,7 +8,7 @@ from backend.collections import *
 import backend.data_containers
 from backend.db import get_db
 from common import *
-from flask_helper import gen_error_response, myresult
+import flask_helper
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -36,7 +36,7 @@ def getbooklist():
       pattern = request.args.get('pattern')
       logging.info("books list filter = " + str(pattern))
       binfo = {'books': get_db().books.list(pattern)}
-      return myresult(binfo)
+      return flask_helper.gen_response(result=binfo)
     else:
       return redirect(url_for('index'))
   else:
@@ -49,7 +49,7 @@ def getbooksingle():
   logging.info("book get by path = " + str(path))
   binfo = get_db().books.get(path)
   # pprint(binfo)
-  return myresult(binfo)
+  return flask_helper.gen_response(result=binfo)
 
 
 @books_api.route('/page/anno/segment/<anno_id>', methods=['GET', 'POST'])
@@ -58,7 +58,7 @@ def getpagesegment(anno_id):
     """return the page annotation with id = anno_id"""
     get_db().annotations.segment(anno_id)
     anno = get_db().annotations.get(anno_id)
-    return myresult(anno)
+    return flask_helper.gen_response(result=anno)
 
 
 @books_api.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
@@ -69,7 +69,7 @@ def pageanno(anno_id):
     if reparse:
       get_db().annotations.propagate(anno_id)
     anno = get_db().annotations.get(anno_id)
-    return myresult(anno)
+    return flask_helper.gen_response(result=anno)
   elif request.method == 'POST':
     """modify/update the page annotation with id = anno_id"""
     anno = request.form.get('anno')
@@ -78,9 +78,9 @@ def pageanno(anno_id):
     anno = json.loads(anno)
     res = get_db().annotations.update(anno_id, {'anno': anno})
     if res == True:
-      x = myresult("Annotation saved successfully.")
+      x = flask_helper.gen_response(result="Annotation saved successfully.")
     else:
-      x = gen_error_response("error saving annotation.")
+      x = flask_helper.gen_error_response("error saving annotation.")
     return x
 
 
@@ -88,7 +88,7 @@ def pageanno(anno_id):
 def getpagesections():
   myid = request.args.get('id')
   sec = get_db().sections.get(myid)
-  return myresult(sec)
+  return flask_helper.gen_response(result=sec)
 
 
 @books_api.route('/page/image/<path:pagepath>')
@@ -135,7 +135,7 @@ def upload():
   try:
     createdir(abspath)
   except Exception as e:
-    error_obj = gen_error_response("Couldn't create upload directory: {}".format(abspath), e)
+    error_obj = flask_helper.gen_error_response("Couldn't create upload directory: {}".format(abspath), e)
     logging.error(error_obj)
     return error_obj
 
@@ -190,16 +190,13 @@ def upload():
   book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
 
   book_mfile = join(abspath, "book_v2.json")
-  try:
-    with open(book_mfile, "w") as f:
-      f.write(str(book_portion_node))
-  except Exception as e:
-    return gen_error_response("Error writing " + book_mfile + " : ".format(e))
+  book_portion_node.dump_to_file(book_mfile)
 
   try:
     book_portion_node.update_collection(get_db().books)
   except Exception as e:
-    return gen_error_response("Error saving book details." + " : ".format(e))
+    logging.error(format(e))
+    return flask_helper.gen_error_response("Error saving book details." + " : ".format(e))
 
   response_msg = "Book upload Successful for " + bookpath
-  return myresult(response_msg)
+  return flask_helper.gen_response(result=response_msg)

@@ -204,7 +204,7 @@ def list_dirtree(rootdir):
   return all_data
 
 
-def mycheck_output(cmd):
+def run_command(cmd):
   try:
     # shellswitch = isinstance(cmd, collections.Sequence)
     # print "cmd:",cmd
@@ -215,7 +215,7 @@ def mycheck_output(cmd):
                             stdout=subprocess.PIPE).communicate()[0]
   except Exception as e:
     logging.error("Error in " + cmd + ": " + str(e))
-    return "error"
+    raise e
 
 
 # function to check if an input url exists or not(for csv visualizer)
