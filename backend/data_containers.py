@@ -28,6 +28,7 @@ class JsonObject(object):
 
   @classmethod
   def make_from_dict(cls, input_dict):
+    assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
     obj = jsonpickle.decode(json_util.dumps(dict_without_id))
@@ -40,6 +41,25 @@ class JsonObject(object):
   def make_from_pickledstring(cls, pickle):
     obj = jsonpickle.decode(pickle)
     return obj
+
+  @classmethod
+  def read_from_file(cls, filename):
+    try:
+      with open(filename) as fhandle:
+        obj = jsonpickle.decode(fhandle.read())
+        return obj
+    except Exception as e:
+      return logging.error("Error reading " + filename + " : ".format(e))
+      raise e
+
+  def dump_to_file(self, filename):
+    try:
+      with open(filename, "w") as f:
+        f.write(str(self))
+    except Exception as e:
+      return logging.error("Error writing " + filename + " : ".format(e))
+      raise e
+
 
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)
@@ -114,6 +134,8 @@ class JsonObject(object):
       self.validate_schema()
     updated_doc = some_collection.find_one_and_update(self.to_json_map(), {"$set": self.to_json_map()}, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
+    self.set_type()
+    updated_doc[TYPE_FIELD] = getattr(self, TYPE_FIELD)
     return JsonObject.make_from_dict(updated_doc)
 
   def validate_schema(self):

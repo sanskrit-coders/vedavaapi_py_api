@@ -53,7 +53,7 @@ class BookPortions(CollectionWrapper):
 
   def importAll(self, rootdir, pattern=None):
     logging.info("Importing books into database from " + rootdir)
-    cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book.json' \) -follow -print; true"
+    cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
     try:
       results = mycheck_output(cmd)
     except Exception as e:
@@ -69,44 +69,15 @@ class BookPortions(CollectionWrapper):
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      winfo = {}
-      try:
-        with open(f) as fhandle:
-          book_data = json.load(fhandle)
-          # logging.info(json.dumps(book_data, indent=4))
-          book_data["path"] = bpath
-          book = data_containers.BookPortion.from_path(self.db_collection, bpath)
-          # TODO - Add a not below.
-          if not hasattr(book, "_id"):
-            logging.info("Importing afresh! %s " % json.dumps(book_data, indent=2))
-            pages = []
-            page_index = 0
-            for page in book_data['pages']:
-              page_obj = data_containers.BookPortion.from_details(
-                title = "pg_%000d" % page_index, path=page['fname'])
-              # logging.debug(str(page_obj))
-              page_node = data_containers.JsonObjectNode.from_details(content=page_obj)
-              logging.debug(str(page_node))
-              pages.append(page_node)
-              page_index = page_index + 1
-
-            book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
-            # logging.debug(str(book_portion_node))
-
-
-            abspath = join(rootdir, bpath)
-            book_mfile = join(abspath, "book_v2.json")
-            logging.info("writing to " + book_mfile)
-            try:
-              with open(book_mfile, "w") as f:
-                f.write(str(book_portion_node))
-            except Exception as e:
-              return logging.error("Error writing " + book_mfile + " : ".format(e))
-            book_portion_node.update_collection(self.db_collection)
-            logging.debug(str(book_portion_node))
-            nbooks = nbooks + 1
-      except Exception as e:
-        logging.error("Skipped book_data " + str(f) + ". Error:" + str(e))
+      book = data_containers.BookPortion.from_path(self.db_collection, bpath)
+      book_portion_node = data_containers.JsonObject.read_from_file(f)
+      if hasattr(book, "_id"):
+        logging.info("Book already present %s" % bpath)
+      else:
+        logging.info("Importing afresh! %s " % book_portion_node)
+        book_portion_node.update_collection(self.db_collection)
+        logging.debug(str(book_portion_node))
+        nbooks = nbooks + 1
     return nbooks
 
 
