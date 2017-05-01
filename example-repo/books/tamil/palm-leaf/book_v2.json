@@ -9,7 +9,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "1.jpg",
+        "path": "local/tamil/palm-leaf/1.jpg",
         "title": "pg_0",
         "targets": [],
         "authors": []
@@ -20,7 +20,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "pl1.jpg",
+        "path": "local/tamil/palm-leaf/pl1.jpg",
         "title": "pg_1",
         "targets": [],
         "authors": []
@@ -31,7 +31,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "pl4.jpg",
+        "path": "local/tamil/palm-leaf/pl4.jpg",
         "title": "pg_2",
         "targets": [],
         "authors": []

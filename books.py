@@ -182,7 +182,9 @@ def upload():
 
     # Obsolete:
     # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
-    page = backend.JsonObjectNode.from_details(content=data_containers.BookPortion.from_details(title = "pg_%000d" % page_index, path=newFileName))
+    page = backend.JsonObjectNode.from_details(
+      content=data_containers.BookPortion.from_details(
+        title = "pg_%000d" % page_index, path=file.path.join(book.path, newFileName)))
     pages.append(page)
 
   book['pages'] = pages
@@ -193,7 +195,7 @@ def upload():
   book_portion_node.dump_to_file(book_mfile)
 
   try:
-    book_portion_node.update_collection(get_db().books)
+    book_portion_node.update_collection(get_db().books.db_collection)
   except Exception as e:
     logging.error(format(e))
     return flask_helper.gen_error_response("Error saving book details." + " : ".format(e))

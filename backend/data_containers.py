@@ -8,6 +8,7 @@ import jsonpickle
 import jsonschema
 from bson import ObjectId, json_util
 
+import backend
 import common
 
 logging.basicConfig(
@@ -23,6 +24,16 @@ __location__ = os.path.realpath(
   os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 class JsonObject(object):
+  schema = {
+    "type": "object",
+    "properties": {
+      TYPE_FIELD: {
+        "type": "string"
+      },
+    },
+    "required": [TYPE_FIELD]
+  }
+
   def __init__(self):
     self.set_type()
 
@@ -32,7 +43,7 @@ class JsonObject(object):
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
     obj = jsonpickle.decode(json_util.dumps(dict_without_id))
-    obj._id = _id
+    obj._id = str(_id)
     obj.set_type_recursively()
     # logging.debug(obj)
     return obj
@@ -130,6 +141,7 @@ class JsonObject(object):
     return dict1 == dict2
 
   def update_collection(self, some_collection):
+    self.set_type_recursively()
     if hasattr(self, "schema"):
       self.validate_schema()
     updated_doc = some_collection.find_one_and_update(self.to_json_map(), {"$set": self.to_json_map()}, upsert=True,
@@ -143,7 +155,10 @@ class JsonObject(object):
     json_map.pop("_id", None)
     jsonschema.validate(json_map, self.schema)
 
-
+  @classmethod
+  def find_one(cls, filter, some_collection):
+    attr_dict = some_collection.find_one(filter=filter)
+    return cls.make_from_dict(attr_dict)
 
 # Not intended to be written to the database as is. Portions are expected to be extracted and written.
 class JsonObjectNode(JsonObject):
@@ -152,9 +167,11 @@ class JsonObjectNode(JsonObject):
     if children is None:
       children = []
     node = JsonObjectNode()
-    assert isinstance(content, JsonObject)
+    # logging.debug(content)
+    # Strangely, without the backend.data_containers, the below test failed on 20170501
+    assert isinstance(content, backend.data_containers.JsonObject), content.__class__
     node.content = content
-    logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
+    # logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
     assert common.check_list_item_types(children, [JsonObjectNode])
     node.children = children
     return node
@@ -180,15 +197,15 @@ class JsonObjectNode(JsonObject):
       self.children.append(child)
 
 class Target(JsonObject):
-  schema = {
+  schema = dict(JsonObject.schema.items() +({
     "type": "object",
     "properties": {
       "container_id": {
         "type": "string"
       }
     },
-    "required": ["container_id"]
-  }
+    "required": [TYPE_FIELD, "container_id"]
+  }).items())
 
   @classmethod
   def from_details(cls, container_id):
@@ -207,7 +224,7 @@ class Target(JsonObject):
 
 
 class BookPortion(JsonObject):
-  schema = {
+  schema = dict(JsonObject.schema.items() +({
     "type": "object",
     "properties": {
       "title": {
@@ -227,15 +244,15 @@ class BookPortion(JsonObject):
         "items": Target.schema
       }
     },
-    "required": ["path"]
-  }
+    "required": [TYPE_FIELD, "path"]
+  }).items())
 
   @classmethod
   def from_details(cls, path, title, authors=None, targets=None):
     if authors is None:
       authors = []
     book_portion = BookPortion()
-    assert common.check_class(title, [str]), title
+    assert common.check_class(title, [str, unicode]), title
     book_portion.title = title
     assert common.check_list_item_types(authors, [str, unicode]), authors
     book_portion.authors = authors
@@ -263,8 +280,8 @@ class AnnotationSource(JsonObject):
   @classmethod
   def from_details(cls, type, id):
     source = AnnotationSource()
-    assert isinstance(type, str)
-    assert isinstance(id, str)
+    assert common.check_class(type, [str, unicode])
+    assert common.check_class(id, [str, unicode])
     source.type = type
     source.id = id
     return source
@@ -273,9 +290,9 @@ class AnnotationSource(JsonObject):
 class Annotation(JsonObject):
   def set_base_details(self, targets, source):
     for target in targets:
-      assert isinstance(target, Target)
+      assert isinstance(target, Target), target.__class__
     self.targets = targets
-    assert isinstance(source, AnnotationSource)
+    assert isinstance(source, AnnotationSource), source.__class__
     self.source = source
 
 
@@ -285,10 +302,10 @@ class ImageTarget(Target):
   def from_details(cls, container_id, x1=-1, y1=-1, x2=-1, y2=-1):
     target = ImageTarget()
     target.container_id = container_id
-    assert isinstance(x1, int)
-    assert isinstance(y1, int)
-    assert isinstance(x2, int)
-    assert isinstance(y2, int)
+    assert isinstance(x1, int), x1.__class__
+    assert isinstance(y1, int), y1.__class__
+    assert isinstance(x2, int), x2.__class__
+    assert isinstance(y2, int), y2.__class__
     target.x1 = x1
     target.y1 = y1
     target.x2 = x2
@@ -310,8 +327,8 @@ class TextContent(JsonObject):
   def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
     assert common.check_class(text, [str, unicode])
-    assert isinstance(language, str)
-    assert isinstance(encoding, str)
+    assert common.check_class(language, [str, unicode])
+    assert common.check_class(encoding, [str, unicode])
     text_content.text = text
     text_content.language = language
     text_content.encoding = encoding
@@ -324,7 +341,7 @@ class TextAnnotation(Annotation):
   def from_details(cls, targets, source, content):
     annotation = TextAnnotation()
     annotation.set_base_details(targets, source)
-    assert isinstance(content, TextContent)
+    assert isinstance(content, TextContent), content.__class__
     annotation.content = content
     return annotation
 
@@ -347,8 +364,8 @@ class SubantaDetails(JsonObject):
   def from_details(cls, linga, vibhakti, vachana):
     obj = SubantaDetails()
     assert common.check_class(linga, [str, unicode])
-    assert isinstance(vibhakti, int)
-    assert isinstance(vachana, int)
+    assert isinstance(vibhakti, int), vibhakti.__class__
+    assert isinstance(vachana, int), vachana.__class__
     obj.linga = linga
     obj.vibhakti = vibhakti
     obj.vachana = vachana
@@ -359,9 +376,9 @@ class TextTarget(Target):
   @classmethod
   def from_details(cls, container_id, start_offset=-1, end_offset=-1):
     target = TextTarget()
-    assert isinstance(container_id, str)
-    assert isinstance(start_offset, int)
-    assert isinstance(end_offset, int)
+    assert common.check_class(container_id, [str, unicode])
+    assert isinstance(start_offset, int), start_offset.__class__
+    assert isinstance(end_offset, int), end_offset.__class__
     target.container_id = container_id
     target.start_offset = start_offset
     target.end_offset = end_offset

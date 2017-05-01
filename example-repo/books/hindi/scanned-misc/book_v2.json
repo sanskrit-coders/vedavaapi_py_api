@@ -9,7 +9,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "abhyAsEkChandaPuLa.jpg",
+        "path": "local/hindi/scanned-misc/abhyAsEkChandaPuLa.jpg",
         "title": "pg_0",
         "targets": [],
         "authors": []
@@ -20,7 +20,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "aksharunicodetext.jpg",
+        "path": "local/hindi/scanned-misc/aksharunicodetext.jpg",
         "title": "pg_1",
         "targets": [],
         "authors": []
@@ -31,7 +31,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "durga.jpg",
+        "path": "local/hindi/scanned-misc/durga.jpg",
         "title": "pg_2",
         "targets": [],
         "authors": []
@@ -42,7 +42,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "hi.png",
+        "path": "local/hindi/scanned-misc/hi.png",
         "title": "pg_3",
         "targets": [],
         "authors": []
@@ -53,7 +53,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "vishnu-chalisa.jpg",
+        "path": "local/hindi/scanned-misc/vishnu-chalisa.jpg",
         "title": "pg_4",
         "targets": [],
         "authors": []
