@@ -7,7 +7,7 @@ import jsonpickle
 from bson import ObjectId
 
 import data_containers
-from collections import DBWrapper
+from db import DBWrapper
 
 logging.basicConfig(
   level=logging.DEBUG,

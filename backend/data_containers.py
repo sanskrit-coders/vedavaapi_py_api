@@ -165,6 +165,19 @@ class JsonObjectNode(JsonObject):
       child.content.targets = [Target.from_details(str(self.content._id))]
       child.update_collection(some_collection)
 
+  def fill_descendents(self, some_collection):
+    targetting_objs = some_collection.find({
+      "targets":  {
+        "$elemMatch": {
+          "container_id" : str(self.content._id)
+        }
+      }
+    })
+    self.children = []
+    for targetting_obj in targetting_objs:
+      child = JsonObjectNode.from_details(content=JsonObject.make_from_dict(targetting_obj))
+      child.fill_descendents(some_collection=some_collection)
+      self.children.append(child)
 
 class Target(JsonObject):
   schema = {

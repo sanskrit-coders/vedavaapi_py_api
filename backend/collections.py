@@ -29,21 +29,10 @@ class BookPortions(CollectionWrapper):
     logging.info("Initializing collection :" + str(db_collection))
     super(BookPortions, self).__init__(db_collection)
 
-  def insert(self, book):
-    self.db_collection.update({"path": book["path"]}, book, upsert=True)
-    return self.db_collection.find({'path': book["path"]}).count()
-
   def list_books(self, pattern=None):
     iter = self.db_collection.find({"targets" : {"$exists" : False}})
     matches = [b for b in iter if not pattern or re.search(pattern, b['path'])]
     return matches
-
-  def getPageByIdx(self, book, idx):
-    return book.pages[idx]
-
-  def getPageByName(self, book, pagename):
-    page = book.find({"pages.fname", pagename})
-    return page
 
   def get(self, path):
     book = self.db_collection.find_one({'path': path})
