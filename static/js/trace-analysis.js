@@ -71,7 +71,7 @@ tbody.appendChild(row);
 alert("Form Submitted Successfully...");
 div_hide();
 }
-}
+
 //Function To Display Popup
 function div_show() {
 document.getElementById('abc').style.display = "block";
