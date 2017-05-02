@@ -157,7 +157,7 @@ function doexplore(wlparams, cmd)
 
 function get_wlform(wlnames, formname) {
     document.getElementById('wlnames').value=wlnames;
-    var formparams = get_formparams(formname);
+    var formparams = getFormParams(formname);
     //console.log(formparams);
     //var formparams = $('#'+formname).serialize();
     return formparams;

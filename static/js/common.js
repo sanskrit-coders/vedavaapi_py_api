@@ -9,7 +9,7 @@ function serialize(obj){
     return s;
 };
 
-function get_formparams(formname, fieldname_filter)
+function getFormParams(formname, fieldname_filter)
 {
     var form_params = {};
     var myform = document.forms[formname];
