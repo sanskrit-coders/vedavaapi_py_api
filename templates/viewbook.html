@@ -251,7 +251,7 @@ function segment_page() {
     var sec_id = pagedetails['sections'];
 
     $.getJSON('/books/page/anno/segment/'+anno_id, function(data){
-        if (! mychkstatus(data))
+        if (! processStatus(data))
             return;
 //        console.log("Page Anno: " + JSON.stringify(data.result));
         curpage_annotations = data.result['anno'];
@@ -280,7 +280,7 @@ function loadpage(reparse = false) {
 
     params = { 'reparse' : reparse };
     $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(params), function(data){
-        if (! mychkstatus(data))
+        if (! processStatus(data))
             return;
 //        console.log("Page Anno: " + JSON.stringify(data.result));
         curpage_annotations = data.result['anno'];
@@ -290,7 +290,7 @@ function loadpage(reparse = false) {
     });
 
     $.getJSON('/books/page/sections?id='+sec_id, function(data){
-        if (! mychkstatus(data))
+        if (! processStatus(data))
             return;
         curpage_sections = data;
     });

@@ -45,7 +45,7 @@ function get_formparams(formname, fieldname_filter)
     return form_params;
 }
 
-function mychkstatus(resp, okstr, errstr)
+function processStatus(resp, okstr, errstr)
 {
     var $msg="";
     //alert("returned status = " + JSON.stringify(resp));

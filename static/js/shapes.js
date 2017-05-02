@@ -1052,7 +1052,7 @@ CanvasState.prototype.saveShapes = function() {
     var res = { 'anno' : JSON.stringify(shapes) };
 //    console.log('POST anno contents: ' + JSON.stringify(res));
     $.post('/books/page/anno/'+anno_id, res, function(data) {
-        mychkstatus(data, "Annotations saved successfully.", 
+        processStatus(data, "Annotations saved successfully.", 
             "Error saving annotations.");
     }, "json");
     //post('/books/page/anno/'+oid, JSON.stringify(shapes));

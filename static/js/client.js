@@ -53,7 +53,7 @@ function getbooks(hglass)
     $select.empty(); 
     var pattern=document.getElementById('wload_filter').value;
     $.getJSON('/books/list?pattern='+pattern, function(data){
-        if (! mychkstatus(data))
+        if (! processStatus(data))
            return;
         data = data['result'];
         $select.append('<table class="wltabclass" id="wltable">'+
@@ -177,7 +177,7 @@ function book_process(wlparams, cmd)
     //console.log(wlparams);
     var $consolediv = $('#console');
     $.getJSON('/books/'+cmd+'?' + serialize(wlparams), function(data){
-        if (! mychkstatus(data))
+        if (! processStatus(data))
             return;
         data = data['result'];
         $('#book_table').empty();

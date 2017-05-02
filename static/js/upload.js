@@ -56,7 +56,7 @@ function doUpload() {
         success: function(data) {
             $progressBar.css({"width": "100%"});
             data = JSON.parse(data);
-            if (mychkstatus(data)) {
+            if (processStatus(data)) {
                  //alert("uploaded successfully..");
                  $('#upload_popup').fadeOut("slow");
                   getbooks();
