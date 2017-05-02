@@ -7,7 +7,7 @@
     <h2>Browse Books</h2>
     <div> Filter by name:
         <input id="wload_filter" type="text" title="Type a regular expression to match"
-            name="WorkloadFilter" onBlur="javascript:getbooks(true);">
+            name="WorkloadFilter" onBlur="javascript:getBooks(true);">
         <button id="getbooks" value="apply">Apply</button>
     </div>
 
@@ -86,13 +86,13 @@
 $(document).ready(function () {
      
      $(window).load(function() {
-        getserverinfo();
-        getbooks(true);
+        getServerInfo();
+        getBooks(true);
     });
     var myurl = window.location.href;
     $('#server').html("Server Running on: "+myurl);
     $('#getbooks').click(function(){
-        getbooks(true);
+        getBooks(true);
     });
     
     $('#file-picker').on("change", function() {
@@ -101,7 +101,7 @@ $(document).ready(function () {
 
     //code for workload upload
     $('#upload-button').click(function(){
-        startupload();
+        startUpload();
          
     });
     
@@ -135,9 +135,9 @@ $(document).ready(function () {
         var $cmd_button = $('#wl' + cmds[i]);
         $cmd_button.click(function() {
             cmd = this.value;
-            var names = get_selbooks('wltable');
-            var formdata = get_wlform(names.books, 'wlactions');
-            book_process(formdata, cmd);
+            var names = getSelBooks('wltable');
+            var formdata = getWlForm(names.books, 'wlactions');
+            bookProcess(formdata, cmd);
         });
     }
 
@@ -146,7 +146,7 @@ $(document).ready(function () {
     });
     
     $('#upgrade_wlwizard').click(function () {
-        update_wlwizard();
+        updateWlWizard();
     });
 	$('#reportbug').click(function () {
 		var newwin="target=\"_blank\"";

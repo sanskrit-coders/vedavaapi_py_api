@@ -59,7 +59,7 @@ function doUpload() {
             if (processStatus(data)) {
                  //alert("uploaded successfully..");
                  $('#upload_popup').fadeOut("slow");
-                  getbooks();
+                  getBooks();
                   location.reload();
             }
             else {

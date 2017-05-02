@@ -954,6 +954,7 @@ CanvasState.prototype.getMouse = function(e) {
 // You could uncomment this init() reference and place the script reference inside the body tag
 //init();
 
+// Shapes are rectangles. This overlays boxes on an image, makes them selectable etc..
 function init(canvas,dataURL, oldShapes, oid) {
     var s = canvasStateList.get(canvas,dataURL, oid);
     console.log("Init Called for "+oid);

@@ -1,5 +1,5 @@
 // Validating Empty Field first and then start capture
-function startupload() 
+function startUpload()
 {
     if (document.getElementById('uploadpath').value == ""){
             alert("Fill All Fields !");
@@ -10,7 +10,7 @@ function startupload()
     }
 }
 
-function update_wlwizard() {
+function updateWlWizard() {
     var $consolediv = $('#console');
     $consolediv.html("updating wlwizard...");
     $.get('/admin/update', function(response) { 
@@ -35,12 +35,12 @@ function urlize(lpath, text, newwin)
 }
 
 //this method is for getting  serverinfo using api
-function getserverinfo() {
-    $.getJSON('/admin/getserverinfo', function(response) { 
+function getServerInfo() {
+    $.getJSON('/admin/getServerInfo', function(response) {
     });    
 }
 
-function getbooks(hglass)
+function getBooks(hglass)
 {
     if (hglass == true)
         $(".hourglass").show();
@@ -87,7 +87,7 @@ function getbooks(hglass)
     });
 }
 
-function getbook(hglass, bpath)
+function getBook(hglass, bpath)
 {
     if (hglass == true)
         $(".hourglass").show();
@@ -147,7 +147,7 @@ function browse(bname){
 
 function doexplore(wlparams, cmd)
 {   
-        var formparams = get_wlform(wlparams.wlnames, 'wlactions');
+        var formparams = getWlForm(wlparams.wlnames, 'wlactions');
         console.log("Command is :"+cmd+"wlname is:"+wlparams.wlnames);
         console.log(serialize(formparams));
         window.open('/books/' + cmd + '?' +serialize(formparams), '_blank');
@@ -155,7 +155,7 @@ function doexplore(wlparams, cmd)
 
 }
 
-function get_wlform(wlnames, formname) {
+function getWlForm(wlnames, formname) {
     document.getElementById('wlnames').value=wlnames;
     var formparams = getFormParams(formname);
     //console.log(formparams);
@@ -165,13 +165,13 @@ function get_wlform(wlnames, formname) {
 
 function docmd(wlname, cmd)
 {
-        var formparams = get_wlform(wlname, 'wlactions');
-        book_process(formparams, cmd);
-      //book_process({ "wlnames": wlname }, cmd);
+        var formparams = getWlForm(wlname, 'wlactions');
+        bookProcess(formparams, cmd);
+      //bookProcess({ "wlnames": wlname }, cmd);
 }
 
 
-function book_process(wlparams, cmd)
+function bookProcess(wlparams, cmd)
 {
     $(".hourglass").show();
     //console.log(wlparams);
@@ -188,14 +188,14 @@ function book_process(wlparams, cmd)
         $consolediv.html($resp);
         $(".hourglass").hide();
         setTimeout(function(){
-            getbooks(true)
+            getBooks(true)
         },1000);
         
     });
 }
 
 
-function get_selbooks(table,isAll)
+function getSelBooks(table, isAll)
 {
     var selbooks = [];
 	var idx = {};
