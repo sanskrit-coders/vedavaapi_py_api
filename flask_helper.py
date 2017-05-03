@@ -1,15 +1,23 @@
 from bson import json_util
 
-from flask import make_response
+import flask
+
+import common
+from backend.data_containers import JsonObject
 
 
-def gen_response(status='ok', result=None):
-  retobj = {'status': status}
-  if not result is None:
-    retobj['result'] = result
-  return make_response(json_util.dumps(retobj))
-  # return json.dumps(retobj)
+class JsonAjaxResponse(JsonObject):
+  def __init__(self, status='ok', result=None):
+    assert common.check_class(status, [str])
+    self.status = status
+    if result:
+      assert common.check_class(result, [str, unicode, JsonObject])
+      self.result = result
+
+  def to_flask_response(self):
+    return flask.make_response(str(self))
 
 
-def gen_error_response(msg):
-  return make_response({'status': msg})
+class JsonAjaxErrorResponse(JsonAjaxResponse):
+  def __init__(self, status):
+    JsonAjaxResponse.__init__(status=status)

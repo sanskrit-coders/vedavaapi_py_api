@@ -36,7 +36,7 @@ def getbooklist():
       pattern = request.args.get('pattern')
       logging.info("books list filter = " + str(pattern))
       binfo = {'books': get_db().books.list_books(pattern)}
-      return flask_helper.gen_response(result=binfo)
+      return flask_helper.JsonAjaxResponse(result=binfo).to_flask_response()
     else:
       return redirect(url_for('index'))
   else:
@@ -49,7 +49,7 @@ def getbooksingle():
   logging.info("book get by path = " + str(path))
   binfo = get_db().books.get(path)
   # pprint(binfo)
-  return flask_helper.gen_response(result=binfo)
+  return flask_helper.JsonAjaxResponse(result=binfo).to_flask_response()
 
 
 @books_api.route('/page/anno/segment/<anno_id>', methods=['GET', 'POST'])
@@ -58,7 +58,7 @@ def getpagesegment(anno_id):
     """return the page annotation with id = anno_id"""
     get_db().annotations.segment(anno_id)
     anno = get_db().annotations.get(anno_id)
-    return flask_helper.gen_response(result=anno)
+    return flask_helper.JsonAjaxResponse(result=anno).to_flask_response()
 
 
 @books_api.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
@@ -69,7 +69,7 @@ def pageanno(anno_id):
     if reparse:
       get_db().annotations.propagate(anno_id)
     anno = get_db().annotations.get(anno_id)
-    return flask_helper.gen_response(result=anno)
+    return flask_helper.JsonAjaxResponse(result=anno).to_flask_response()
   elif request.method == 'POST':
     """modify/update the page annotation with id = anno_id"""
     anno = request.form.get('anno')
@@ -78,9 +78,9 @@ def pageanno(anno_id):
     anno = json.loads(anno)
     res = get_db().annotations.update(anno_id, {'anno': anno})
     if res == True:
-      x = flask_helper.gen_response(result="Annotation saved successfully.")
+      x = flask_helper.JsonAjaxResponse(result="Annotation saved successfully.").to_flask_response()
     else:
-      x = flask_helper.gen_error_response("error saving annotation.")
+      x = flask_helper.JsonAjaxErrorResponse(status="error saving annotation.").to_flask_response()
     return x
 
 
@@ -88,7 +88,7 @@ def pageanno(anno_id):
 def getpagesections():
   myid = request.args.get('id')
   sec = get_db().sections.get(myid)
-  return flask_helper.gen_response(result=sec)
+  return flask_helper.JsonAjaxResponse(result=sec).to_flask_response()
 
 
 @books_api.route('/page/image/<path:pagepath>')
@@ -135,7 +135,7 @@ def upload():
   try:
     createdir(abspath)
   except Exception as e:
-    error_obj = flask_helper.gen_error_response("Couldn't create upload directory: {}".format(abspath), e)
+    error_obj = flask_helper.JsonAjaxErrorResponse(status="Couldn't create upload directory: %s , %s" % (format(abspath), str(e))).to_flask_response()
     logging.error(error_obj)
     return error_obj
 
@@ -198,7 +198,7 @@ def upload():
     book_portion_node.update_collection(get_db().books.db_collection)
   except Exception as e:
     logging.error(format(e))
-    return flask_helper.gen_error_response("Error saving book details." + " : ".format(e))
+    return flask_helper.JsonAjaxErrorResponse(status="Error saving book details." + " : ".format(e)).to_flask_response()
 
   response_msg = "Book upload Successful for " + bookpath
-  return flask_helper.gen_response(result=response_msg)
+  return flask_helper.JsonAjaxResponse(result=response_msg).to_flask_response()

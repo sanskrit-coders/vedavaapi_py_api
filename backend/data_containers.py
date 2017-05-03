@@ -163,6 +163,7 @@ class JsonObject(object):
       obj = cls.make_from_dict(attr_dict)
     return obj
 
+
 # Not intended to be written to the database as is. Portions are expected to be extracted and written.
 class JsonObjectNode(JsonObject):
   @classmethod
