@@ -158,7 +158,10 @@ class JsonObject(object):
   @classmethod
   def find_one(cls, filter, some_collection):
     attr_dict = some_collection.find_one(filter=filter)
-    return cls.make_from_dict(attr_dict)
+    obj = None
+    if attr_dict:
+      obj = cls.make_from_dict(attr_dict)
+    return obj
 
 # Not intended to be written to the database as is. Portions are expected to be extracted and written.
 class JsonObjectNode(JsonObject):
@@ -267,12 +270,8 @@ class BookPortion(JsonObject):
     return book_portion
 
   @classmethod
-  def from_path(cls, collection, path):
-    book_portion = BookPortion()
-    book_portion.set_from_dict(collection.find_one({"path": path}))
-    if not hasattr(book_portion, "path"):
-      logging.info("Did not find %s in the db" % path)
-      book_portion.path = path
+  def from_path(cls, path, collection):
+    book_portion = cls.find_one(filter={"path": path}, some_collection=collection)
     return book_portion
 
 

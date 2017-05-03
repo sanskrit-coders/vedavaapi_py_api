@@ -70,11 +70,11 @@ class DBWrapper:
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      book = data_containers.BookPortion.from_path(self.books.db_collection, bpath)
-      book_portion_node = data_containers.JsonObject.read_from_file(f)
-      if hasattr(book, "_id"):
+      book = data_containers.BookPortion.from_path(path=bpath, collection=self.books.db_collection)
+      if book:
         logging.info("Book already present %s" % bpath)
       else:
+        book_portion_node = data_containers.JsonObject.read_from_file(f)
         logging.info("Importing afresh! %s " % book_portion_node)
         book_portion_node.update_collection(self.books.db_collection)
         logging.debug(str(book_portion_node))

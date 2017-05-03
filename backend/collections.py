@@ -35,10 +35,10 @@ class BookPortions(CollectionWrapper):
     return matches
 
   def get(self, path):
-    book = self.db_collection.find_one({'path': path})
-    if book is not None:
-      book['_id'] = str(book['_id'])
-    return book
+    book = data_containers.BookPortion.from_path(cls=path, path=path, collection=self.db_collection)
+    book_node = data_containers.JsonObjectNode.from_details(content=book)
+    book_node.fill_descendents()
+    return book_node
 
 
 # Encapsulates the annotations collection.
