@@ -19,6 +19,7 @@ function updateWlWizard() {
     });    
 }
 
+// Makes an anchor tag.
 function urlize(lpath, text, newwin)
 {
     if (typeof text == "undefined")
@@ -36,8 +37,6 @@ function urlize(lpath, text, newwin)
 
 //this method is for getting  serverinfo using api
 function getServerInfo() {
-    $.getJSON('/admin/getServerInfo', function(response) {
-    });    
 }
 
 function getBooks(hglass)
@@ -120,8 +119,9 @@ function getBook(hglass, bpath)
 	            oid="'+index+'">\
             </a>\
             </div>');
+//            TODO: Separate out the below.
     //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
-            if ((index>1) && ((index+1)%6 == 0) && (index != (pages.length-1))) {
+            if ((index>1) && ((index+1)%6 == 0) && (index != (data.children.length-1))) {
                 html[itemIdx] = html[itemIdx].concat('</div> </div>');
                 itemIdx++;
                 html.push('<div id="item'+itemIdx+'" class="item">');
