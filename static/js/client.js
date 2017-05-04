@@ -1,15 +1,3 @@
-// Validating Empty Field first and then start capture
-function startUpload()
-{
-    if (document.getElementById('uploadpath').value == ""){
-            alert("Fill All Fields !");
-    } 
-    else {        
-            doUpload();
-            $('#bgblur').css('opacity','1');
-    }
-}
-
 function updateWlWizard() {
     var $consolediv = $('#console');
     $consolediv.html("updating wlwizard...");
@@ -17,26 +5,6 @@ function updateWlWizard() {
         console.log(response);
         $consolediv.html(response);
     });    
-}
-
-// Makes an anchor tag.
-function urlize(lpath, text, newwin)
-{
-    if (typeof text == "undefined")
-        text = lpath;
-    if (typeof newwin == "undefined")
-        newwin = true
-    if (newwin == true)
-        newwin = "target=\"_blank\"";
-    var url = "";
-    if (lpath.startsWith('http') || lpath.startsWith('/'))
-        url = lpath;
-    else url = "/relpath/" + lpath;
-    return '<a href="' + url + '" ' + newwin + '>' + text + '</a>';
-}
-
-//this method is for getting  serverinfo using api
-function getServerInfo() {
 }
 
 function getBooks(hglass)
@@ -84,74 +52,6 @@ function getBooks(hglass)
         if (hglass == true)
             $(".hourglass").hide();
     });
-}
-
-function getBook(hglass, bpath)
-{
-    console.log("in getbook");
-    if (hglass == true) {
-        $(".hourglass").show();
-    }
-    var xhr = $.getJSON('/books/get?path='+bpath).success(function(data){
-        console.log("in done");
-        $('#bookdetails').val(JSON.stringify(data, null, 2));
-        console.log(data);
-        var html = [];
-        var itemIdx = 0;
-        data = data.result;
-        html.push('<div id="item'+itemIdx+'" class="item active"> <div class="row-fluid">');
-        data.children.forEach(function (pageNode, index) {
-            var page = pageNode.content;
-        	console.log(pageNode, page);
-            var size = 0;
-            var thumbpath = "";
-            if (page.thumbpath !== undefined && page.thumbpath != null) {
-                thumbpath = page.thumbpath;
-            } else {
-                thumbpath = page.path;
-            }
-            html[itemIdx] = html[itemIdx].concat(
-            '<div data-target="#carousel" data-slide-to="'+index+'" class="col-sm-2">\
-            <a href="#x" class="thumb">\
-	            <img id="thumb'+index+'" \
-	            src="/books/page/image/'+thumbpath+'" \
-	            attr-display="/books/page/image/'+page.path+'" \
-	            oid="'+index+'">\
-            </a>\
-            </div>');
-//            TODO: Separate out the below.
-    //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
-            if ((index>1) && ((index+1)%6 == 0) && (index != (data.children.length-1))) {
-                html[itemIdx] = html[itemIdx].concat('</div> </div>');
-                itemIdx++;
-                html.push('<div id="item'+itemIdx+'" class="item">');
-            }
-	        html[itemIdx] = html[itemIdx].concat('</div>');
-        });
-		console.log('HTML: ', html);
-
-        $('#bookidx').empty();
-        $('#bookidx').append(html);
-    }).fail(function (jqXHR, textStatus, errorThrown) {
-        console.log("Fie! something went wrong. ", textStatus, errorThrown, jqXHR)
-    }).complete(function () {
-        console.log("in complete")
-        if (hglass == true) {
-            $(".hourglass").hide();
-        }
-    });
-}
-
-function setcurpage(idx, value)
-{
-    //console.log("Selected page: " + idx + ", value: " + value);
-    var oldval = $('#curpage').val();
-    var newval = idx;
-
-    if (newval != oldval) {
-        console.log("Changed cur page from "+oldval+" to " + newval);
-        $('#curpage').val(newval).trigger('change');
-    }
 }
 
 function browse(bname){

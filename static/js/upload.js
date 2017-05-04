@@ -3,6 +3,18 @@ var UPLOAD_URL = "/books/upload";
 // List of pending files to handle when the Upload button is finally clicked.
 var PENDING_FILES  = [];
 
+// Validating Empty Field first and then start capture
+function startUpload()
+{
+    if (document.getElementById('uploadpath').value == ""){
+            alert("Fill All Fields !");
+    }
+    else {
+            doUpload();
+            $('#bgblur').css('opacity','1');
+    }
+}
+
 
 function doUpload() {
    //alert("inside doUpload");

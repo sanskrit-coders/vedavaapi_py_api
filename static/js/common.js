@@ -9,6 +9,26 @@ function serialize(obj){
     return s;
 };
 
+// Makes an anchor tag.
+function urlize(lpath, text, newwin)
+{
+    if (typeof text == "undefined")
+        text = lpath;
+    if (typeof newwin == "undefined")
+        newwin = true
+    if (newwin == true)
+        newwin = "target=\"_blank\"";
+    var url = "";
+    if (lpath.startsWith('http') || lpath.startsWith('/'))
+        url = lpath;
+    else url = "/relpath/" + lpath;
+    return '<a href="' + url + '" ' + newwin + '>' + text + '</a>';
+}
+
+//this method is for getting  serverinfo using api
+function getServerInfo() {
+}
+
 function getFormParams(formname, fieldname_filter)
 {
     var form_params = {};
