@@ -55,6 +55,7 @@ class DBWrapper:
   def importAll(self, rootdir, pattern=None):
     logging.info("Importing books into database from " + rootdir)
     cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
+    logging.info(cmd)
     try:
       results = run_command(cmd)
     except Exception as e:

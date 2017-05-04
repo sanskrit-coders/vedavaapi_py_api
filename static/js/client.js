@@ -89,56 +89,57 @@ function getBooks(hglass)
 
 function getBook(hglass, bpath)
 {
+    console.log("in getbook");
     if (hglass == true) {
         $(".hourglass").show();
     }
-    var $bookidx = $('#bookidx');
-    var xhr = $.ajax({
-        url : '/books/get?path='+bpath,
-        dataType: "jsonp myConversion",
-        converters: {
-            "text myConversion": function(value) {
-                console.log("pre-processing...");
-                return JSON.parse(value);
-            }
-        }
-    }).done(function(data){
-        $('#bookdetails').value = JSON.stringify(data, null, 2);
-        console.log($('#bookdetails').value)
+    var xhr = $.getJSON('/books/get?path='+bpath).success(function(data){
+        console.log("in done");
+        $('#bookdetails').val(JSON.stringify(data, null, 2));
+        console.log(data);
         var html = [];
         var itemIdx = 0;
-        $bookidx.empty();
         data = data.result;
         html.push('<div id="item'+itemIdx+'" class="item active"> <div class="row-fluid">');
-        var pages = data['pages'];
-        for (i = 0; i < pages.length; i++) {
-            var page = pages[i];
+        data.children.forEach(function (pageNode, index) {
+            var page = pageNode.content;
+        	console.log(pageNode, page);
             var size = 0;
-            var pagepath = bpath + "/" + page['fname'];
             var thumbpath = "";
-            if (page['tname'] !== undefined && page['tname'] != null) {
-                thumbpath = bpath + "/" + page['tname'];
+            if (page.thumbpath !== undefined && page.thumbpath != null) {
+                thumbpath = page.thumbpath;
             } else {
-                thumbpath = bpath + "/" + page['fname'];
+                thumbpath = page.path;
             }
-            html[itemIdx] = html[itemIdx].concat('<div data-target="#carousel" data-slide-to="'+i+'" class="col-sm-2"><a href="#x" class="thumb"><img id="thumb'+i+'" src="/books/page/image/'+thumbpath+'" attr-display="/books/page/image/'+pagepath+'" oid="'+i+'"></a></div>');
+            html[itemIdx] = html[itemIdx].concat(
+            '<div data-target="#carousel" data-slide-to="'+index+'" class="col-sm-2">\
+            <a href="#x" class="thumb">\
+	            <img id="thumb'+index+'" \
+	            src="/books/page/image/'+thumbpath+'" \
+	            attr-display="/books/page/image/'+page.path+'" \
+	            oid="'+index+'">\
+            </a>\
+            </div>');
     //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
-            if ((i>1) && ((i+1)%6 == 0) && (i != (pages.length-1))) {
+            if ((index>1) && ((index+1)%6 == 0) && (index != (pages.length-1))) {
                 html[itemIdx] = html[itemIdx].concat('</div> </div>');
                 itemIdx++;
                 html.push('<div id="item'+itemIdx+'" class="item">');
             }
-        }
-        html[itemIdx] = html[itemIdx].concat('</div>');
-        for (i=0; i< html.length; i++) {
-            console.log('HTML: '+html[i]);
-        }
-        $bookidx.append(html);
+	        html[itemIdx] = html[itemIdx].concat('</div>');
+        });
+		console.log('HTML: ', html);
+
+        $('#bookidx').empty();
+        $('#bookidx').append(html);
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.log("Fie! something went wrong. ", textStatus, errorThrown, jqXHR)
+    }).complete(function () {
+        console.log("in complete")
         if (hglass == true) {
             $(".hourglass").hide();
         }
-        }
-        );
+    });
 }
 
 function setcurpage(idx, value)
