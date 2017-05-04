@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
+
+import flask
 import os
 
 from pymongo import ReturnDocument
@@ -162,6 +164,11 @@ class JsonObject(object):
     if attr_dict:
       obj = cls.make_from_dict(attr_dict)
     return obj
+
+  @classmethod
+  def find(cls, filter, some_collection):
+    iter = some_collection.find(filter=filter)
+    return [cls.make_from_dict(x) for x in iter]
 
 
 # Not intended to be written to the database as is. Portions are expected to be extracted and written.
@@ -459,3 +466,24 @@ class User(JsonObject):
 
     def get_id(self):
         return self.user_id
+
+
+class JsonAjaxResponse(JsonObject):
+  def __init__(self, status='ok', result=None):
+    assert common.check_class(status, [str])
+    self.status = status
+    if result:
+      allowed_types = [str, unicode, backend.data_containers.JsonObject, JsonObject]
+      if isinstance(result, list):
+        assert common.check_list_item_types(result, allowed_types), result.pop().__class__
+      else:
+        assert common.check_class(result, allowed_types), result.__class__
+      self.result = result
+
+  def to_flask_response(self):
+    return flask.make_response(str(self))
+
+
+class JsonAjaxErrorResponse(JsonAjaxResponse):
+  def __init__(self, status):
+    JsonAjaxResponse.__init__(status=status)
