@@ -1,0 +1,13 @@
+{
+  "py/object": "backend.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "backend.data_containers.BookPortion",
+    "path": "local/upload/a",
+    "title": "b",
+    "targets": [],
+    "authors": [
+      "c"
+    ]
+  },
+  "children": []
+}

@@ -35,7 +35,7 @@ class BookPortions(CollectionWrapper):
     return matches
 
   def get(self, path):
-    book = data_containers.BookPortion.from_path(cls=path, path=path, collection=self.db_collection)
+    book = data_containers.BookPortion.from_path(path=path, collection=self.db_collection)
     book_node = data_containers.JsonObjectNode.from_details(content=book)
     book_node.fill_descendents()
     return book_node

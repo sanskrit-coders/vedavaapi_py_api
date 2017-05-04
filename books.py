@@ -147,10 +147,10 @@ def upload():
   logging.info("User Id: " + str(user_id))
   bookpath = abspath.replace(repodir() + "/", "")
 
-  book = data_containers.BookPortion.from_path(get_db().books, bookpath)
+  book = (data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
+          data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
 
-  if (not form.get("title")): book.title = form.get("title")
-  if (not form.get("author")): book.authors = [form.get("author")]
+  if (not book.authors): book.authors = [form.get("author")]
 
   pages = []
   page_index = -1
@@ -182,12 +182,10 @@ def upload():
 
     # Obsolete:
     # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
-    page = backend.JsonObjectNode.from_details(
+    page = data_containers.JsonObjectNode.from_details(
       content=data_containers.BookPortion.from_details(
-        title = "pg_%000d" % page_index, path=file.path.join(book.path, newFileName)))
+        title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
     pages.append(page)
-
-  book['pages'] = pages
 
   book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
 

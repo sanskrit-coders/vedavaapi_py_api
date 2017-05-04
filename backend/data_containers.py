@@ -279,7 +279,7 @@ class BookPortion(JsonObject):
 
   @classmethod
   def from_path(cls, path, collection):
-    book_portion = cls.find_one(filter={"path": path}, some_collection=collection)
+    book_portion = JsonObject.find_one(filter={"path": path}, some_collection=collection)
     return book_portion
 
 
