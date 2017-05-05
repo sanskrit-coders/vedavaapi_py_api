@@ -1,4 +1,3 @@
-
 //var canvas = document.getElementById('pageCanvas');
 var container = document.getElementById('container');
 //container.appendChild(canvas);
@@ -7,6 +6,9 @@ var container = document.getElementById('container');
 window.cState = undefined;
 var curpage_annotations = {};
 var curpage_sections = {};
+var viewBookState = {};
+viewBookState.curpage = 0;
+
 getBook(true, bpath);
 console.log("Get Book Returned");
 
@@ -55,12 +57,11 @@ function reparse_page() {
 
 function segment_page() {
 
-    var curpage = $('#curpage').val();
+    var curpage = viewBookState.curpage;
     if (curpage == undefined)
         return;
-    var details = $('#bookdetails').val();
-    var bookdetails = JSON.parse(details);
-    var pagedetails = bookdetails['result']['pages'][curpage];
+    var bookdetails = viewBookState.bookdetails;
+    var pagedetails = bookdetails.result.children[curpage].content;
     var anno_id = pagedetails['anno'];
     var sec_id = pagedetails['sections'];
 
@@ -81,7 +82,8 @@ function getBook(hglass, bpath)
     }
     var xhr = $.getJSON('/books/get?path='+bpath).success(function(data){
         console.log("in done");
-        $('#bookdetails').val(JSON.stringify(data, null, 2));
+        viewBookState.bookdetails = data;
+        viewBookState.curpage = 0;
         console.log(data);
         var html = [];
         var itemIdx = 0;
@@ -132,25 +134,23 @@ function getBook(hglass, bpath)
 function setcurpage(idx, value)
 {
     //console.log("Selected page: " + idx + ", value: " + value);
-    var oldval = $('#curpage').val();
+    var oldval = viewBookState.curpage;
     var newval = idx;
 
     if (newval != oldval) {
         console.log("Changed cur page from "+oldval+" to " + newval);
-        $('#curpage').val(newval).trigger('change');
+        viewBookState.curpage = newval;
     }
 }
 
 function loadpage(reparse = false) {
-    var curpage = $('#curpage').val();
+    var curpage = viewBookState.curpage;
     if (curpage == undefined)
         return;
     console.log("Loading page " + curpage);
-    var details = $('#bookdetails').val();
-    console.log("Details: " + details);
-    var bookdetails = JSON.parse(details);
+    var bookdetails = viewBookState.bookdetails;
     console.log("Book Details: " + JSON.stringify(bookdetails));
-    var pagedetails = bookdetails['result']['pages'][curpage];
+    var pagedetails = bookdetails.result.children[curpage].content;
     console.log(pagedetails);
     pgname = pagedetails['fname'];
     var fpath = bpath + "/" + pgname;
@@ -179,8 +179,8 @@ function loadpage(reparse = false) {
 }
 
 function slideTo(where) {
-    var curpage = $('#curpage').val();
-    if (!curpage) {
+    var curpage = viewBookState.curpage;
+    if (curpage == undefined) {
         console.log("curpage not defined. returning");
         return;
     }
@@ -221,11 +221,6 @@ $(document).ready(function () {
         setcurpage(oid, attrDisplay);
         loadpage();
     });
-
-    $('#curpage').change(function() {
-//            loadpage();
-    });
-
 });
 
 document.onkeypress = function (e) {
