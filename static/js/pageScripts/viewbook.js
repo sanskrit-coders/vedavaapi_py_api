@@ -1,3 +1,5 @@
+'use strict';
+
 //var canvas = document.getElementById('pageCanvas');
 var container = document.getElementById('container');
 //container.appendChild(canvas);
@@ -152,15 +154,13 @@ function loadpage(reparse = false) {
     console.log("Book Details: " + JSON.stringify(bookdetails));
     var pagedetails = bookdetails.result.children[curpage].content;
     console.log(pagedetails);
-    pgname = pagedetails['fname'];
-    var fpath = bpath + "/" + pgname;
+    var fpath = pagedetails['fname'];
     console.log("Loading page path: " + fpath);
-    var anno_id = pagedetails['anno'];
-    var sec_id = pagedetails['sections'];
     window.cState = canvasStateList.get('pageCanvas',"",curpage);
-    window.cState.anno_id = anno_id;
 
-    params = { 'reparse' : reparse };
+    var anno_id = pagedetails['anno'];
+    window.cState.anno_id = anno_id;
+    var params = { 'reparse' : reparse };
     $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(params), function(data){
         if (! processStatus(data))
             return;
@@ -171,6 +171,7 @@ function loadpage(reparse = false) {
         console.log(window.cState);
     });
 
+    var sec_id = pagedetails['sections'];
     $.getJSON('/books/page/sections?id='+sec_id, function(data){
         if (! processStatus(data))
             return;

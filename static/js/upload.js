@@ -1,3 +1,4 @@
+'use strict';
 var UPLOAD_URL = "/books/upload";
 
 // List of pending files to handle when the Upload button is finally clicked.

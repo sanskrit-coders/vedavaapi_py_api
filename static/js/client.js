@@ -1,3 +1,4 @@
+'use strict';
 function updateWlWizard() {
     var $consolediv = $('#console');
     $consolediv.html("updating wlwizard...");
@@ -17,7 +18,7 @@ function getBooks(hglass)
     html += '<option value="" >'+'</option>';
     $selbooks.append(html);
     var $select = $('#book_table');
-    $select.empty(); 
+    $select.empty();
     var pattern=document.getElementById('wload_filter').value;
     $.getJSON('/books/list?pattern='+pattern, function(data){
         if (! processStatus(data))
@@ -39,7 +40,7 @@ function getBooks(hglass)
             html = '<option value="'+bpath+'">'+bpath+'</option>';
             $selbooks.append(html);
             var book_entry = '<tr>'+
-            '<td>' +'<input type="checkbox" value=\"' + 
+            '<td>' +'<input type="checkbox" value=\"' +
                 bpath + '\"/>'+ '</td>'+
             '<td>' + urlize("/books/view?path=" + bpath, bpath) + '</td>'+
             '<td>' +

@@ -1,3 +1,4 @@
+'use strict';
 $(document).ready(function () {
     console.log("In ready function.");
      $(window).load(function() {

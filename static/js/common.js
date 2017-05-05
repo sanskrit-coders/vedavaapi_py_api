@@ -1,3 +1,4 @@
+'use strict';
 function serialize(obj){
     var k = Object.keys(obj);
     var s = "";
