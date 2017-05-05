@@ -121,8 +121,8 @@ def main(args):
   # logging.info(json.dumps(matches))
   rects = anno_obj['anno']
   seeds = [r for r in rects if r['state'] != 'system_inferred']
-  img.annotate(rects)
-  img.annotate(seeds, (0, 255, 0))
+  img.add_rectangles(rects)
+  img.add_rectangles(seeds, (0, 255, 0))
   cv2.namedWindow('Annotated image', cv2.WINDOW_NORMAL)
   cv2.imshow('Annotated image', img.img_rgb)
   cv2.waitKey(0)

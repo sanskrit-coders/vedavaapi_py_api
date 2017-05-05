@@ -100,7 +100,7 @@ class Annotations(CollectionWrapper):
     logging.info("Working Image path = " + workingImgPath)
     page_img = DocImage(imgpath, workingImgPath)
 
-    known_segments = DisjointSegments()
+    known_segments = DisjointImageTargets()
     # Give me all the non-overlapping user-touched segments in this page.
     for a in anno_obj['anno']:
       a = data_containers.ImageTarget(a)
@@ -118,7 +118,7 @@ class Annotations(CollectionWrapper):
       # and propagate its text to them
       r['state'] = 'system_inferred'
 
-    self.update(anno_id, {'anno': known_segments.segments})
+    self.update(anno_id, {'anno': known_segments.img_targets})
     return True
 
   def propagate(self, anno_id):
@@ -138,7 +138,7 @@ class Annotations(CollectionWrapper):
     logging.info("Image path = " + imgpath)
     page_img = DocImage(imgpath)
 
-    known_segments = DisjointSegments()
+    known_segments = DisjointImageTargets()
     srch_segments = []
     for a in anno_obj['anno']:
       a = data_containers.ImageTarget(a)
@@ -166,13 +166,13 @@ class Annotations(CollectionWrapper):
         r['state'] = 'system_inferred'
         r['text'] = a.text
 
-    known_segments.segments.sort()
+    known_segments.img_targets.sort()
     # for r in known_segments.segments:
     #   logging.info(str(r))
     # print(known_segments.segments)
     # new_anno = sorted(DotDict(new_anno), key=attrgetter('x', 'y', 'w', 'h'))
     # Save the updated annotations
-    self.update(anno_id, {'anno': known_segments.segments})
+    self.update(anno_id, {'anno': known_segments.img_targets})
     return True
 
 

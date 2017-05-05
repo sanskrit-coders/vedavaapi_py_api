@@ -92,5 +92,5 @@ for i in range(len(allimages)):
     match_locs = next_img.find(template_img, float(threshold1))
     if (len(match_locs) == 0):
         continue
-    next_img.annotate(match_locs)
+    next_img.add_rectangles(match_locs)
     next_img.save(storeresultimg_dir+"/"+resultimage)

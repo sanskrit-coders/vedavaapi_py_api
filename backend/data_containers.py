@@ -306,7 +306,7 @@ class Annotation(JsonObject):
 class ImageTarget(Target):
   # TODO use w, h instead.
   @classmethod
-  def from_details(cls, container_id, x=-1, y=-1, w=-1, h=-1):
+  def from_details(cls, container_id, x=-1, y=-1, w=-1, h=-1, score=0.0):
     target = ImageTarget()
     target.container_id = container_id
     assert isinstance(x, int), x.__class__
@@ -317,6 +317,7 @@ class ImageTarget(Target):
     target.y1 = y
     target.x2 = w
     target.y2 = h
+    target.score = score
     return target
 
     # Two (segments are 'equal' if they overlap

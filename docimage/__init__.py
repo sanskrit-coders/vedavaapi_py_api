@@ -18,17 +18,15 @@ logging.basicConfig(
 )
 
 
-class DisjointSegments:
-    segments = []
-
+class DisjointImageTargets:
     def __init__(self, segments = []):
-        self.segments = []
+        self.img_targets = []
         self.merge(segments)
 
     def overlap(self, testseg):
         #testrect = self.to_rect(testseg)
-        for i in range(len(self.segments)):
-            if self.segments[i] == testseg:
+        for i in range(len(self.img_targets)):
+            if self.img_targets[i] == testseg:
                 return i
         return -1
 
@@ -36,7 +34,7 @@ class DisjointSegments:
         #print "Inserting " + str(newseg)
         i = self.overlap(newseg)
         if i >= 0:
-            if self.segments[i].score >= newseg.score:
+            if self.img_targets[i].score >= newseg.score:
                 #print "Skipping " + str(newseg) + " < " + str(self.segments[i])
                 return False
             else:
@@ -44,7 +42,7 @@ class DisjointSegments:
                 #for r in self.segments:
                 #    print "->  " + str(r)
         #print "--> at " + str(len(self.segments))
-        self.segments.append(newseg)
+        self.img_targets.append(newseg)
         return True
 
     def merge(self, segments):
@@ -52,12 +50,12 @@ class DisjointSegments:
         return merged
 
     def get(self, i):
-        return self.segments[i] if i >= 0 and i < len(self.segments) else None
+        return self.img_targets[i] if i >= 0 and i < len(self.img_targets) else None
 
     def remove(self, i):
         #print "deleting " + str(i) + "(" + str(len(self.segments)) + "): " + str(self.segments[i])
-        if i >= 0 and i < len(self.segments):
-            del self.segments[i]
+        if i >= 0 and i < len(self.img_targets):
+            del self.img_targets[i]
 
 class DocImage:
     
@@ -157,14 +155,14 @@ class DocImage:
         def ptToImgTarget(pt):
             return data_containers.ImageTarget.from_details(x=pt[0], y= pt[1],
                                                      w=template_img.w, h=template_img.h,
-                                                     # 'score' : float("{0:.2f}".format(res[pt[1], pt[0]]))
+                                                     score = float("{0:.2f}".format(res[pt[1], pt[0]]))
             )
         matches = map(ptToImgTarget, zip(*loc[::-1]))
 
         if known_segments is None:
-            known_segments = DisjointSegments()
+            known_segments = DisjointImageTargets()
         disjoint_matches = known_segments.merge(matches)
-        known_segments.segments.sort()
+        known_segments.img_targets.sort()
         #for r in known_segments.segments:
         #   logging.info(str(r))
         return disjoint_matches
@@ -181,7 +179,7 @@ class DocImage:
         template = self.snippet(r)
 
         if known_segments is None:
-            known_segments = DisjointSegments()
+            known_segments = DisjointImageTargets()
         known_segments.insert(data_containers.ImageTarget(r))
         return self.find_matches(template, thres, known_segments)
    
@@ -469,13 +467,13 @@ class DocImage:
 
 
         if known_segments is None:
-            known_segments = DisjointSegments()
+            known_segments = DisjointImageTargets()
         disjoint_matches = known_segments.merge(allsegments)
         
 #        logging.info("Disjoint Segments    = " + json.dumps(disjoint_matches))
         return disjoint_matches
 
-    def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
+    def add_rectangles(self, sel_areas, color = (0, 0, 255), thickness = 2):
         for rect in sel_areas:
             cv2.rectangle(self.img_rgb, (rect['x'], rect['y']),
                 (rect['x'] + rect['w'], rect['y'] + rect['h']), color, thickness)
@@ -491,8 +489,8 @@ def main(args):
     logging.info("Total", len(matches), "matches found.")
 
     #logging.info(json.dumps(matches))
-    img.annotate(matches)
-    img.annotate([rect], (0,255,0))
+    img.add_rectangles(matches)
+    img.add_rectangles([rect], (0, 255, 0))
 
     cv2.namedWindow('Annotated image', cv2.WINDOW_NORMAL)
     cv2.imshow('Annotated image', img.img_rgb)
@@ -522,7 +520,7 @@ def mainTEST(arg):
 
     anno_img = DocImage()
     anno_img.fromImage(img.img_rgb)
-    anno_img.annotate(segments)
+    anno_img.add_rectangles(segments)
 #    img.annotate(img.find_sections(1,1))
     #img.annotate(img.find_segments(1,1))
     
