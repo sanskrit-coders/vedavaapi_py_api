@@ -57,7 +57,7 @@ def authorized_work(required_url, default_url):
 
 @app.route('/homepage')
 def mainpage():
-    return authorized_work('home.html', 'index')
+    return authorized_work('listBooks.html', 'index')
 
 
 @lm.user_loader
@@ -71,7 +71,7 @@ def load_user(id):
 @app.route('/')
 def index():
     return render_template('index.html', title='Login')
-    # return render_template('home.html', title='Home')
+    # return render_template('listBooks.html', title='Home')
 
 
 @app.route('/logout')

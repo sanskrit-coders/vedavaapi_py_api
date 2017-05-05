@@ -1,48 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1></h1>
-            <h2>I don't know you!</h2>
-            <p><a href="{{ url_for('oauth_authorize', provider='facebook') }}">Login with Facebook</a></p>
-            <p><a href="{{ url_for('oauth_authorize', provider='twitter') }}">Login with Twitter</a></p>
-            <form class="form-guestlogin" id="form-guestlogin" role="form" method="post" action="/guestlogin">
-            <table id="tblguest">
-                <tr><td>Try Guest Login...</td></tr>
-                <tr>
-                    <td>
-                         <input id="usermail" name="usermail" type="text" class="form-control" name="email" placeholder="enter your email">
-                         <p></p>
-                    </td>
-                    <td></td>
-                    <td>
-                        <p>(optional)</p>
-                    </td>       
-                </tr>
-                <tr>
-                    <td><input type="submit" class="btn btn-primary" id="guestlogin" value="GuestLogin"></td>
-                </tr>
-            </table>
-             <!--<input type="submit" value="Submit">-->
-            </form>
-
-<script type="text/JavaScript">
-$(document).ready(function () {
-         
-    $(window).load(function() {
-    
-    });
-    /*$('#guestlogin').click(function(){
-        var email = get_formparams('form-guestlogin');
-        console.log(email);
-        if(email.usermail=="")
-            console.log("email id is not provided!!");
-        $.get('/guestlogin?'+serialize(email),function(resp){
-            console.log(resp);
-
-        });
-
-    });*/
-});
-</script>
-
+<h1></h1>
+    <h2>I don't know you!</h2>
+    <p><a href="{{ url_for('oauth_authorize', provider='facebook') }}">Login with Facebook</a></p>
+    <p><a href="{{ url_for('oauth_authorize', provider='twitter') }}">Login with Twitter</a></p>
+    <form class="form-guestlogin" id="form-guestlogin" role="form" method="post" action="/guestlogin">
+    <table id="tblguest">
+        <tr><td>Try Guest Login...</td></tr>
+        <tr>
+            <td>
+                 <input id="usermail" name="usermail" type="text" class="form-control" name="email" placeholder="enter your email">
+                 <p></p>
+            </td>
+            <td></td>
+            <td>
+                <p>(optional)</p>
+            </td>
+        </tr>
+        <tr>
+            <td><input type="submit" class="btn btn-primary" id="guestlogin" value="GuestLogin"></td>
+        </tr>
+    </table>
+     <!--<input type="submit" value="Submit">-->
+    </form>
 {% endblock %}
 

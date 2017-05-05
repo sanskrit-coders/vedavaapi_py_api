@@ -7,7 +7,7 @@ window.cState = undefined;
 var curpage_annotations = {};
 var curpage_sections = {};
 var viewBookState = {};
-viewBookState.curpage = 0;
+viewBookState.curpage = 1;
 
 getBook(true, bpath);
 console.log("Get Book Returned");
@@ -206,8 +206,11 @@ function slideTo(where) {
     setcurpage(oid, attrDisplay);
     loadpage();
 }
+
 var canvasStateList = new CanvasStateList();
+
 $(document).ready(function () {
+    console.log("In ready function.");
     $('#thumbcarousel').carousel({
         interval: false
     });

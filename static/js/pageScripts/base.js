@@ -1,6 +1,11 @@
+
+console.log("In base.js");
+
 $(document).ready(function () {
 
+    console.log("base.js document ready");
      $(window).load(function() {
+        console.log("window loaded");
         //$('.hourglass').show();
         //getServerInfo();
     });

@@ -48,7 +48,7 @@ class Annotations(CollectionWrapper):
     super(Annotations, self).__init__(db_collection)
 
   def get(self, anno_id):
-    res = self.annotations.find_one({'_id': ObjectId(anno_id)})
+    res = self.db_collection.find_one({'_id': ObjectId(anno_id)})
     res['_id'] = str(res['_id'])
     return res
 
@@ -71,12 +71,12 @@ class Annotations(CollectionWrapper):
     return page_img
 
   def insert(self, anno):
-    id = self.annotations.insert(anno)
+    id = self.db_collection.insert(anno)
     return str(id)
 
   def update(self, anno_id, anno):
     # pprint(anno)
-    result = self.annotations.update({'_id': ObjectId(anno_id)}, {"$set": anno})
+    result = self.db_collection.update({'_id': ObjectId(anno_id)}, {"$set": anno})
     isSuccess = (result['n'] > 0)
     return isSuccess
 

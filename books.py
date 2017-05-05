@@ -113,7 +113,7 @@ def delbook():
 def docustom():
   if 'logstatus' in session:
     if session['logstatus'] == 1:
-      return render_template("viewbook.html", \
+      return render_template("viewbook.html",
                              bookpath=request.args.get('path'), title="Explore a Book")
     else:
       return redirect(url_for('index'))

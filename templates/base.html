@@ -15,6 +15,11 @@
     <script src="/static/js/common.js" type="text/javascript"></script>
     <script src="/static/js/upload.js" type="text/javascript"></script>
     <script src="/static/js/client.js" type="text/javascript"></script>
+    {% if self.page_script() %}
+      {% block page_script %}{% endblock %}
+    {% else %}
+      <script src="/static/js/pageScripts/base.js"/>
+    {% endif %}
 
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
@@ -56,7 +61,6 @@
         {% block content %}{% endblock %}
     </div>
     <div class="hourglass" ></div>
-    <script src="/static/js/pageScripts/base.js"/>
 
   </body>
 </html>
