@@ -306,18 +306,38 @@ class Annotation(JsonObject):
 class ImageTarget(Target):
   # TODO use w, h instead.
   @classmethod
-  def from_details(cls, container_id, x1=-1, y1=-1, x2=-1, y2=-1):
+  def from_details(cls, container_id, x=-1, y=-1, w=-1, h=-1):
     target = ImageTarget()
     target.container_id = container_id
-    assert isinstance(x1, int), x1.__class__
-    assert isinstance(y1, int), y1.__class__
-    assert isinstance(x2, int), x2.__class__
-    assert isinstance(y2, int), y2.__class__
-    target.x1 = x1
-    target.y1 = y1
-    target.x2 = x2
-    target.y2 = y2
+    assert isinstance(x, int), x.__class__
+    assert isinstance(y, int), y.__class__
+    assert isinstance(w, int), w.__class__
+    assert isinstance(h, int), h.__class__
+    target.x1 = x
+    target.y1 = y
+    target.x2 = w
+    target.y2 = h
     return target
+
+    # Two (segments are 'equal' if they overlap
+    def __eq__(self, other):
+      xmax = max(self.x, other.x)
+      ymax = max(self.y, other.y)
+      w = min(self.x+self.w, other.x+other.w) - xmax
+      h = min(self.y+self.h, other.y+other.h) - ymax
+      return w > 0 and h > 0
+
+    def __ne__(self, other):
+      return not self.__eq__(other)
+
+    def __cmp__(self, other):
+      if self == other:
+        logging.info(str(self) + " overlaps " + str(other))
+        return 0
+      elif (self.y < other.y) or ((self.y == other.y) and (self.x < other.x)):
+        return -1
+      else:
+        return 1
 
 
 # Targets: ImageTarget for a BookPortion

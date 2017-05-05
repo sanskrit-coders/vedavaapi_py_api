@@ -5,17 +5,67 @@ var container = document.getElementById('container');
 //container.appendChild(canvas);
 //var context = canvas.getContext('2d');
 
+var canvasStateList = new CanvasStateList();
 window.cState = undefined;
+
 var curpage_annotations = {};
 var curpage_sections = {};
 var viewBookState = {};
+
 viewBookState.curpage = 1;
 
-getBook(true, bpath);
-console.log("Get Book Returned");
+$(document).ready(function () {
+    console.log("In ready function.");
+    $('#thumbcarousel').carousel({
+        interval: false
+    });
+    getBook(true, bpath);
+    console.log("Get Book Returned");
 
-pramukhIME.addLanguage(PramukhIndic,"sanskrit");
-pramukhIME.enable();
+    pramukhIME.addLanguage(PramukhIndic,"sanskrit");
+    pramukhIME.enable();
+
+    $('body').on('click','img',function(){
+        console.log("Click called on "+$(this).parent().html());
+        var attrDisplay = $(this).attr("attr-display");
+        var oid = $(this).attr("oid");
+        window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
+        window.cState = canvasStateList.moveTo(window.cState.name);
+        setcurpage(oid, attrDisplay);
+        loadpage();
+    });
+});
+
+document.onkeypress = function (e) {
+//        e = e || window.event;//Get event
+    if (e.ctrlKey && e.shiftKey) {
+        var c = e.which || e.keyCode;//Get key code
+        console.log("You pressed Ctrl+Shift+"+c);
+        switch (c) {
+            case 80://Block Ctrl+Shift+'S'
+                reparse_page();
+                e.preventDefault();
+                e.stopPropagation();
+                break;
+            case 83://Block Ctrl+Shift+'S'
+                saveData();
+                e.preventDefault();
+                e.stopPropagation();
+                break;
+            case 187://Block Ctrl+Shift+'+'
+                zoomIn();
+                e.preventDefault();
+                e.stopPropagation();
+                break;
+            case 189://Block Ctrl+Shift+'-'
+                zoomOut();
+                e.preventDefault();
+                e.stopPropagation();
+                break;
+        }
+    }
+};
+
 
 function changeMode(mode='Edit') {
     document.getElementById("modeButton").innerHTML = '<b><u>'+mode+' </u></b><span class="caret"></span>';
@@ -207,54 +257,4 @@ function slideTo(where) {
     setcurpage(oid, attrDisplay);
     loadpage();
 }
-
-var canvasStateList = new CanvasStateList();
-
-$(document).ready(function () {
-    console.log("In ready function.");
-    $('#thumbcarousel').carousel({
-        interval: false
-    });
-
-    $('body').on('click','img',function(){
-        console.log("Click called on "+$(this).parent().html());
-        var attrDisplay = $(this).attr("attr-display");
-        var oid = $(this).attr("oid");
-        window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
-        window.cState = canvasStateList.moveTo(window.cState.name);
-        setcurpage(oid, attrDisplay);
-        loadpage();
-    });
-});
-
-document.onkeypress = function (e) {
-//        e = e || window.event;//Get event
-    if (e.ctrlKey && e.shiftKey) {
-        var c = e.which || e.keyCode;//Get key code
-        console.log("You pressed Ctrl+Shift+"+c);
-        switch (c) {
-            case 80://Block Ctrl+Shift+'S'
-                reparse_page();
-                e.preventDefault();
-                e.stopPropagation();
-                break;
-            case 83://Block Ctrl+Shift+'S'
-                saveData();
-                e.preventDefault();
-                e.stopPropagation();
-                break;
-            case 187://Block Ctrl+Shift+'+'
-                zoomIn();
-                e.preventDefault();
-                e.stopPropagation();
-                break;
-            case 189://Block Ctrl+Shift+'-'
-                zoomOut();
-                e.preventDefault();
-                e.stopPropagation();
-                break;
-        }
-    }
-};
-
 

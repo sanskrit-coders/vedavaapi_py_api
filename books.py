@@ -3,9 +3,9 @@ from flask import *
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
+import backend.data_containers
 from backend import data_containers
 from backend.collections import *
-import backend.data_containers
 from backend.db import get_db
 from common import *
 

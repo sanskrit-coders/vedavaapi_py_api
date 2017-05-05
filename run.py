@@ -3,6 +3,7 @@ import datetime
 import getopt
 from base64 import b64encode
 from sys import argv
+from backend import data_containers
 
 from flask import *
 from flask_login import LoginManager, login_user, logout_user, \
@@ -211,7 +212,9 @@ def usage():
     exit(1)
 
 
-params = DotDict({
+params = data_containers.JsonObject()
+
+params.set_from_dict({
     'reset': False,
     'dbreset': False,
     'dbgFlag': False,

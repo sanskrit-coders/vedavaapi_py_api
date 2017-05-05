@@ -10,45 +10,13 @@ from PIL import Image
 import preprocessing
 import logging
 
+from backend import data_containers
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-
-class DotDict(dict):
-    def __getattr__(self, name):
-        return self[name] if name in self else None
-    def __setattr__(self, name, value):
-        self[name] = value
-
-# Represents a rectangular image segment
-class ImgSegment(DotDict):
-    # Two (segments are 'equal' if they overlap
-    def __eq__(self, other):
-        xmax = max(self.x, other.x)
-        ymax = max(self.y, other.y)
-        w = min(self.x+self.w, other.x+other.w) - xmax
-        h = min(self.y+self.h, other.y+other.h) - ymax
-        return w > 0 and h > 0
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __cmp__(self, other):
-        if self == other:
-            logging.info(str(self) + " overlaps " + str(other))
-            return 0
-        elif (self.y < other.y) or ((self.y == other.y) and (self.x < other.x)):
-            return -1
-        else:
-            return 1
-    def __str__(self):
-        mystr = "(" + \
-            ", ".join(map(lambda p: json.dumps(self[p]) if p in self else "", \
-                            ["x", "y", "w", "h", "score", "state", "text"])) \
-            + ")"
-        return mystr.encode('utf-8')
 
 class DisjointSegments:
     segments = []
@@ -56,18 +24,6 @@ class DisjointSegments:
     def __init__(self, segments = []):
         self.segments = []
         self.merge(segments)
-
-    def to_rect(self, seg):
-        return DotDict(seg)
-
-    def intersection(self, a, b):
-        x = max(a.x, b.x)
-        y = max(a.y, b.y)
-        w = min(a.x+a.w, b.x+b.w) - x
-        h = min(a.y+a.h, b.y+b.h) - y
-        return w > 0 and h > 0
-        #if w<=0 or h<=0: return () # or (0,0,0,0) ?
-        #return (x, y, w, h)
 
     def overlap(self, testseg):
         #testrect = self.to_rect(testseg)
@@ -198,11 +154,12 @@ class DocImage:
         res = cv2.matchTemplate(self.img_bin,  template_img.img_bin, cv2.TM_CCOEFF_NORMED )
    
         loc = np.where(res >= float(thres))
-        matches = [ImgSegment({ 'x' : pt[0], 'y' : pt[1], \
-                        'w' : template_img.w, 'h' : template_img.h, \
-                        'score' : float("{0:.2f}".format(res[pt[1], pt[0]])) \
-                        }) \
-                    for pt in zip(*loc[::-1])]
+        def ptToImgTarget(pt):
+            return data_containers.ImageTarget.from_details(x=pt[0], y= pt[1],
+                                                     w=template_img.w, h=template_img.h,
+                                                     # 'score' : float("{0:.2f}".format(res[pt[1], pt[0]]))
+            )
+        matches = map(ptToImgTarget, zip(*loc[::-1]))
 
         if known_segments is None:
             known_segments = DisjointSegments()
@@ -225,7 +182,7 @@ class DocImage:
 
         if known_segments is None:
             known_segments = DisjointSegments()
-        known_segments.insert(ImgSegment(r))
+        known_segments.insert(data_containers.ImageTarget(r))
         return self.find_matches(template, thres, known_segments)
    
     def self_to_image(self):
@@ -337,12 +294,12 @@ class DocImage:
         
         allSections = []
 #        for i in (xrange(len(yJointSectionEnd))):
-#            coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
+#            coordinates = {'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)}
 #            coordinates['x'] = int(0 * factorX)
 #            coordinates['y'] = int(yJointSectionStart[i] * factorY)
 #            coordinates['w'] = int(width * factorX)
 #            coordinates['h'] = int((yJointSectionEnd[i] - yJointSectionStart[i]) * factorY)
-#            allSections.append(ImgSegment(coordinates))
+#            allSections.append(data_containers.ImageTarget.from_details(x=coordinates.x, y=coordinates.y, w=coordinates.w, h=coordinates.h))
 
 #        print(whitePixels) 
 #        plt.barh(xrange(img.shape[0]),whitePixels)
@@ -353,7 +310,7 @@ class DocImage:
             endY = yJointSectionEnd[j]
             # Now we will scan the columns
             whitePixels = []
-            xSectionBlankLines = [];
+            xSectionBlankLines = []
             for i in xrange(width):
                 crop_img = img[startY:endY, i:i+1]
                 whitePixel = cv2.countNonZero(crop_img)
@@ -377,14 +334,14 @@ class DocImage:
             xSectionEnd.insert(sectionCount,width - borderSize) 
 
             for i in (xrange(len(xSectionEnd))):
-                coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
+                coordinates = {'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)}
                 cur_width = xSectionEnd[i] - xSectionStart[i]
                 if (cur_width <= (2 * borderSize)): continue 
                 coordinates['x'] = int(xSectionStart[i] * factorX)
                 coordinates['y'] = int(startY * factorY)
                 coordinates['w'] = int((xSectionEnd[i] - xSectionStart[i]) * factorX)
                 coordinates['h'] = int((endY - startY) * factorX)
-                allSections.append(ImgSegment(coordinates))
+                allSections.append(data_containers.ImageTarget.from_details(x=coordinates.x, y=coordinates.y, w=coordinates.w, h=coordinates.h))
 
 
 #        print(whitePixels) 
@@ -396,7 +353,7 @@ class DocImage:
 
 
         
-    def find_segments(self, show_int, pause_int, known_segments = None):
+    def find_segments(self, show_int=0, pause_int=0, known_segments = None):
 
         if self.working_img_gray is None:
             img = self.img_gray
@@ -488,12 +445,12 @@ class DocImage:
         ret,thresh = cv2.threshold(boxes_temp,127,255,0)
         contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-        print("Lower="+str(lower_bound)+" Upper="+str(upper_bound));
+        print("Lower="+str(lower_bound)+" Upper="+str(upper_bound))
 
         print("Contours 3 Len = "+str(len(contours)))
 
         for c in contours:
-            coordinates = DotDict({'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)})
+            coordinates = {'x': 0, 'y':0, 'h':0, 'w':0, 'score':float(0.0)}
             x,y,w,h = cv2.boundingRect(c)
 #            logging.info("x:"+str(x)+"y:"+str(y)+"w:"+str(w)+"h"+str(h))
             if (((w*h) <= lower_bound or (w*h) >= upper_bound)) :
@@ -506,7 +463,7 @@ class DocImage:
             coordinates['h'] = int(h * factorY)
 
 #            logging.info("x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h']))
-            allsegments.append(ImgSegment(coordinates))
+            allsegments.append(data_containers.ImageTarget.from_details(x=coordinates.x, y=coordinates.y, w=coordinates.w, h=coordinates.h))
 
         show_img('Boxes_temp 3',boxes_temp)
 
@@ -520,14 +477,14 @@ class DocImage:
 
     def annotate(self, sel_areas, color = (0,0,255),thickness = 2):      
         for rect in sel_areas:
-            cv2.rectangle(self.img_rgb, (rect['x'], rect['y']), \
+            cv2.rectangle(self.img_rgb, (rect['x'], rect['y']),
                 (rect['x'] + rect['w'], rect['y'] + rect['h']), color, thickness)
 
 def main(args):
     img = DocImage(args[0])
-    rect = DotDict({ 'x' : int(args[1]), \
-             'y' : int(args[2]), \
-             'w' : int(args[3]), 'h' : int(args[4]), 'score' : float(1.0) })
+    rect = { 'x' : int(args[1]),
+             'y' : int(args[2]),
+             'w' : int(args[3]), 'h' : int(args[4]), 'score' : float(1.0) }
     logging.info("Template rect = " + json.dumps(rect))
     matches = img.find_recurrence(rect, 0.7)
     pprint(matches)

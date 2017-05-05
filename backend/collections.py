@@ -103,7 +103,7 @@ class Annotations(CollectionWrapper):
     known_segments = DisjointSegments()
     # Give me all the non-overlapping user-touched segments in this page.
     for a in anno_obj['anno']:
-      a = ImgSegment(a)
+      a = data_containers.ImageTarget(a)
       if a.state == 'system_inferred':
         continue
       a['score'] = float(1.0)  # Set the max score for user-identified segments
@@ -111,7 +111,7 @@ class Annotations(CollectionWrapper):
       known_segments.insert(a)
 
     # Create segments taking into account known_segments
-    matches = page_img.find_segments(0, 0, known_segments)
+    matches = page_img.find_segments(known_segments=known_segments)
     # logging.info("Matches = " + json.dumps(matches))
     # logging.info("Segments = " + json.dumps(known_segments.segments))
     for r in matches:
@@ -141,7 +141,7 @@ class Annotations(CollectionWrapper):
     known_segments = DisjointSegments()
     srch_segments = []
     for a in anno_obj['anno']:
-      a = ImgSegment(a)
+      a = data_containers.ImageTarget(a)
       if a.state == 'system_inferred':
         known_segments.insert(a)
         continue
