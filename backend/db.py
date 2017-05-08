@@ -11,7 +11,7 @@ import logging
 from pymongo import MongoClient
 
 from backend import data_containers
-from backend.collections import BookPortions, Annotations, Sections, Users
+from backend.collections import BookPortions, Annotations, Users
 from backend.config import setworkdir, workdir, initworkdir, setwlocaldir, DATADIR_BOOKS, INDICDOC_DBNAME, repodir, \
   run_command
 from docimage import DocImage
@@ -41,7 +41,6 @@ class DBWrapper:
         raise TypeError("database must be an instance of Database")
       self.books = BookPortions(self.db['book_portions'])
       self.annotations = Annotations(self.db['annotations'])
-      self.sections = Sections(self.db['sections'])
       self.users = Users(self.db['users'])
     except Exception as e:
       print("Error initializing MongoDB database; aborting.", e)

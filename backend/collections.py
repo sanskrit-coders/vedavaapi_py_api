@@ -1,12 +1,7 @@
 import pymongo
 import re
 from bson.objectid import ObjectId
-from pymongo.database import Database
 
-from pymongo import MongoClient
-
-import backend
-from backend import data_containers
 from backend.config import *
 from docimage import *
 
@@ -22,6 +17,7 @@ class CollectionWrapper(object):
   def __init__(self, db_collection):
     logging.info("Initializing collection :" + str(db_collection))
     self.db_collection = db_collection
+
 
 # Encapsulates the book_portions collection.
 class BookPortions(CollectionWrapper):
@@ -111,7 +107,7 @@ class Annotations(CollectionWrapper):
       known_segments.insert(a)
 
     # Create segments taking into account known_segments
-    matches = page_img.find_segments(known_segments=known_segments)
+    matches = page_img.find_text_regions(known_text_regions=known_segments)
     # logging.info("Matches = " + json.dumps(matches))
     # logging.info("Segments = " + json.dumps(known_segments.segments))
     for r in matches:
@@ -174,25 +170,6 @@ class Annotations(CollectionWrapper):
     # Save the updated annotations
     self.update(anno_id, {'anno': known_segments.img_targets})
     return True
-
-
-# Encapsulates the sections collection.
-class Sections(CollectionWrapper):
-  def __init__(self, db_collection):
-    super(Sections, self).__init__(db_collection)
-
-  def get(self, sec_id):
-    res = self.db_collection.find_one({'_id': ObjectId(sec_id)})
-    res['_id'] = str(res['_id'])
-    return res
-
-  def insert(self, sec):
-    result = self.db_collection.insert_one(sec)
-    return str(result.inserted_id)
-
-  def update(self, sec_id, section):
-    result = self.db_collection.update({'_id': ObjectId(sec_id)}, section)
-    return result['n'] > 0
 
 
 # Encapsulates the users collection.
