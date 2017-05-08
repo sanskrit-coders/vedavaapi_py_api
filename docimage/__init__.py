@@ -57,8 +57,65 @@ class DisjointImageTargets:
         if i >= 0 and i < len(self.img_targets):
             del self.img_targets[i]
 
+
 class DocImage:
-    
+    def __init__(self, imgfile = None, workingImgFile = None):
+        self.fname = ""
+        self.working_img_rgb = None
+        self.working_img_gray = None
+        self.img_rgb = None
+        self.img_gray = None
+        self.w = 0
+        self.h = 0
+        self.ww = 0
+        self.wh = 0
+        
+        if imgfile:
+            #print "DocImage: loading ", imgfile
+            self.update_image_file(imgfile)
+        if workingImgFile:
+            #print "DocImage: loading ", origImgFile
+            self.update_working_file(workingImgFile)
+
+    def update_image_file(self, imgfile):
+        self.fname = imgfile
+        self.img_rgb = cv2.imread(self.fname)
+        self.init()
+
+    def update_working_file(self, workingImgFile):
+        self.fname = workingImgFile
+        self.working_img_rgb = cv2.imread(self.fname)
+        if (self.working_img_rgb is None) :
+            temp_img = cv2.cvtColor(self.img_rgb, cv2.COLOR_RGB2BGR) 
+            pil_im = Image.fromarray(temp_img)
+            self.working_img_rgb = DocImage.resize(pil_im, (1920, 1080), False)
+            self.working_img_rgb = cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
+            
+            cv2.imwrite(workingImgFile, self.working_img_rgb) 
+        self.working_img_gray = cv2.cvtColor(self.working_img_rgb, cv2.COLOR_BGR2GRAY)
+        self.ww, self.wh = self.working_img_gray.shape[::-1]
+        logging.info("W width = " + str(self.ww) + ", W ht = " + str(self.wh))
+
+    def init(self):
+        self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
+        self.img_bin = preprocessing.binary_img(self.img_gray)
+        self.w, self.h = self.img_gray.shape[::-1]
+        logging.info("width = " + str(self.w) + ", ht = " + str(self.h))
+
+    def from_image(self, img_cv):
+        self.img_rgb = img_cv
+        self.init()
+
+    @classmethod
+    def from_path(cls, path):
+        from backend.config import repodir
+        from os.path import join
+        [base_path, ext] = os.path.splitext(path)
+        workingImgPath = join(repodir(), join(base_path + "_working.jpg"))
+        logging.info("Image path = " + path)
+        logging.info("Working Image path = " + workingImgPath)
+        return DocImage(path, workingImgPath)
+
     @staticmethod
     def resize( img, box, fit):
         '''Downsample the image.
@@ -97,54 +154,6 @@ class DocImage:
     #    img.save(out, "JPEG", quality=100)
     #resize
 
-
-    def __init__(self, imgfile = None, workingImgFile = None):
-        self.fname = ""
-        self.working_img_rgb = None
-        self.working_img_gray = None
-        self.img_rgb = None
-        self.img_gray = None
-        self.w = 0
-        self.h = 0
-        self.ww = 0
-        self.wh = 0
-        
-        if imgfile:
-            #print "DocImage: loading ", imgfile
-            self.fromFile(imgfile)
-        if workingImgFile:
-            #print "DocImage: loading ", origImgFile
-            self.fromWorkingFile(workingImgFile)
-
-    def fromFile(self, imgfile):
-        self.fname = imgfile
-        self.img_rgb = cv2.imread(self.fname)
-        self.init()
-
-    def fromWorkingFile(self, workingImgFile):
-        self.fname = workingImgFile
-        self.working_img_rgb = cv2.imread(self.fname)
-        if (self.working_img_rgb is None) :
-            temp_img = cv2.cvtColor(self.img_rgb, cv2.COLOR_RGB2BGR) 
-            pil_im = Image.fromarray(temp_img)
-            self.working_img_rgb = DocImage.resize(pil_im, (1920, 1080), False)
-            self.working_img_rgb = cv2.cvtColor(np.array(pil_im), cv2.COLOR_RGB2BGR)
-            
-            cv2.imwrite(workingImgFile, self.working_img_rgb) 
-        self.working_img_gray = cv2.cvtColor(self.working_img_rgb, cv2.COLOR_BGR2GRAY)
-        self.ww, self.wh = self.working_img_gray.shape[::-1]
-        logging.info("W width = " + str(self.ww) + ", W ht = " + str(self.wh))
-
-    def init(self):
-        self.img_gray = cv2.cvtColor(self.img_rgb, cv2.COLOR_BGR2GRAY)
-        self.img_bin = preprocessing.binary_img(self.img_gray)
-        self.w, self.h = self.img_gray.shape[::-1]
-        logging.info("width = " + str(self.w) + ", ht = " + str(self.h))
-
-    def fromImage(self, img_cv):
-        self.img_rgb = img_cv
-        self.init()
-
     def save(self, dstfile):
         cv2.imwrite(dstfile, self.img_rgb)
 
@@ -170,7 +179,7 @@ class DocImage:
     def snippet(self, r):
         template_img = self.img_rgb[r.y:(r.y+r.h), r.x:(r.x+r.w)]
         template = DocImage()
-        template.fromImage(template_img)
+        template.from_image(template_img)
         return template
 
     def find_recurrence(self, r, thres = 0.7, known_segments = None):
@@ -301,7 +310,6 @@ class DocImage:
 
         show_img('Boxes_temp 3',boxes_temp)
 
-
         if known_text_regions is None:
             known_text_regions = DisjointImageTargets()
         disjoint_matches = known_text_regions.merge(allsegments)
@@ -356,7 +364,7 @@ def mainTEST(arg):
     first_snippet.save(fname + "_snippet1.jpg")
 
     anno_img = DocImage()
-    anno_img.fromImage(img.img_rgb)
+    anno_img.from_image(img.img_rgb)
     anno_img.add_rectangles(segments)
 #    img.annotate(img.find_sections(1,1))
     #img.annotate(img.find_segments(1,1))

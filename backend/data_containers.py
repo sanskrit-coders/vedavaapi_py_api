@@ -22,9 +22,6 @@ jsonpickle.set_encoder_options('simplejson', indent=2)
 
 TYPE_FIELD = "py/object"
 
-__location__ = os.path.realpath(
-  os.path.join(os.getcwd(), os.path.dirname(__file__)))
-
 class JsonObject(object):
   schema = {
     "type": "object",
@@ -73,10 +70,13 @@ class JsonObject(object):
       return logging.error("Error writing " + filename + " : ".format(e))
       raise e
 
+  @classmethod
+  def get_wire_typeid(cls):
+    cls.__module__ + "." + cls.__name__
 
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)
-    setattr(self, TYPE_FIELD, self.__module__ + "." + self.__class__.__name__)
+    setattr(self, TYPE_FIELD, self.__class__.get_wire_typeid())
     # setattr(self, TYPE_FIELD, self.__class__.__name__)
 
   def set_type_recursively(self):
@@ -170,6 +170,17 @@ class JsonObject(object):
     iter = some_collection.find(filter=filter)
     return [cls.make_from_dict(x) for x in iter]
 
+  def get_targetting_entities(self, some_collection):
+    targetting_objs = some_collection.find({
+      "targets":  {
+        "$elemMatch": {
+          "container_id" : str(self._id)
+        }
+      }
+    })
+    return targetting_objs
+
+
 
 # Not intended to be written to the database as is. Portions are expected to be extracted and written.
 class JsonObjectNode(JsonObject):
@@ -194,13 +205,7 @@ class JsonObjectNode(JsonObject):
       child.update_collection(some_collection)
 
   def fill_descendents(self, some_collection):
-    targetting_objs = some_collection.find({
-      "targets":  {
-        "$elemMatch": {
-          "container_id" : str(self.content._id)
-        }
-      }
-    })
+    targetting_objs = self.content.get_targetting_entities(some_collection=some_collection)
     self.children = []
     for targetting_obj in targetting_objs:
       child = JsonObjectNode.from_details(content=JsonObject.make_from_dict(targetting_obj))
