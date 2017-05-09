@@ -11,7 +11,7 @@ function serialize(obj){
 };
 
 // Makes an anchor tag.
-function urlize(lpath, text, newwin)
+function get_anchor_tag(lpath, text, newwin)
 {
     if (typeof text == "undefined")
         text = lpath;

@@ -8,8 +8,6 @@ var container = document.getElementById('container');
 var canvasStateList = new CanvasStateList();
 window.cState = undefined;
 
-var bpath = $.query.get('path');
-
 var curpage_annotations = {};
 var curpage_sections = {};
 var viewBookState = {};
@@ -21,7 +19,7 @@ $(document).ready(function () {
     $('#thumbcarousel').carousel({
         interval: false
     });
-    getBook(true, bpath);
+    getBook(true, $.query.get('_id'));
     console.log("Get Book Returned");
 
     pramukhIME.addLanguage(PramukhIndic,"sanskrit");
@@ -128,13 +126,13 @@ function segment_page() {
     loadpage(true);
 }
 
-function getBook(hglass, bpath)
+function getBook(hglass, bookId)
 {
     console.log("in getbook");
     if (hglass == true) {
         $(".hourglass").show();
     }
-    var xhr = $.getJSON('/api_v1/get?path='+bpath).success(function(data){
+    var xhr = $.getJSON('/api_v1/books/'+bookId).success(function(data){
         console.log("in done");
         viewBookState.bookdetails = data;
         viewBookState.curpage = 0;

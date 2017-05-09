@@ -121,14 +121,18 @@ class BookList(flask_restful.Resource):
 
 api.add_resource(BookList, '/books')
 
-@flask_blueprint.route('/get', methods=['GET', 'POST'])
-def getbooksingle():
-  path = request.args.get('path')
-  logging.info("book get by path = " + str(path))
-  binfo = get_db().books.get(path)
-  # pprint(binfo)
-  return backend.data_containers.JsonAjaxResponse(result=binfo).to_flask_response()
 
+class BookPortionHandler(flask_restful.Resource):
+  def get(self, book_id):
+    logging.info("book get by id = " + str(book_id))
+    book = data_containers.JsonObject.from_id(id=book_id, collection=get_db().books.db_collection)
+    book_node = data_containers.JsonObjectNode.from_details(content=book)
+    book_node.fill_descendents(self.db_collection)
+    # pprint(binfo)
+    return backend.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 201
+
+
+api.add_resource(BookPortionHandler, '/books/<int:book_id>')
 
 @flask_blueprint.route('/<_id>', methods=['GET'])
 def getpagesegment(id):
