@@ -3,8 +3,8 @@ from flask import *
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 
+import flask_restful
 import backend.data_containers
-from backend import data_containers
 from backend.collections import *
 from backend.db import get_db
 from common import *
@@ -15,9 +15,10 @@ logging.basicConfig(
 )
 
 app = Flask(__name__)
+api = flask_restful.Api(app=app, prefix='/api_v1')
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-flask_api = Blueprint('flask_api', __name__)
+flask_blueprint = Blueprint('flask_api', __name__)
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
@@ -27,23 +28,29 @@ def allowed_file(filename):
          filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@flask_api.route('/list', methods=['GET', 'POST'])
-def getbooklist():
-  logging.info("Session in books_api=" + str(session['logstatus']))
-  if 'logstatus' in session:
-    if session['logstatus'] == 1:
-      pattern = request.args.get('pattern')
-      logging.info("books list filter = " + str(pattern))
-      booklist = get_db().books.list_books(pattern)
-      logging.debug(booklist)
-      return backend.data_containers.JsonAjaxResponse(result=booklist).to_flask_response()
+class BookList(flask_restful.Resource):
+  def get(self):
+    logging.info("Session in books_api=" + str(session['logstatus']))
+    if 'logstatus' in session:
+      if session['logstatus'] == 1:
+        pattern = request.args.get('pattern')
+        logging.info("books list filter = " + str(pattern))
+        booklist = get_db().books.list_books(pattern)
+        logging.debug(booklist)
+        return backend.data_containers.JsonAjaxResponse(result=booklist).to_flask_response()
+      else:
+        return redirect(url_for('index'))
     else:
       return redirect(url_for('index'))
-  else:
-    return redirect(url_for('index'))
 
+  def post(self, path):
+    args = flask_restful.parser.parse_args()
+    task = {'task': args['task']}
+    return task, 201
 
-@flask_api.route('/get', methods=['GET', 'POST'])
+api.add_resource(BookList, '/books')
+
+@flask_blueprint.route('/get', methods=['GET', 'POST'])
 def getbooksingle():
   path = request.args.get('path')
   logging.info("book get by path = " + str(path))
@@ -52,7 +59,7 @@ def getbooksingle():
   return backend.data_containers.JsonAjaxResponse(result=binfo).to_flask_response()
 
 
-@flask_api.route('/<_id>', methods=['GET'])
+@flask_blueprint.route('/<_id>', methods=['GET'])
 def getpagesegment(id):
   if request.method == 'GET':
     """return the page annotation with id = anno_id"""
@@ -63,7 +70,7 @@ def getpagesegment(id):
     return backend.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
 
 
-@flask_api.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
+@flask_blueprint.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
 def pageanno(anno_id):
   if request.method == 'GET':
     """return the page annotation with id = anno_id"""
@@ -86,25 +93,25 @@ def pageanno(anno_id):
     return x
 
 
-@flask_api.route('/page/image/<path:pagepath>')
+@flask_blueprint.route('/page/image/<path:pagepath>')
 def getpagesingle(pagepath):
   # abspath = join(repodir(), pagepath)
   # head, tail = os.path.split(abspath)
   return send_from_directory(repodir(), pagepath)
 
 
-@flask_api.route('/browse/<path:bookpath>')
+@flask_blueprint.route('/browse/<path:bookpath>')
 def browsedir(bookpath):
   fullpath = join(repodir(), bookpath)
   return render_template("fancytree.html", abspath=fullpath)
 
 
-@flask_api.route('/delete', methods=['GET', 'POST'])
+@flask_blueprint.route('/delete', methods=['GET', 'POST'])
 def delbook():
   return wl_batchprocess(request.args, "delete", wldelete)
 
 
-@flask_api.route('/view', methods=['GET', 'POST'])
+@flask_blueprint.route('/view', methods=['GET', 'POST'])
 def docustom():
   if 'logstatus' in session:
     if session['logstatus'] == 1:
@@ -116,7 +123,7 @@ def docustom():
     return redirect(url_for('index'))
 
 
-@flask_api.route('/upload', methods=['GET', 'POST'])
+@flask_blueprint.route('/upload', methods=['GET', 'POST'])
 # @login_required TODO: Code fails if this is uncommented.
 def upload():
   """Handle uploading files."""

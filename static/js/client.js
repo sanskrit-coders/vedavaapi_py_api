@@ -20,7 +20,7 @@ function getBooks(hglass)
     var $select = $('#book_table');
     $select.empty();
     var pattern=document.getElementById('wload_filter').value;
-    $.getJSON('/api_v1/list?pattern='+pattern, function(data){
+    $.getJSON('/api_v1/books?pattern='+pattern, function(data){
         if (! processStatus(data))
            return;
         data = data['result'];
@@ -33,7 +33,7 @@ function getBooks(hglass)
                 '<th>Book Path</th>'+
                 '<th>Controls</th>'+
                 '</tr>');
-        booklist = data;
+        var booklist = data;
         $.each(booklist, function(key, binfo) {
             var size = 0
             var bpath = binfo['path']
@@ -114,7 +114,7 @@ function getSelBooks(table, isAll)
 {
     var selbooks = [];
 	var idx = {};
-    $seltable = $('#' + table);
+    var $seltable = $('#' + table);
 	var isAll = (typeof(isAll)=="undefined")?false:isAll;
 	var check = ":checked";
 	if(isAll) {

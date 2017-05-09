@@ -14,7 +14,7 @@ from backend.collections import *
 # from file import file_api
 from backend.data_containers import User
 from backend.db import initdb, get_db
-from api_v1 import flask_api
+import api_v1
 from oauth import *
 from oauth import OAuthSignIn
 
@@ -24,9 +24,7 @@ logging.basicConfig(
 )
 
 
-app = Flask(__name__)
-
-app.register_blueprint(flask_api, url_prefix='/api_v1')
+app = api_v1.app
 
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
 app.config['OAUTH_CREDENTIALS'] = {
@@ -56,39 +54,10 @@ def authorized_work(required_url, default_url):
         return redirect(url_for(default_url))
 
 
-@app.route('/homepage')
-def mainpage():
-    return authorized_work('listBooks.html', 'index')
-
-
-@lm.user_loader
-def load_user(id):
-    u = get_db().users.get(id)
-    if not u:
-        return None
-    return User(u['_id'], u['nickname'])
-
-
 @app.route('/')
 def index():
-    return render_template('index.html', title='Login')
-    # return render_template('listBooks.html', title='Home')
-
-
-@app.route('/logout')
-def logout():
-    # obj = OAuthSignIn('facebook')
-    # payload = {'grant_type': 'client_credentials', 'client_id': obj.consumer_id, 'client_secret': obj.consumer_secret}
-    # resp = requests.post('https://graph.facebook.com/oauth/access_token?', params = payload)
-    # result = resp.text.split("=")[1]
-    # logging.info("result=" + str(result))
-    # session.pop('social_id',None)
-    session['logstatus'] = 0
-    session['user'] = None
-    logout_user()
-    # current_user.authenticated=False
-    flash("Logged out successfully!", 'info')
-    return redirect(url_for('index'))
+  session['logstatus'] = 1
+  return render_template('listBooks.html', title='Home')
 
 
 @app.route('/guestlogin', methods=['GET', 'POST'])
@@ -99,47 +68,8 @@ def guestlogin():
     user = get_db().users.insert(
         {"nickname": "Guest", "email": str(email), "confirmed": True, "confirmed_on": str(datetime.datetime.now())})
     user = User(user['_id'], user['nickname'], user['email'], user['confirmed'])
-    if user.is_authenticated():
-        session['user'] = 'Guest'
-        logging.info("guest user!")
-        session['logstatus'] = 1
-        return redirect(url_for('mainpage'))
-    return redirect(url_for('index'))
-
-
-@app.route('/authorize/<provider>')
-def oauth_authorize(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('index'))
-        # return redirect(url_for('mainpage'))
-    session['logstatus'] = 0
-    session['user'] = None
-    oauth = OAuthSignIn.get_provider(provider)
-    return oauth.authorize()
-
-
-@app.route('/callback/<provider>')
-def oauth_callback(provider):
-    if not current_user.is_anonymous:
-        return redirect(url_for('mainpage'))
-    oauth = OAuthSignIn.get_provider(provider)
-    seq = oauth.callback()
-    logging.info("Return Value = " + str( seq))
-    if (len(seq) == 3):
-        social_id, username, email = seq
-        logflag = 1
-    else:
-        social_id, username, email, logflag = seq
-    if social_id is None:
-        flash('Authentication failed.')
-        return redirect(url_for('index'))
-    user = get_db().users.getBySocialId(social_id)
-    if not user:
-        user = get_db().users.insert({"social_id": social_id, "nickname": username, "email": email})
-    user = User(user['_id'], user['nickname'])
-    session['logstatus'] = logflag
-    login_user(user, True)
-    return redirect(url_for('mainpage'))
+    session['logstatus'] = 1
+    return render_template('listBooks.html', title='Home')
 
 
 @app.route('/<filename>')
