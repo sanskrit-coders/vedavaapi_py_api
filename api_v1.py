@@ -97,8 +97,6 @@ class BookList(flask_restful.Resource):
       img.save(out, "JPEG", quality=100)
       out.close()
 
-      # Obsolete:
-      # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
       page = data_containers.JsonObjectNode.from_details(
         content=data_containers.BookPortion.from_details(
           title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
@@ -171,27 +169,3 @@ def getpagesingle(pagepath):
   # abspath = join(repodir(), pagepath)
   # head, tail = os.path.split(abspath)
   return send_from_directory(repodir(), pagepath)
-
-
-@flask_blueprint.route('/browse/<path:bookpath>')
-def browsedir(bookpath):
-  fullpath = join(repodir(), bookpath)
-  return render_template("fancytree.html", abspath=fullpath)
-
-
-@flask_blueprint.route('/delete', methods=['GET', 'POST'])
-def delbook():
-  return wl_batchprocess(request.args, "delete", wldelete)
-
-
-@flask_blueprint.route('/view', methods=['GET', 'POST'])
-def docustom():
-  if 'logstatus' in session:
-    if session['logstatus'] == 1:
-      return render_template("viewbook.html",
-                             bookpath=request.args.get('path'), title="Explore a Book")
-    else:
-      return redirect(url_for('index'))
-  else:
-    return redirect(url_for('index'))
-

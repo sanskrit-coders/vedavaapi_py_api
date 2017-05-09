@@ -42,7 +42,7 @@ function getBooks(hglass)
             var book_entry = '<tr>'+
             '<td>' +'<input type="checkbox" value=\"' +
                 bpath + '\"/>'+ '</td>'+
-            '<td>' + urlize("/api_v1/view?path=" + bpath, bpath) + '</td>'+
+            '<td>' + urlize("/ui/viewbook.html?path=" + bpath, bpath) + '</td>'+
             '<td>' +
             '<button onclick="browse(\''+bpath+'\');">Details</button>' +
             '<button onclick="docmd(\'' +bpath+ '\',\'delete\');">Delete</button>'+
@@ -57,7 +57,7 @@ function getBooks(hglass)
 
 function browse(bname){
     var newwin="target=\"_blank\"";
-    window.open('/api_v1/browse/' + encodeURIComponent(bname));
+    window.open('/api_v1/path/' + encodeURIComponent(bname));
 }
 
 function doexplore(wlparams, cmd)

@@ -2,7 +2,6 @@
 $(document).ready(function () {
     console.log("In ready function.");
      $(window).load(function() {
-        getServerInfo();
         getBooks(true);
     });
     var myurl = window.location.href;
@@ -50,7 +49,7 @@ $(document).ready(function () {
     for (var i = 0; i < cmds.length; ++i) {
         var $cmd_button = $('#wl' + cmds[i]);
         $cmd_button.click(function() {
-            cmd = this.value;
+            var cmd = this.value;
             var names = getSelBooks('wltable');
             var formdata = getWlForm(names.books, 'wlactions');
             bookProcess(formdata, cmd);

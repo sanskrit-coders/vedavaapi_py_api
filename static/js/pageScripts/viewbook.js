@@ -8,6 +8,8 @@ var container = document.getElementById('container');
 var canvasStateList = new CanvasStateList();
 window.cState = undefined;
 
+var bpath = $.query.get('path');
+
 var curpage_annotations = {};
 var curpage_sections = {};
 var viewBookState = {};
@@ -67,7 +69,7 @@ document.onkeypress = function (e) {
 };
 
 
-function changeMode(mode='Edit') {
+function changeMode(mode) {
     document.getElementById("modeButton").innerHTML = '<b><u>'+mode+' </u></b><span class="caret"></span>';
     if (mode == 'Edit') {
         document.getElementById("modeButton").flag = "E";
@@ -195,7 +197,7 @@ function setcurpage(idx, value)
     }
 }
 
-function loadpage(reparse = false) {
+function loadpage(reparse) {
     var curpage = viewBookState.curpage;
     if (curpage == undefined)
         return;
