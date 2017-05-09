@@ -14,7 +14,7 @@ from backend.collections import *
 # from file import file_api
 from backend.data_containers import User
 from backend.db import initdb, get_db
-from books import books_api
+from api_v1 import flask_api
 from oauth import *
 from oauth import OAuthSignIn
 
@@ -26,7 +26,7 @@ logging.basicConfig(
 
 app = Flask(__name__)
 
-app.register_blueprint(books_api, url_prefix='/books')
+app.register_blueprint(flask_api, url_prefix='/api_v1')
 
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
 app.config['OAUTH_CREDENTIALS'] = {

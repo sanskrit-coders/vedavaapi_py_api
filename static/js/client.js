@@ -20,7 +20,7 @@ function getBooks(hglass)
     var $select = $('#book_table');
     $select.empty();
     var pattern=document.getElementById('wload_filter').value;
-    $.getJSON('/books/list?pattern='+pattern, function(data){
+    $.getJSON('/api_v1/list?pattern='+pattern, function(data){
         if (! processStatus(data))
            return;
         data = data['result'];
@@ -42,7 +42,7 @@ function getBooks(hglass)
             var book_entry = '<tr>'+
             '<td>' +'<input type="checkbox" value=\"' +
                 bpath + '\"/>'+ '</td>'+
-            '<td>' + urlize("/books/view?path=" + bpath, bpath) + '</td>'+
+            '<td>' + urlize("/api_v1/view?path=" + bpath, bpath) + '</td>'+
             '<td>' +
             '<button onclick="browse(\''+bpath+'\');">Details</button>' +
             '<button onclick="docmd(\'' +bpath+ '\',\'delete\');">Delete</button>'+
@@ -57,7 +57,7 @@ function getBooks(hglass)
 
 function browse(bname){
     var newwin="target=\"_blank\"";
-    window.open('/books/browse/' + encodeURIComponent(bname));
+    window.open('/api_v1/browse/' + encodeURIComponent(bname));
 }
 
 function doexplore(wlparams, cmd)
@@ -65,8 +65,8 @@ function doexplore(wlparams, cmd)
         var formparams = getWlForm(wlparams.wlnames, 'wlactions');
         console.log("Command is :"+cmd+"wlname is:"+wlparams.wlnames);
         console.log(serialize(formparams));
-        window.open('/books/' + cmd + '?' +serialize(formparams), '_blank');
-        //window.open('/books/' + cmd + '?' +formparams, '_blank');
+        window.open('/api_v1/' + cmd + '?' +serialize(formparams), '_blank');
+        //window.open('/api_v1/' + cmd + '?' +formparams, '_blank');
 
 }
 
@@ -91,7 +91,7 @@ function bookProcess(wlparams, cmd)
     $(".hourglass").show();
     //console.log(wlparams);
     var $consolediv = $('#console');
-    $.getJSON('/books/'+cmd+'?' + serialize(wlparams), function(data){
+    $.getJSON('/api_v1/'+cmd+'?' + serialize(wlparams), function(data){
         if (! processStatus(data))
             return;
         data = data['result'];

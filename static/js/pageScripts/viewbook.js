@@ -117,7 +117,7 @@ function segment_page() {
     var anno_id = pagedetails['anno'];
     var sec_id = pagedetails['sections'];
 
-    $.getJSON('/books/page/anno/segment/'+anno_id, function(data){
+    $.getJSON('/api_v1/page/anno/segment/'+anno_id, function(data){
         if (! processStatus(data))
             return;
 //        console.log("Page Anno: " + JSON.stringify(data.result));
@@ -132,7 +132,7 @@ function getBook(hglass, bpath)
     if (hglass == true) {
         $(".hourglass").show();
     }
-    var xhr = $.getJSON('/books/get?path='+bpath).success(function(data){
+    var xhr = $.getJSON('/api_v1/get?path='+bpath).success(function(data){
         console.log("in done");
         viewBookState.bookdetails = data;
         viewBookState.curpage = 0;
@@ -155,8 +155,8 @@ function getBook(hglass, bpath)
             '<div data-target="#carousel" data-slide-to="'+index+'" class="col-sm-2">\
             <a href="#x" class="thumb">\
 	            <img id="thumb'+index+'" \
-	            src="/books/page/image/'+thumbpath+'" \
-	            attr-display="/books/page/image/'+page.path+'" \
+	            src="/api_v1/page/image/'+thumbpath+'" \
+	            attr-display="/api_v1/page/image/'+page.path+'" \
 	            oid="'+index+'">\
             </a>\
             </div>');
@@ -211,22 +211,17 @@ function loadpage(reparse = false) {
     var anno_id = pagedetails['anno'];
     window.cState.anno_id = anno_id;
     var params = { 'reparse' : reparse };
-    $.getJSON('/books/page/anno/'+anno_id+'?' + serialize(params), function(data){
+    $.getJSON('/api_v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
         if (! processStatus(data))
             return;
 //        console.log("Page Anno: " + JSON.stringify(data.result));
         curpage_annotations = data.result['anno'];
-        window.cState = init('pageCanvas','/books/page/image/'+fpath,
+        window.cState = init('pageCanvas','/api_v1/page/image/'+fpath,
             curpage_annotations, curpage);
         console.log(window.cState);
     });
 
     var sec_id = pagedetails['sections'];
-    $.getJSON('/books/page/sections?id='+sec_id, function(data){
-        if (! processStatus(data))
-            return;
-        curpage_sections = data;
-    });
 }
 
 function slideTo(where) {

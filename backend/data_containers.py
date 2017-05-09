@@ -170,6 +170,11 @@ class JsonObject(object):
     iter = some_collection.find(filter=filter)
     return [cls.make_from_dict(x) for x in iter]
 
+  @classmethod
+  def from_id(cls, id, collection):
+    book_portion = JsonObject.find_one(filter={"_id": id}, some_collection=collection)
+    return book_portion
+
   def get_targetting_entities(self, some_collection):
     targetting_objs = some_collection.find({
       "targets":  {

@@ -17,7 +17,7 @@ logging.basicConfig(
 app = Flask(__name__)
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
-books_api = Blueprint('books_api', __name__)
+flask_api = Blueprint('flask_api', __name__)
 
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
@@ -27,7 +27,7 @@ def allowed_file(filename):
          filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@books_api.route('/list', methods=['GET', 'POST'])
+@flask_api.route('/list', methods=['GET', 'POST'])
 def getbooklist():
   logging.info("Session in books_api=" + str(session['logstatus']))
   if 'logstatus' in session:
@@ -43,7 +43,7 @@ def getbooklist():
     return redirect(url_for('index'))
 
 
-@books_api.route('/get', methods=['GET', 'POST'])
+@flask_api.route('/get', methods=['GET', 'POST'])
 def getbooksingle():
   path = request.args.get('path')
   logging.info("book get by path = " + str(path))
@@ -52,16 +52,18 @@ def getbooksingle():
   return backend.data_containers.JsonAjaxResponse(result=binfo).to_flask_response()
 
 
-@books_api.route('/page/anno/segment/<anno_id>', methods=['GET', 'POST'])
-def getpagesegment(anno_id):
+@flask_api.route('/<_id>', methods=['GET'])
+def getpagesegment(id):
   if request.method == 'GET':
     """return the page annotation with id = anno_id"""
+    page = data_containers.JsonObject.from_id(id=id, collection=get_db().books.db_collection)
+    page_image = DocImage.from_path(path=page.path)
     get_db().annotations.segment(anno_id)
     anno = get_db().annotations.get(anno_id)
     return backend.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
 
 
-@books_api.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
+@flask_api.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
 def pageanno(anno_id):
   if request.method == 'GET':
     """return the page annotation with id = anno_id"""
@@ -84,32 +86,25 @@ def pageanno(anno_id):
     return x
 
 
-@books_api.route('/page/sections', methods=['GET', 'POST'])
-def getpagesections():
-  myid = request.args.get('id')
-  sec = get_db().sections.get(myid)
-  return backend.data_containers.JsonAjaxResponse(result=sec).to_flask_response()
-
-
-@books_api.route('/page/image/<path:pagepath>')
+@flask_api.route('/page/image/<path:pagepath>')
 def getpagesingle(pagepath):
   # abspath = join(repodir(), pagepath)
   # head, tail = os.path.split(abspath)
   return send_from_directory(repodir(), pagepath)
 
 
-@books_api.route('/browse/<path:bookpath>')
+@flask_api.route('/browse/<path:bookpath>')
 def browsedir(bookpath):
   fullpath = join(repodir(), bookpath)
   return render_template("fancytree.html", abspath=fullpath)
 
 
-@books_api.route('/delete', methods=['GET', 'POST'])
+@flask_api.route('/delete', methods=['GET', 'POST'])
 def delbook():
   return wl_batchprocess(request.args, "delete", wldelete)
 
 
-@books_api.route('/view', methods=['GET', 'POST'])
+@flask_api.route('/view', methods=['GET', 'POST'])
 def docustom():
   if 'logstatus' in session:
     if session['logstatus'] == 1:
@@ -121,7 +116,7 @@ def docustom():
     return redirect(url_for('index'))
 
 
-@books_api.route('/upload', methods=['GET', 'POST'])
+@flask_api.route('/upload', methods=['GET', 'POST'])
 # @login_required TODO: Code fails if this is uncommented.
 def upload():
   """Handle uploading files."""

@@ -1049,14 +1049,14 @@ CanvasState.prototype.saveShapes = function() {
             console.log(JSON.stringify(shape));
         }
     }
-    console.log('POST /books/page/anno/'+anno_id);
+    console.log('POST /api_v1/page/anno/'+anno_id);
     var res = { 'anno' : JSON.stringify(shapes) };
 //    console.log('POST anno contents: ' + JSON.stringify(res));
-    $.post('/books/page/anno/'+anno_id, res, function(data) {
+    $.post('/api_v1/page/anno/'+anno_id, res, function(data) {
         processStatus(data, "Annotations saved successfully.", 
             "Error saving annotations.");
     }, "json");
-    //post('/books/page/anno/'+oid, JSON.stringify(shapes));
+    //post('/api_v1/page/anno/'+oid, JSON.stringify(shapes));
 }
 
 function post(path, params, method) {

@@ -1,5 +1,5 @@
 'use strict';
-var UPLOAD_URL = "/books/upload";
+var UPLOAD_URL = "/api_v1/upload";
 
 // List of pending files to handle when the Upload button is finally clicked.
 var PENDING_FILES  = [];
@@ -29,7 +29,7 @@ function doUpload() {
     $progressBar.css({"width": "0%"});
 
     // Collect the form data.
-    fd = collectFormData();
+    var fd = collectFormData();
 
     // Attach the files.
     for (var i = 0, ie = PENDING_FILES.length; i < ie; i++) {
