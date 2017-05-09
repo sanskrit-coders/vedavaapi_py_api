@@ -82,18 +82,6 @@ class Annotations(CollectionWrapper):
     if not anno_obj:
       return False
 
-    # Get the containing book
-    books = self.indicdocs.books
-    book = books.get(anno_obj['bpath'])
-    if not book:
-      return False
-
-    page = book['pages'][anno_obj['pgidx']]
-    [fname, ext] = os.path.splitext(page['fname']);
-    imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
-    workingImgPath = join(repodir(), join(anno_obj['bpath'], fname + "_working.jpg"))
-    logging.info("Image path = " + imgpath)
-    logging.info("Working Image path = " + workingImgPath)
     page_img = DocImage(imgpath, workingImgPath)
 
     known_segments = DisjointImageTargets()

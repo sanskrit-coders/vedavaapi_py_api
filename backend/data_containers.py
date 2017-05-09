@@ -41,8 +41,11 @@ class JsonObject(object):
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
+    # logging.debug(json_util.dumps(dict_without_id))
     obj = jsonpickle.decode(json_util.dumps(dict_without_id))
-    obj._id = str(_id)
+    # logging.debug(obj.__class__)
+    if _id:
+      obj._id = str(_id)
     obj.set_type_recursively()
     # logging.debug(obj)
     return obj
@@ -72,7 +75,7 @@ class JsonObject(object):
 
   @classmethod
   def get_wire_typeid(cls):
-    cls.__module__ + "." + cls.__name__
+    return cls.__module__ + "." + cls.__name__
 
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)

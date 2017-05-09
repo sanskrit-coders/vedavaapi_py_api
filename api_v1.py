@@ -1,3 +1,6 @@
+import traceback
+
+import copy
 from PIL import ImageFile
 from flask import *
 from flask_login import current_user
@@ -31,22 +34,92 @@ def allowed_file(filename):
 class BookList(flask_restful.Resource):
   def get(self):
     logging.info("Session in books_api=" + str(session['logstatus']))
-    if 'logstatus' in session:
-      if session['logstatus'] == 1:
-        pattern = request.args.get('pattern')
-        logging.info("books list filter = " + str(pattern))
-        booklist = get_db().books.list_books(pattern)
-        logging.debug(booklist)
-        return backend.data_containers.JsonAjaxResponse(result=booklist).to_flask_response()
-      else:
-        return redirect(url_for('index'))
-    else:
-      return redirect(url_for('index'))
+    pattern = request.args.get('pattern')
+    logging.info("books list filter = " + str(pattern))
+    booklist = get_db().books.list_books(pattern)
+    logging.debug(booklist)
+    return backend.data_containers.JsonAjaxResponse(result=booklist).to_json_map_via_pickle()
 
-  def post(self, path):
-    args = flask_restful.parser.parse_args()
-    task = {'task': args['task']}
-    return task, 201
+  def post(self):
+    """Handle uploading files."""
+    form = request.form
+    logging.info("uploading " + str(form))
+    bookpath = (form.get('uploadpath')).replace(" ", "_")
+
+    abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
+      else join(uploaddir(), bookpath)
+    logging.info("uploading to " + abspath)
+    try:
+      createdir(abspath)
+    except Exception as e:
+      error_obj = backend.data_containers.JsonAjaxErrorResponse(status="Couldn't create upload directory: %s , %s" % (format(abspath), str(e))).to_flask_response()
+      logging.error(error_obj)
+      return error_obj
+
+    if current_user is None:
+      user_id = None
+    else:
+      user_id = current_user.get_id()
+
+    logging.info("User Id: " + str(user_id))
+    bookpath = abspath.replace(repodir() + "/", "")
+
+    book = (data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
+            data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
+
+    if (not book.authors): book.authors = [form.get("author")]
+
+    pages = []
+    page_index = -1
+    for upload in request.files.getlist("file"):
+      page_index = page_index + 1
+      filename = upload.filename.rsplit("/")[0]
+      if file and allowed_file(filename):
+        filename = secure_filename(filename)
+      destination = join(abspath, filename)
+      upload.save(destination)
+      [fname, ext] = os.path.splitext(filename)
+      newFileName = fname + ".jpg"
+      tmpImage = cv2.imread(destination)
+      cv2.imwrite(join(abspath, newFileName), tmpImage)
+
+      image = Image.open(join(abspath, newFileName)).convert('RGB')
+      workingFilename = os.path.splitext(filename)[0] + "_working.jpg"
+      out = file(join(abspath, workingFilename), "w")
+      img = DocImage.resize(image, (1920, 1080), False)
+      img.save(out, "JPEG", quality=100)
+      out.close()
+
+      image = Image.open(join(abspath, newFileName)).convert('RGB')
+      thumbnailname = os.path.splitext(filename)[0] + "_thumb.jpg"
+      out = file(join(abspath, thumbnailname), "w")
+      img = DocImage.resize(image, (400, 400), True)
+      img.save(out, "JPEG", quality=100)
+      out.close()
+
+      # Obsolete:
+      # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
+      page = data_containers.JsonObjectNode.from_details(
+        content=data_containers.BookPortion.from_details(
+          title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
+      pages.append(page)
+
+    book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
+
+    book_portion_node_minus_id = copy.deepcopy(book_portion_node)
+    book_portion_node_minus_id.content._id = None
+    book_mfile = join(abspath, "book_v2.json")
+    book_portion_node_minus_id.dump_to_file(book_mfile)
+
+    try:
+      book_portion_node.update_collection(get_db().books.db_collection)
+    except Exception as e:
+      logging.error(format(e))
+      traceback.print_exc()
+      return format(e), 500
+
+    response_msg = "Book upload Successful for " + bookpath
+    return backend.data_containers.JsonAjaxResponse(result=response_msg).to_json_map_via_pickle(), 201
 
 api.add_resource(BookList, '/books')
 
@@ -122,83 +195,3 @@ def docustom():
   else:
     return redirect(url_for('index'))
 
-
-@flask_blueprint.route('/upload', methods=['GET', 'POST'])
-# @login_required TODO: Code fails if this is uncommented.
-def upload():
-  """Handle uploading files."""
-  form = request.form
-  logging.info("uploading " + str(form))
-  bookpath = (form.get('uploadpath')).replace(" ", "_")
-
-  abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
-    else join(uploaddir(), bookpath)
-  logging.info("uploading to " + abspath)
-  try:
-    createdir(abspath)
-  except Exception as e:
-    error_obj = backend.data_containers.JsonAjaxErrorResponse(status="Couldn't create upload directory: %s , %s" % (format(abspath), str(e))).to_flask_response()
-    logging.error(error_obj)
-    return error_obj
-
-  if current_user is None:
-    user_id = None
-  else:
-    user_id = current_user.get_id()
-
-  logging.info("User Id: " + str(user_id))
-  bookpath = abspath.replace(repodir() + "/", "")
-
-  book = (data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
-          data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
-
-  if (not book.authors): book.authors = [form.get("author")]
-
-  pages = []
-  page_index = -1
-  for upload in request.files.getlist("file"):
-    page_index = page_index + 1
-    filename = upload.filename.rsplit("/")[0]
-    if file and allowed_file(filename):
-      filename = secure_filename(filename)
-    destination = join(abspath, filename)
-    upload.save(destination)
-    [fname, ext] = os.path.splitext(filename)
-    newFileName = fname + ".jpg"
-    tmpImage = cv2.imread(destination)
-    cv2.imwrite(join(abspath, newFileName), tmpImage)
-
-    image = Image.open(join(abspath, newFileName)).convert('RGB')
-    workingFilename = os.path.splitext(filename)[0] + "_working.jpg"
-    out = file(join(abspath, workingFilename), "w")
-    img = DocImage.resize(image, (1920, 1080), False)
-    img.save(out, "JPEG", quality=100)
-    out.close()
-
-    image = Image.open(join(abspath, newFileName)).convert('RGB')
-    thumbnailname = os.path.splitext(filename)[0] + "_thumb.jpg"
-    out = file(join(abspath, thumbnailname), "w")
-    img = DocImage.resize(image, (400, 400), True)
-    img.save(out, "JPEG", quality=100)
-    out.close()
-
-    # Obsolete:
-    # page = {'tname': thumbnailname, 'fname': newFileName, 'anno': []}
-    page = data_containers.JsonObjectNode.from_details(
-      content=data_containers.BookPortion.from_details(
-        title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
-    pages.append(page)
-
-  book_portion_node = data_containers.JsonObjectNode.from_details(content=book, children=pages)
-
-  book_mfile = join(abspath, "book_v2.json")
-  book_portion_node.dump_to_file(book_mfile)
-
-  try:
-    book_portion_node.update_collection(get_db().books.db_collection)
-  except Exception as e:
-    logging.error(format(e))
-    return backend.data_containers.JsonAjaxErrorResponse(status="Error saving book details." + " : ".format(e)).to_flask_response()
-
-  response_msg = "Book upload Successful for " + bookpath
-  return backend.data_containers.JsonAjaxResponse(result=response_msg).to_flask_response()

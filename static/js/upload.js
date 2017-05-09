@@ -1,6 +1,4 @@
 'use strict';
-var UPLOAD_URL = "/api_v1/upload";
-
 // List of pending files to handle when the Upload button is finally clicked.
 var PENDING_FILES  = [];
 
@@ -60,7 +58,7 @@ function doUpload() {
             }
             return xhrobj;
         },
-        url: UPLOAD_URL,
+        url: "/api_v1/books",
         method: "POST",
         contentType: false,
         processData: false,
@@ -68,7 +66,7 @@ function doUpload() {
         data: fd,
         success: function(data) {
             $progressBar.css({"width": "100%"});
-            data = JSON.parse(data);
+            console.log(data)
             if (processStatus(data)) {
                  //alert("uploaded successfully..");
                  $('#upload_popup').fadeOut("slow");
