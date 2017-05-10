@@ -198,6 +198,7 @@ CanvasStateList.prototype = {
             this.curCanvasState.canvasContainer.scrollLeft = this.curCanvasState.containerScrollLeft;
             this.curCanvasState.canvasContainer.scrollTop = this.curCanvasState.containerScrollTop;
             this.curCanvasState.valid = false;
+            console.log(this.curCanvasState);
             return this.curCanvasState;
         } else {
             console.log("MoveTo: Canvas " + canvasStateName + " does not exist");
@@ -864,6 +865,7 @@ CanvasState.prototype.clear = function () {
 // It only ever does something if the canvas gets invalidated by our code
 CanvasState.prototype.draw = function () {
     if (!this.active) {
+        console.log("not active, returning!");
         return;
     }
     // if our state is invalid, redraw and validate!

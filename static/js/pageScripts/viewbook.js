@@ -15,17 +15,6 @@ viewBookState.curpage = 1;
 
 $(document).ready(function () {
     console.log("In ready function.");
-    $('#thumbcarousel').carousel({
-        interval: false
-    });
-    $('body').on('click','img',function(){
-        console.log("Click called on "+$(this).parent().html());
-        var attrDisplay = $(this).attr("attr-display");
-        var oid = $(this).attr("oid");
-        viewBookState.canvasState = canvasStateList.add('pageCanvas', attrDisplay, oid);
-        viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
-        setcurpage(oid, attrDisplay);
-    });
     getBook(true, $.query.get('_id'));
     console.log("Get Book Returned");
 
@@ -144,7 +133,7 @@ function getBook(hglass, bookId)
     });
 }
 
-function setcurpage(idx, value)
+function setcurpage(idx)
 {
     //console.log("Selected page: " + idx + ", value: " + value);
     var oldval = viewBookState.curpage;
@@ -168,10 +157,12 @@ function loadpage(reparse) {
     console.log("Book Details: " + JSON.stringify(bookdetails));
     var pagedetails = bookdetails.children[curpage].content;
     console.log(pagedetails);
-    var fpath = pagedetails.path;
+    var fpath = "/relpath/" + pagedetails.path;
     console.log("Loading page path: " + fpath);
-    viewBookState.canvasState = canvasStateList.get('pageCanvas',"",curpage);
-//     viewBookState.canvasState.anno_id = anno_id;
+    viewBookState.canvasState = canvasStateList.add('pageCanvas', fpath, curpage);
+    viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
+    viewBookState.canvasState.draw();
+    //     viewBookState.canvasState.anno_id = anno_id;
     var params = { 'reparse' : reparse };
 //     $.getJSON('/api_v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
 //         if (! processStatus(data))
@@ -192,25 +183,19 @@ function slideTo(where) {
         console.log("curpage not defined. returning");
         return;
     }
+    console.log("Curpage = ", curpage);
     if (where.toLowerCase() == 'next') {
-        console.log("Curpage = "+curpage);
         var newpage = parseInt(curpage) + 1;
-        console.log("Nextpage = "+newpage);
-        console.log("Next called is "+$('#thumb'+newpage).parent().html());
     } else {
-        console.log("Curpage = "+curpage);
         var newpage = parseInt(curpage) - 1;
-        console.log("Prevpage = "+newpage);
-        console.log("Prev called is "+$('#thumb'+newpage).parent().html());
     }
-    var attrDisplay = $('#thumb'+newpage).attr("attr-display");
-    var oid = $('#thumb'+newpage).attr("oid");
-    if (attrDisplay == undefined || oid == undefined) {
-        console.log("Reached the end or start");
+    console.log("Nextpage = ", newpage);
+
+    if (newpage < 0 || newpage >= viewBookState.bookdetails.children.length) {
+        console.log("Reached the end or start ", newpage);
         return;
+    } else {
+        setcurpage(newpage);
     }
-    viewBookState.canvasState = canvasStateList.add('pageCanvas', attrDisplay, oid);
-    viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
-    setcurpage(oid, attrDisplay);
 }
 
