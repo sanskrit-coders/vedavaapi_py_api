@@ -6,12 +6,11 @@ var container = document.getElementById('container');
 //var context = canvas.getContext('2d');
 
 var canvasStateList = new CanvasStateList();
-window.cState = undefined;
 
 var curpage_annotations = {};
 var curpage_sections = {};
 var viewBookState = {};
-
+viewBookState.canvasState = undefined;
 viewBookState.curpage = 1;
 
 $(document).ready(function () {
@@ -19,21 +18,20 @@ $(document).ready(function () {
     $('#thumbcarousel').carousel({
         interval: false
     });
+    $('body').on('click','img',function(){
+        console.log("Click called on "+$(this).parent().html());
+        var attrDisplay = $(this).attr("attr-display");
+        var oid = $(this).attr("oid");
+        viewBookState.canvasState = canvasStateList.add('pageCanvas', attrDisplay, oid);
+        viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
+        setcurpage(oid, attrDisplay);
+    });
     getBook(true, $.query.get('_id'));
     console.log("Get Book Returned");
 
     pramukhIME.addLanguage(PramukhIndic,"sanskrit");
     pramukhIME.enable();
 
-    $('body').on('click','img',function(){
-        console.log("Click called on "+$(this).parent().html());
-        var attrDisplay = $(this).attr("attr-display");
-        var oid = $(this).attr("oid");
-        window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
-        window.cState = canvasStateList.moveTo(window.cState.name);
-        setcurpage(oid, attrDisplay);
-        loadpage();
-    });
 });
 
 document.onkeypress = function (e) {
@@ -78,29 +76,29 @@ function changeMode(mode) {
     } else {
         document.getElementById("modeButton").flag = "N";
     }
-	window.cState.changeMode(document.getElementById("modeButton").flag);
+	viewBookState.canvasState.changeMode(document.getElementById("modeButton").flag);
 }
 
 function segmentPage() {
-    window.cState.segmentPage();
+    viewBookState.canvasState.segmentPage();
 }
 
 function saveData() {
-    window.cState.saveShapes();
+    viewBookState.canvasState.saveShapes();
 }
 
 function accept() {
-    window.cState.accept();
+    viewBookState.canvasState.accept();
 }
 
 function zoomIn() {
-    window.cState.zoomIn();
-    document.getElementById("scale").innerHTML = parseFloat(window.cState.scale).toFixed(1);
+    viewBookState.canvasState.zoomIn();
+    document.getElementById("scale").innerHTML = parseFloat(viewBookState.canvasState.scale).toFixed(1);
 }
 
 function zoomOut() {
-    window.cState.zoomOut();
-    document.getElementById("scale").innerHTML = parseFloat(window.cState.scale).toFixed(1);
+    viewBookState.canvasState.zoomOut();
+    document.getElementById("scale").innerHTML = parseFloat(viewBookState.canvasState.scale).toFixed(1);
 }
 
 function reparse_page() {
@@ -134,44 +132,8 @@ function getBook(hglass, bookId)
     }
     var xhr = $.getJSON('/api_v1/books/'+bookId).success(function(data){
         console.log("in done");
-        viewBookState.bookdetails = data;
-        viewBookState.curpage = 0;
-        console.log(data);
-        var html = [];
-        var itemIdx = 0;
-        data = data.result;
-        html.push('<div id="item'+itemIdx+'" class="item active"> <div class="row-fluid">');
-        data.children.forEach(function (pageNode, index) {
-            var page = pageNode.content;
-        	console.log(pageNode, page);
-            var size = 0;
-            var thumbpath = "";
-            if (page.thumbpath !== undefined && page.thumbpath != null) {
-                thumbpath = page.thumbpath;
-            } else {
-                thumbpath = '/relpath/' + page.path;
-            }
-            html[itemIdx] = html[itemIdx].concat(
-            '<div data-target="#carousel" data-slide-to="'+index+'" class="col-sm-2">\
-            <a href="#x" class="thumb">\
-	            <img id="thumb'+index+'" \
-	            src="' + thumbpath + '" \
-	            attr-display=' + thumbpath + 'oid="'+index+'">\
-            </a>\
-            </div>');
-//            TODO: Separate out the below.
-    //            var html = '<tr><td onclick="setcurpage(this.id, this.innerHTML)" id="' + i + '">' + page['fname'] + '</td></tr>';
-            if ((index>1) && ((index+1)%6 == 0) && (index != (data.children.length-1))) {
-                html[itemIdx] = html[itemIdx].concat('</div> </div>');
-                itemIdx++;
-                html.push('<div id="item'+itemIdx+'" class="item">');
-            }
-	        html[itemIdx] = html[itemIdx].concat('</div>');
-        });
-		console.log('HTML: ', html);
-
-        $('#bookidx').empty();
-        $('#bookidx').append(html);
+        viewBookState.bookdetails = data.result;
+        setcurpage(0);
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.log("Fie! something went wrong. ", textStatus, errorThrown, jqXHR)
     }).complete(function () {
@@ -192,35 +154,36 @@ function setcurpage(idx, value)
         console.log("Changed cur page from "+oldval+" to " + newval);
         viewBookState.curpage = newval;
     }
+    loadpage();
 }
 
 function loadpage(reparse) {
     var curpage = viewBookState.curpage;
-    if (curpage == undefined)
-        return;
     console.log("Loading page " + curpage);
+    if (curpage == undefined) {
+        console.log(curpage)
+        return;
+    }
     var bookdetails = viewBookState.bookdetails;
     console.log("Book Details: " + JSON.stringify(bookdetails));
-    var pagedetails = bookdetails.result.children[curpage].content;
+    var pagedetails = bookdetails.children[curpage].content;
     console.log(pagedetails);
-    var fpath = pagedetails['fname'];
+    var fpath = pagedetails.path;
     console.log("Loading page path: " + fpath);
-    window.cState = canvasStateList.get('pageCanvas',"",curpage);
-
-    var anno_id = pagedetails['anno'];
-    window.cState.anno_id = anno_id;
+    viewBookState.canvasState = canvasStateList.get('pageCanvas',"",curpage);
+//     viewBookState.canvasState.anno_id = anno_id;
     var params = { 'reparse' : reparse };
-    $.getJSON('/api_v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
-        if (! processStatus(data))
-            return;
-//        console.log("Page Anno: " + JSON.stringify(data.result));
-        curpage_annotations = data.result['anno'];
-        window.cState = init('pageCanvas','/api_v1/page/image/'+fpath,
-            curpage_annotations, curpage);
-        console.log(window.cState);
-    });
+//     $.getJSON('/api_v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
+//         if (! processStatus(data))
+//             return;
+// //        console.log("Page Anno: " + JSON.stringify(data.result));
+//         curpage_annotations = data.result['anno'];
+//         viewBookState.canvasState = init('pageCanvas','/api_v1/page/image/'+fpath,
+//             curpage_annotations, curpage);
+//         console.log(viewBookState.canvasState);
+//     });
 
-    var sec_id = pagedetails['sections'];
+//     var sec_id = pagedetails['sections'];
 }
 
 function slideTo(where) {
@@ -246,9 +209,8 @@ function slideTo(where) {
         console.log("Reached the end or start");
         return;
     }
-    window.cState = canvasStateList.add('pageCanvas', attrDisplay, oid);
-    window.cState = canvasStateList.moveTo(window.cState.name);
+    viewBookState.canvasState = canvasStateList.add('pageCanvas', attrDisplay, oid);
+    viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
     setcurpage(oid, attrDisplay);
-    loadpage();
 }
 

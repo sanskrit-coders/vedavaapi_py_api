@@ -135,7 +135,7 @@ class BookPortionHandler(flask_restful.Resource):
       book_node = data_containers.JsonObjectNode.from_details(content=book_portion)
       book_node.fill_descendents(some_collection=book_portions_collection)
       # pprint(binfo)
-      return backend.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 201
+      return backend.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 200
 
 
 api.add_resource(BookPortionHandler, '/books/<string:book_id>')
