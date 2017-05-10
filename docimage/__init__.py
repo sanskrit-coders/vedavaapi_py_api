@@ -1,15 +1,14 @@
 import cv2
 import json
+import logging
 import numpy as np
-import os
 import sys
 from pprint import pprint
 
+import os
 from PIL import Image
 
 import preprocessing
-import logging
-
 from backend import data_containers
 
 logging.basicConfig(
@@ -108,10 +107,10 @@ class DocImage:
 
     @classmethod
     def from_path(cls, path):
-        from backend.config import repodir
+        from backend import paths
         from os.path import join
         [base_path, ext] = os.path.splitext(path)
-        workingImgPath = join(repodir(), join(base_path + "_working.jpg"))
+        workingImgPath = join(paths.DATADIR, join(base_path + "_working.jpg"))
         logging.info("Image path = " + path)
         logging.info("Working Image path = " + workingImgPath)
         return DocImage(path, workingImgPath)

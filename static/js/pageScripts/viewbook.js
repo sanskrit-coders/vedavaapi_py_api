@@ -149,15 +149,14 @@ function getBook(hglass, bookId)
             if (page.thumbpath !== undefined && page.thumbpath != null) {
                 thumbpath = page.thumbpath;
             } else {
-                thumbpath = page.path;
+                thumbpath = '/relpath/' + page.path;
             }
             html[itemIdx] = html[itemIdx].concat(
             '<div data-target="#carousel" data-slide-to="'+index+'" class="col-sm-2">\
             <a href="#x" class="thumb">\
 	            <img id="thumb'+index+'" \
-	            src="/api_v1/page/image/'+thumbpath+'" \
-	            attr-display="/api_v1/page/image/'+page.path+'" \
-	            oid="'+index+'">\
+	            src="' + thumbpath + '" \
+	            attr-display=' + thumbpath + 'oid="'+index+'">\
             </a>\
             </div>');
 //            TODO: Separate out the below.

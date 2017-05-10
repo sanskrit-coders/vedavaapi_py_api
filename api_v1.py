@@ -1,15 +1,18 @@
+import copy
 import traceback
 
-import copy
+import flask_restful
 from PIL import ImageFile
 from flask import *
 from flask_login import current_user
+from os.path import join
 from werkzeug.utils import secure_filename
 
-import flask_restful
 import backend.data_containers
 from backend.collections import *
 from backend.db import get_db
+from backend import paths
+from backend.paths import createdir
 from common import *
 
 logging.basicConfig(
@@ -46,8 +49,7 @@ class BookList(flask_restful.Resource):
     logging.info("uploading " + str(form))
     bookpath = (form.get('uploadpath')).replace(" ", "_")
 
-    abspath = join(repodir(), bookpath) if (bookpath.startswith(wlocalprefix())) \
-      else join(uploaddir(), bookpath)
+    abspath = join(paths.DATADIR, bookpath)
     logging.info("uploading to " + abspath)
     try:
       createdir(abspath)
@@ -62,7 +64,7 @@ class BookList(flask_restful.Resource):
       user_id = current_user.get_id()
 
     logging.info("User Id: " + str(user_id))
-    bookpath = abspath.replace(repodir() + "/", "")
+    bookpath = abspath.replace(paths.DATADIR + "/", "")
 
     book = (data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
             data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
@@ -125,14 +127,19 @@ api.add_resource(BookList, '/books')
 class BookPortionHandler(flask_restful.Resource):
   def get(self, book_id):
     logging.info("book get by id = " + str(book_id))
-    book = data_containers.JsonObject.from_id(id=book_id, collection=get_db().books.db_collection)
-    book_node = data_containers.JsonObjectNode.from_details(content=book)
-    book_node.fill_descendents(self.db_collection)
-    # pprint(binfo)
-    return backend.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 201
+    book_portions_collection = get_db().books.db_collection
+    book_portion = data_containers.JsonObject.from_id(id=book_id, collection=book_portions_collection)
+    if book_portion == None:
+      return "No such book portion id", 404
+    else:
+      book_node = data_containers.JsonObjectNode.from_details(content=book_portion)
+      book_node.fill_descendents(some_collection=book_portions_collection)
+      # pprint(binfo)
+      return backend.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 201
 
 
-api.add_resource(BookPortionHandler, '/books/<int:book_id>')
+api.add_resource(BookPortionHandler, '/books/<string:book_id>')
+
 
 @flask_blueprint.route('/<_id>', methods=['GET'])
 def getpagesegment(id):
@@ -140,9 +147,9 @@ def getpagesegment(id):
     """return the page annotation with id = anno_id"""
     page = data_containers.JsonObject.from_id(id=id, collection=get_db().books.db_collection)
     page_image = DocImage.from_path(path=page.path)
-    get_db().annotations.segment(anno_id)
-    anno = get_db().annotations.get(anno_id)
-    return backend.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
+    # get_db().annotations.segment(anno_id)
+    # anno = get_db().annotations.get(anno_id)
+    # return backend.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
 
 
 @flask_blueprint.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
@@ -166,10 +173,3 @@ def pageanno(anno_id):
     else:
       x = backend.data_containers.JsonAjaxErrorResponse(status="error saving annotation.").to_flask_response()
     return x
-
-
-@flask_blueprint.route('/page/image/<path:pagepath>')
-def getpagesingle(pagepath):
-  # abspath = join(repodir(), pagepath)
-  # head, tail = os.path.split(abspath)
-  return send_from_directory(repodir(), pagepath)

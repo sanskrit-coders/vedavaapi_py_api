@@ -163,7 +163,7 @@ class TestDBRoundTrip(unittest.TestCase):
 
   def test_JsonObjectNode(self):
     self.test_db.importAll("~/textract/example-repo")
-    book = data_containers.JsonObject.find_one(some_collection=self.test_db.books.db_collection, filter={"path": "local/kannada/skt-dict"})
+    book = data_containers.JsonObject.find_one(some_collection=self.test_db.books.db_collection, filter={"path": "kannada/skt-dict"})
     logging.debug(str(book))
     json_node = data_containers.JsonObjectNode.from_details(content=book)
     json_node.fill_descendents(self.test_db.books.db_collection)

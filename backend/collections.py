@@ -61,7 +61,9 @@ class Annotations(CollectionWrapper):
       return False
 
     page = book['pages'][anno_obj['pgidx']]
-    imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+    from os.path import join
+    from backend import paths
+    imgpath = join(paths.DATADIR, join(anno_obj['bpath'], page['fname']))
     logging.info("Image path = " + imgpath)
     page_img = DocImage(imgpath)
     return page_img
@@ -82,27 +84,28 @@ class Annotations(CollectionWrapper):
     if not anno_obj:
       return False
 
-    page_img = DocImage(imgpath, workingImgPath)
-
-    known_segments = DisjointImageTargets()
-    # Give me all the non-overlapping user-touched segments in this page.
-    for a in anno_obj['anno']:
-      a = data_containers.ImageTarget(a)
-      if a.state == 'system_inferred':
-        continue
-      a['score'] = float(1.0)  # Set the max score for user-identified segments
-      # Prevent image matcher from changing user-identified segments
-      known_segments.insert(a)
-
-    # Create segments taking into account known_segments
-    matches = page_img.find_text_regions(known_text_regions=known_segments)
-    # logging.info("Matches = " + json.dumps(matches))
-    # logging.info("Segments = " + json.dumps(known_segments.segments))
-    for r in matches:
-      # and propagate its text to them
-      r['state'] = 'system_inferred'
-
-    self.update(anno_id, {'anno': known_segments.img_targets})
+    # TODO: fix the below.
+    # page_img = DocImage(imgpath, workingImgPath)
+    #
+    # known_segments = DisjointImageTargets()
+    # # Give me all the non-overlapping user-touched segments in this page.
+    # for a in anno_obj['anno']:
+    #   a = data_containers.ImageTarget(a)
+    #   if a.state == 'system_inferred':
+    #     continue
+    #   a['score'] = float(1.0)  # Set the max score for user-identified segments
+    #   # Prevent image matcher from changing user-identified segments
+    #   known_segments.insert(a)
+    #
+    # # Create segments taking into account known_segments
+    # matches = page_img.find_text_regions(known_text_regions=known_segments)
+    # # logging.info("Matches = " + json.dumps(matches))
+    # # logging.info("Segments = " + json.dumps(known_segments.segments))
+    # for r in matches:
+    #   # and propagate its text to them
+    #   r['state'] = 'system_inferred'
+    #
+    # self.update(anno_id, {'anno': known_segments.img_targets})
     return True
 
   def propagate(self, anno_id):
@@ -118,7 +121,9 @@ class Annotations(CollectionWrapper):
       return False
 
     page = book['pages'][anno_obj['pgidx']]
-    imgpath = join(repodir(), join(anno_obj['bpath'], page['fname']))
+    from os.path import join
+    from backend import paths
+    imgpath = join(paths.DATADIR, join(anno_obj['bpath'], page['fname']))
     logging.info("Image path = " + imgpath)
     page_img = DocImage(imgpath)
 

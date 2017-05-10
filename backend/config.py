@@ -1,12 +1,9 @@
 import logging
 import subprocess
-import sys
 import urllib2
-from os.path import *
 
 import os
 from flask import *
-from os import path
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -14,151 +11,17 @@ logging.basicConfig(
 )
 
 PORTNUM = 9000
-WORKDIR = "/tmp/scan2text"
+
 INDICDOC_DBNAME = "indicdoc_db"
-DATADIR = "/opt/scan2text/data"
-DATADIR_SETTINGS = join(DATADIR, "settings")
-DATADIR_BOOKS = join(DATADIR, "books")
-MYPATH = ""
+
 LOG_LEVEL = 1
 
 SERVER_CONFIG = {}
 
 
-class DotDict(dict):
-  def __getattr__(self, name):
-    return self[name]
-
-
-def mypath():
-  return MYPATH
-
-
 def serverconfig():
   global SERVER_CONFIG
   return SERVER_CONFIG
-
-
-def setmypath(path):
-  global MYPATH
-  logging.info("Setting my path to " + path)
-  MYPATH = path
-
-
-def cmdpath(cmd):
-  # print "Searching " + cmd + " in " + mypath()
-  # return cmd
-  return join(mypath(), cmd)
-
-
-def setworkdir(arg, myport=PORTNUM):
-  global WORKDIR
-  wdir = join(arg, str(myport))
-  logging.info("Setting root working directory to " + wdir)
-  WORKDIR = wdir
-
-
-def workdir():
-  return WORKDIR
-
-
-def pubsuffix():
-  return "public"
-
-
-def pubroot():
-  #    return join(workdir(), pubsuffix())
-  return workdir()
-
-
-def usersuffix(user):
-  return join("users", user)
-
-
-def userroot(user):
-  return join(workdir(), usersuffix(user))
-
-
-def pubdir(dir):
-  return join(pubroot(), dir)
-
-
-def repodir():
-  return pubdir("books")
-
-
-def wlocalprefix():
-  return "local"
-
-
-def wlocaldir():
-  return join(repodir(), wlocalprefix())
-
-
-def setwlocaldir(dir):
-  logging.info("Setting local book repository to " + dir)
-  addrepo(dir, wlocalprefix())
-
-
-def uploaddir():
-  return join(wlocaldir(), "upload")
-
-
-def userpath(user, dir):
-  return join(userroot(user), dir)
-
-
-def createdir(dir):
-  if not path.exists(dir):
-    logging.info("Creating " + dir + " ...")
-    try:
-      os.makedirs(dir)
-    except Exception as e:
-      logging.error("Error: cannot create directory, aborting.\n" + str(e))
-      sys.exit(1)
-
-
-def initworkdir(reset):
-  if (reset):
-    logging.info("Clearing previous contents of " + workdir())
-    os.system("rm -rf " + workdir())
-
-  logging.info("Initializing work directory ...")
-  createdir(workdir())
-  createdir(pubroot())
-  #    createdir(workdir() + "/users")
-  createdir(DATADIR_SETTINGS)
-  cfgfile = join(DATADIR_SETTINGS, "server_config.json")
-  if reset:
-    logging.info("Resetting server configuration to defaults")
-    os.system("rm -f " + cfgfile)
-  if not os.path.exists(cfgfile):
-    if os.path.exists(cmdpath("server_config.json")):
-      logging.info("Importing derived metric definitions from" + cmdpath("server_config.json"))
-      os.system("cp -a " + cmdpath("server_config.json") + " " + cfgfile)
-  logging.info("Loading server configuration from " + cfgfile)
-  with open(cfgfile, "r") as f:
-    global SERVER_CONFIG
-    SERVER_CONFIG = json.load(f)
-  logging.info("Configuration Settings: ")
-  logging.info(json.dumps(SERVER_CONFIG, indent=4))
-  logging.info("done.")
-
-
-def addrepo(d, reponame):
-  if not isdir(d):
-    return
-  head, book = os.path.split(d)
-
-  target = join(repodir(), reponame if reponame else book)
-  createdir(dirname(target))
-  if isdir(target) and not islink(target):
-    logging.warn("Cannot create symlink: target " + target + " exists.")
-    return
-  if exists(target):
-    os.remove(target)
-  cmd = "ln -s " + realpath(d) + " " + target
-  os.system(cmd)
 
 
 def convert(value):

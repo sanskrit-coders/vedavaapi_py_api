@@ -2,14 +2,14 @@
   "py/object": "backend.data_containers.JsonObjectNode",
   "content": {
     "py/object": "backend.data_containers.BookPortion",
-    "path": "local/kannada/skt-dict"
+    "path": "kannada/skt-dict"
   },
   "children": [
     {
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img1.png",
+        "path": "kannada/skt-dict/img1.png",
         "title": "pg_0",
         "targets": [],
         "authors": []
@@ -20,7 +20,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img2.png",
+        "path": "kannada/skt-dict/img2.png",
         "title": "pg_1",
         "targets": [],
         "authors": []
@@ -31,7 +31,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img3.png",
+        "path": "kannada/skt-dict/img3.png",
         "title": "pg_2",
         "targets": [],
         "authors": []
@@ -42,7 +42,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img4.png",
+        "path": "kannada/skt-dict/img4.png",
         "title": "pg_3",
         "targets": [],
         "authors": []
@@ -53,7 +53,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img5.png",
+        "path": "kannada/skt-dict/img5.png",
         "title": "pg_4",
         "targets": [],
         "authors": []
@@ -64,7 +64,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img6.png",
+        "path": "kannada/skt-dict/img6.png",
         "title": "pg_5",
         "targets": [],
         "authors": []
@@ -75,7 +75,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img7.png",
+        "path": "kannada/skt-dict/img7.png",
         "title": "pg_6",
         "targets": [],
         "authors": []
@@ -86,7 +86,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img8.png",
+        "path": "kannada/skt-dict/img8.png",
         "title": "pg_7",
         "targets": [],
         "authors": []
@@ -97,7 +97,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img9.png",
+        "path": "kannada/skt-dict/img9.png",
         "title": "pg_8",
         "targets": [],
         "authors": []
@@ -108,7 +108,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img10.png",
+        "path": "kannada/skt-dict/img10.png",
         "title": "pg_9",
         "targets": [],
         "authors": []
@@ -119,7 +119,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/kannada/skt-dict/img11.png",
+        "path": "kannada/skt-dict/img11.png",
         "title": "pg_10",
         "targets": [],
         "authors": []

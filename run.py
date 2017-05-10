@@ -3,20 +3,18 @@ import datetime
 import getopt
 from base64 import b64encode
 from sys import argv
-from backend import data_containers
 
 from flask import *
-from flask_login import LoginManager, login_user, logout_user, \
-  current_user
+from flask_login import LoginManager
 
+import api_v1
 # from flask.ext.cors import CORS
+from backend import paths
 from backend.collections import *
 # from file import file_api
 from backend.data_containers import User
 from backend.db import initdb, get_db
-import api_v1
 from oauth import *
-from oauth import OAuthSignIn
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -75,22 +73,14 @@ def root(filepath):
   return app.send_static_file('/static/' + filepath)
 
 
-@app.route('/abspath/<path:filepath>')
-def readabs(filepath):
-  abspath = "/" + filepath
-  # logging.info("final-path:" + str(abspath))
-  head, tail = os.path.split(abspath)
-  return send_from_directory(head, tail)
-
-
 @app.route('/relpath/<path:relpath>')
-def readrel(relpath):
-  return (send_from_directory(workdir(), relpath))
+def send_file_relpath(relpath):
+  return (send_from_directory(paths.DATADIR, relpath))
 
 
 @app.route('/path/<path:relpath>')
 def browsedir(relpath):
-  fullpath = join(workdir(), relpath)
+  fullpath = os.join(paths.DATADIR, relpath)
   logging.info(fullpath)
   return render_template("fancytree.html", abspath=fullpath)
 
@@ -109,8 +99,7 @@ def listdirtree(abspath):
 
 
 (cmddir, cmdname) = os.path.split(argv[0])
-setmypath(os.path.abspath(cmddir))
-logging.info("My path is " + mypath())
+logging.info("My path is " + os.path.abspath(cmddir))
 
 
 def usage():
@@ -125,37 +114,16 @@ params.set_from_dict({
   'dbreset': False,
   'dbgFlag': False,
   'myport': PORTNUM,
-  'localdir': None,
-  'wdir': workdir(),
-  'repos': [],
 })
 
 
 def setup_app(params):
-  setworkdir(params.wdir, params.myport)
-  logging.info(cmdname + ": Using " + workdir() + " as working directory.")
-
-  initworkdir(params.reset)
-
+  logging.info(cmdname + ": Using " + paths.DATADIR)
   initdb(INDICDOC_DBNAME, params.dbreset)
 
-  for a in params.repos:
-    components = a.split(':')
-    if len(components) > 1:
-      logging.info("Importing " + components[0] + " as " + components[1])
-      addrepo(components[0], components[1])
-    else:
-      logging.info("Importing " + components[0])
-      addrepo(components[0], "")
-
-  if params.localdir:
-    setwlocaldir(params.localdir)
-  if not path.exists(wlocaldir()):
-    setwlocaldir(DATADIR_BOOKS)
-  os.chdir(workdir())
-
   # Import all book metadata into the IndicDocs database
-  get_db().importAll(repodir())
+  paths.init_data_dir(params.reset)
+  get_db().importAll(paths.DATADIR)
 
 
 def main(argv):

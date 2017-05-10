@@ -2,14 +2,14 @@
   "py/object": "backend.data_containers.JsonObjectNode",
   "content": {
     "py/object": "backend.data_containers.BookPortion",
-    "path": "local/english"
+    "path": "english"
   },
   "children": [
     {
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/english/2.jpg",
+        "path": "english/2.jpg",
         "title": "pg_0",
         "targets": [],
         "authors": []
@@ -20,7 +20,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/english/3.png",
+        "path": "english/3.png",
         "title": "pg_1",
         "targets": [],
         "authors": []
@@ -31,7 +31,7 @@
       "py/object": "backend.data_containers.JsonObjectNode",
       "content": {
         "py/object": "backend.data_containers.BookPortion",
-        "path": "local/english/test1.png",
+        "path": "english/test1.png",
         "title": "pg_2",
         "targets": [],
         "authors": []

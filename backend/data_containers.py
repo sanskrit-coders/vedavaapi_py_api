@@ -175,8 +175,8 @@ class JsonObject(object):
 
   @classmethod
   def from_id(cls, id, collection):
-    book_portion = JsonObject.find_one(filter={"_id": id}, some_collection=collection)
-    return book_portion
+    item = JsonObject.find_one(filter={"_id": ObjectId(id)}, some_collection=collection)
+    return item
 
   def get_targetting_entities(self, some_collection):
     targetting_objs = some_collection.find({
