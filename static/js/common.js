@@ -66,6 +66,7 @@ function getFormParams(formname, fieldname_filter)
     return form_params;
 }
 
+// TODO: Eliminate this and use http error codes.
 function processStatus(resp, okstr, errstr)
 {
     var $msg="";

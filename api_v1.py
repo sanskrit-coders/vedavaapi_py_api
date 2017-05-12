@@ -10,6 +10,7 @@ from werkzeug.utils import secure_filename
 
 import backend.data_containers
 from backend.collections import *
+from backend.data_containers import JsonObject
 from backend.db import get_db
 from backend import paths
 from backend.paths import createdir
@@ -141,15 +142,19 @@ class BookPortionHandler(flask_restful.Resource):
 api.add_resource(BookPortionHandler, '/books/<string:book_id>')
 
 
-@flask_blueprint.route('/<_id>', methods=['GET'])
-def getpagesegment(id):
-  if request.method == 'GET':
-    """return the page annotation with id = anno_id"""
-    page = data_containers.JsonObject.from_id(id=id, collection=get_db().books.db_collection)
-    page_image = DocImage.from_path(path=page.path)
-    # get_db().annotations.segment(anno_id)
-    # anno = get_db().annotations.get(anno_id)
-    # return backend.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
+class PageAnnotationsHandler(flask_restful.Resource):
+  def get(self, page_id):
+    logging.info("page get by id = " + str(page_id))
+    book_portions_collection = get_db().books.db_collection
+    page = data_containers.JsonObject.from_id(id=page_id, collection=book_portions_collection)
+    if page == None:
+      return "No such book portion id", 404
+    else:
+      image_annotations = get_db().annotations.update_image_annotations(page)
+      return backend.data_containers.JsonAjaxResponse(result=image_annotations).to_json_map_via_pickle(), 200
+
+
+api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/all_segments')
 
 
 @flask_blueprint.route('/page/anno/<anno_id>', methods=['GET', 'POST'])

@@ -43,70 +43,39 @@ class Annotations(CollectionWrapper):
     logging.info("Initializing collection :" + str(db_collection))
     super(Annotations, self).__init__(db_collection)
 
-  def get(self, anno_id):
-    res = self.db_collection.find_one({'_id': ObjectId(anno_id)})
-    res['_id'] = str(res['_id'])
-    return res
-
-  def get_image(self, anno_id):
-    # Get the annotations from anno_id
-    anno_obj = self.get(anno_id)
-    if not anno_obj:
-      return False
-
-    # Get the containing book
-    books = self.indicdocs.books
-    book = books.get(anno_obj['bpath'])
-    if not book:
-      return False
-
-    page = book['pages'][anno_obj['pgidx']]
-    from os.path import join
+  def update_image_annotations(self, page):
+    """return the page annotation with id = anno_id"""
+    from os import path
     from backend import paths
-    imgpath = join(paths.DATADIR, join(anno_obj['bpath'], page['fname']))
-    logging.info("Image path = " + imgpath)
-    page_img = DocImage(imgpath)
-    return page_img
+    page_image = DocImage.from_path(path=path.join(paths.DATADIR, page.path))
+    known_annotations = page.get_targetting_entities(some_collection=self.db_collection,
+                                                     entity_type=data_containers.ImageAnnotation.get_wire_typeid())
+    if len(known_annotations):
+      logging.warning("Annotations exist. Not detecting and merging.")
+      return known_annotations
+      # # TODO: fix the below and get segments.
+      # #
+      # # # Give me all the non-overlapping user-touched segments in this page.
+      # for annotation in known_annotations:
+      #   target = annotation.targets[0]
+      #   if annotation.source.type == 'human':
+      #     target['score'] = float(1.0)  # Set the max score for user-identified segments
+      #   # Prevent image matcher from changing user-identified segments
+      #   known_annotation_targets.insert(target)
 
-  def insert(self, anno):
-    id = self.db_collection.insert(anno)
-    return str(id)
+    # Create segments taking into account known_segments
+    detected_regions = page_image.find_text_regions()
+    logging.info("Matches = " + str(detected_regions))
 
-  def update(self, anno_id, anno):
-    # pprint(anno)
-    result = self.db_collection.update({'_id': ObjectId(anno_id)}, {"$set": anno})
-    isSuccess = (result['n'] > 0)
-    return isSuccess
-
-  def segment(self, anno_id):
-    # Get the annotations from anno_id
-    anno_obj = self.get(anno_id)
-    if not anno_obj:
-      return False
-
-    # TODO: fix the below.
-    # page_img = DocImage(imgpath, workingImgPath)
-    #
-    # known_segments = DisjointImageTargets()
-    # # Give me all the non-overlapping user-touched segments in this page.
-    # for a in anno_obj['anno']:
-    #   a = data_containers.ImageTarget(a)
-    #   if a.state == 'system_inferred':
-    #     continue
-    #   a['score'] = float(1.0)  # Set the max score for user-identified segments
-    #   # Prevent image matcher from changing user-identified segments
-    #   known_segments.insert(a)
-    #
-    # # Create segments taking into account known_segments
-    # matches = page_img.find_text_regions(known_text_regions=known_segments)
-    # # logging.info("Matches = " + json.dumps(matches))
-    # # logging.info("Segments = " + json.dumps(known_segments.segments))
-    # for r in matches:
-    #   # and propagate its text to them
-    #   r['state'] = 'system_inferred'
-    #
-    # self.update(anno_id, {'anno': known_segments.img_targets})
-    return True
+    new_annotations = []
+    for region in detected_regions:
+      region.score = None
+      target = data_containers.ImageTarget.from_details(container_id=page._id, rectangle=region)
+      annotation = data_containers.ImageAnnotation.from_details(
+        targets=[target], source=data_containers.AnnotationSource.from_details(type='system_inferred', id="pyCV2"))
+      annotation = annotation.update_collection(self.db_collection)
+      new_annotations.append(annotation)
+    return new_annotations
 
   def propagate(self, anno_id):
     # Get the annotations from anno_id
@@ -127,10 +96,10 @@ class Annotations(CollectionWrapper):
     logging.info("Image path = " + imgpath)
     page_img = DocImage(imgpath)
 
-    known_segments = DisjointImageTargets()
+    known_segments = DisjointRectangles()
     srch_segments = []
     for a in anno_obj['anno']:
-      a = data_containers.ImageTarget(a)
+      a = data_containers.Rectangle(a)
       if a.state == 'system_inferred':
         known_segments.insert(a)
         continue

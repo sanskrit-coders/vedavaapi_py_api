@@ -30,7 +30,7 @@ document.onkeypress = function (e) {
         console.log("You pressed Ctrl+Shift+"+c);
         switch (c) {
             case 80://Block Ctrl+Shift+'S'
-                reparse_page();
+                reparsePage();
                 e.preventDefault();
                 e.stopPropagation();
                 break;
@@ -69,7 +69,20 @@ function changeMode(mode) {
 }
 
 function segmentPage() {
-    viewBookState.canvasState.segmentPage();
+
+    var curpage = viewBookState.curpage;
+    if (curpage == undefined)
+        return;
+    var bookdetails = viewBookState.bookdetails;
+    var pagedetails = bookdetails.children[curpage].content;
+
+    $.getJSON('/api_v1/pages/' + pagedetails._id + '/all_segments', function(data){
+        if (! processStatus(data))
+            return;
+        console.log("Page Anno: " + JSON.stringify(data.result));
+        curpage_annotations = data.result;
+    });
+    loadpage(true);
 }
 
 function saveData() {
@@ -90,26 +103,7 @@ function zoomOut() {
     document.getElementById("scale").innerHTML = parseFloat(viewBookState.canvasState.scale).toFixed(1);
 }
 
-function reparse_page() {
-    loadpage(true);
-}
-
-function segment_page() {
-
-    var curpage = viewBookState.curpage;
-    if (curpage == undefined)
-        return;
-    var bookdetails = viewBookState.bookdetails;
-    var pagedetails = bookdetails.result.children[curpage].content;
-    var anno_id = pagedetails['anno'];
-    var sec_id = pagedetails['sections'];
-
-    $.getJSON('/api_v1/page/anno/segment/'+anno_id, function(data){
-        if (! processStatus(data))
-            return;
-//        console.log("Page Anno: " + JSON.stringify(data.result));
-        curpage_annotations = data.result['anno'];
-    });
+function reparsePage() {
     loadpage(true);
 }
 

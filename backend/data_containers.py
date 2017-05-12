@@ -178,14 +178,17 @@ class JsonObject(object):
     item = JsonObject.find_one(filter={"_id": ObjectId(id)}, some_collection=collection)
     return item
 
-  def get_targetting_entities(self, some_collection):
-    targetting_objs = some_collection.find({
+  def get_targetting_entities(self, some_collection, entity_type=None):
+    filter = {
       "targets":  {
         "$elemMatch": {
           "container_id" : str(self._id)
         }
       }
-    })
+    }
+    if entity_type:
+      filter[TYPE_FIELD] = entity_type
+    targetting_objs = [item for item in some_collection.find(filter)]
     return targetting_objs
 
 
@@ -315,23 +318,20 @@ class Annotation(JsonObject):
     assert isinstance(source, AnnotationSource), source.__class__
     self.source = source
 
-
-class ImageTarget(Target):
-  # TODO use w, h instead.
+class Rectangle(JsonObject):
   @classmethod
-  def from_details(cls, container_id, x=-1, y=-1, w=-1, h=-1, score=0.0):
-    target = ImageTarget()
-    target.container_id = container_id
+  def from_details(cls, x=-1, y=-1, w=-1, h=-1, score=0.0):
+    rectangle = Rectangle()
     assert isinstance(x, int), x.__class__
     assert isinstance(y, int), y.__class__
     assert isinstance(w, int), w.__class__
     assert isinstance(h, int), h.__class__
-    target.x1 = x
-    target.y1 = y
-    target.x2 = w
-    target.y2 = h
-    target.score = score
-    return target
+    rectangle.x1 = x
+    rectangle.y1 = y
+    rectangle.w = w
+    rectangle.h = h
+    rectangle.score = score
+    return rectangle
 
     # Two (segments are 'equal' if they overlap
     def __eq__(self, other):
@@ -352,6 +352,17 @@ class ImageTarget(Target):
         return -1
       else:
         return 1
+
+
+class ImageTarget(Target):
+  # TODO use w, h instead.
+  @classmethod
+  def from_details(cls, container_id, rectangle):
+    target = ImageTarget()
+    target.container_id = container_id
+    assert isinstance(rectangle, Rectangle), rectangle.__class__
+    target.rectangle = rectangle
+    return target
 
 
 # Targets: ImageTarget for a BookPortion

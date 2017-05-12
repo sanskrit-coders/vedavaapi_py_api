@@ -996,7 +996,7 @@ function init(canvas, dataURL, oldShapes, oid) {
         oldShape = oldShapes[i];
 //            console.log(oldShape);
 //            console.log("X:"+oldShape.x+"Y:"+oldShape.y+"W:"+oldShape.w+"H:"+oldShape.h+" Fill:"+oldShape.fill);
-        s.addShape(new Shape(oldShape.x, oldShape.y, oldShape.w, oldShape.h, oldShape.fill, oldShape));
+        s.addShape(new Shape(oldShape.x, oldShape.y, oldShape.w, oldShape.h, oldShape));
     }
 //  s.addShape(new Shape(40,40,50,50)); // The default is gray
 //  s.addShape(new Shape(60,140,40,60, 'lightskyblue'));

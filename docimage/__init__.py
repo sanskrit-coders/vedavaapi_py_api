@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 
-class DisjointImageTargets:
+class DisjointRectangles:
     def __init__(self, segments = []):
         self.img_targets = []
         self.merge(segments)
@@ -161,14 +161,14 @@ class DocImage:
    
         loc = np.where(res >= float(thres))
         def ptToImgTarget(pt):
-            return data_containers.ImageTarget.from_details(x=pt[0], y= pt[1],
+            return data_containers.Rectangle.from_details(x=pt[0], y= pt[1],
                                                      w=template_img.w, h=template_img.h,
                                                      score = float("{0:.2f}".format(res[pt[1], pt[0]]))
             )
         matches = map(ptToImgTarget, zip(*loc[::-1]))
 
         if known_segments is None:
-            known_segments = DisjointImageTargets()
+            known_segments = DisjointRectangles()
         disjoint_matches = known_segments.merge(matches)
         known_segments.img_targets.sort()
         #for r in known_segments.segments:
@@ -187,15 +187,15 @@ class DocImage:
         template = self.snippet(r)
 
         if known_segments is None:
-            known_segments = DisjointImageTargets()
-        known_segments.insert(data_containers.ImageTarget(r))
+            known_segments = DisjointRectangles()
+        known_segments.insert(data_containers.Rectangle(r))
         return self.find_matches(template, thres, known_segments)
    
     def self_to_image(self):
         return self.img_rgb
 
 
-    def find_text_regions(self, show_int=0, pause_int=0, known_text_regions = None):
+    def find_text_regions(self, show_int=0, pause_int=0):
 
         if self.working_img_gray is None:
             img = self.img_gray
@@ -305,16 +305,11 @@ class DocImage:
             coordinates['h'] = int(h * factorY)
 
 #            logging.info("x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h']))
-            allsegments.append(data_containers.ImageTarget.from_details(x=coordinates.x, y=coordinates.y, w=coordinates.w, h=coordinates.h))
+            allsegments.append(data_containers.Rectangle.from_details(x=coordinates['x'], y=coordinates['y'], w=coordinates['w'], h=coordinates['h']))
 
         show_img('Boxes_temp 3',boxes_temp)
 
-        if known_text_regions is None:
-            known_text_regions = DisjointImageTargets()
-        disjoint_matches = known_text_regions.merge(allsegments)
-        
-#        logging.info("Disjoint Segments    = " + json.dumps(disjoint_matches))
-        return disjoint_matches
+        return allsegments
 
     def add_rectangles(self, sel_areas, color = (0, 0, 255), thickness = 2):
         for rect in sel_areas:
