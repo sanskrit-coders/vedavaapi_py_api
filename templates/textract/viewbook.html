@@ -1,0 +1,183 @@
+{% extends "textract/base.html" %}
+{% block page_script %}
+<!--The below is for image scrolling.-->
+<link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" />
+<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/textract/pageScripts/viewbook_canvas_helper.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/textract/lib/pramukhime.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/textract/lib/pramukhindic.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/textract/lib/CanvasInput.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/textract/pageScripts/viewbook.js') }}"></script>
+{% endblock %}
+
+
+{% block content %}
+
+<style type="text/css">
+
+.item .thumb {
+    height: 10%;
+    cursor: pointer;
+    float: top;
+}
+.item .thumb img {
+    width: 140px;
+    margin: 2px;
+    border-style: double;
+    border-width: 3px;
+}
+
+.carousel-control {
+    left: -15px;
+    width: 1%;
+}
+.carousel-control.right {
+    right: -15px;
+    width: 1%;
+}
+
+@media (min-width:1200px) {
+    .container {
+        width: 100% !important;
+    }
+
+    body {
+      padding:0;
+    }
+
+    .navbar-fixed-top, .navbar-fixed-bottom, .navbar-static-top {
+      margin-left: 0;
+      margin-right: 0;
+      margin-bottom:0;
+    }
+}
+
+input[type=radio] { 
+
+transform: scale(0.5); 
+-moz-transform: scale(0.5); 
+-ms-transform: scale(0.5); 
+-webkit-transform: scale(0.5); 
+-o-transform: scale(0.5); 
+}
+
+/*
+::-webkit-scrollbar { 
+    display: none; 
+}
+*/
+</style>
+
+<div id=content>
+
+    <input id="curpage" type="hidden">
+
+    <input id="bookdetails" type="hidden">
+
+    <!-- button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#ThumbnailModal">Open Thumbnail</button-->
+
+<div class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#indicNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">IndicTool</a>
+    </div>
+    <div class="collapse navbar-collapse" id="indicNavbar">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#" data-toggle="modal" data-target="#ThumbnailModal">Thumbnail</a></li>
+        <li class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" href="#">Book<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a onclick="saveData()">Save</a></li>
+            <li><a onclick="zoomIn()">ZoomIn</a></li>
+            <li><a onclick="zoomOut()">ZoomOut</a></li>
+            <li><a onclick="reparsePage()">Parse</a></li>
+            <li><a onclick="segmentPage()">Segment</a></li>
+          </ul>
+        </li>
+        <li><a href="#">Scale <span id='scale'></span></a></li>
+        <li><a href="#">Admin</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+  <div class="row">
+  <!-- Modal -->
+  <div class="modal fade" id="ThumbnailModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-body">
+        <div id="thumbcarousel" class="carousel slide" data-interval="false">
+            <div id="bookidx" class="carousel-inner">
+            </div><!-- /carousel-inner -->
+            <a class="left carousel-control" href="#thumbcarousel" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" href="#thumbcarousel" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+        </div> <!-- /thumbcarousel -->
+          <button type="button" class="close" data-dismiss="modal">&times;</button>  
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  </div> <!-- row -->
+</div> <!-- container -->
+
+<div class="container" style="width:100%;">
+    <div class="row">
+    <div class="col-sm-1 col-xs-1">
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="saveData()">Save</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="reparsePage()">Parse</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="segmentPage()">Segment</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="accept()">Accept</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomIn()">ZoomIn</button>
+        <button type="button" class="btn btn-info btn-sm btn-block" onclick="zoomOut()">ZoomOut</button>
+
+        <div class="btn-group-vertical btn-block">
+            <button type="button" id="modeButton" flag="N" class="btn btn-info btn-sm dropdown-toggle" data-toggle="dropdown"> Mode <span class="caret"></span></button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a onclick="changeMode('Edit')">Edit</a></li>
+                <li><a onclick="changeMode('Review')">Review</a></li>
+                <li><a onclick="changeMode('Section')">Section</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-sm-11 col-xs-11">
+        <div id="carousel" class="carousel slide" data-ride="carousel">
+            <div class="canvas-outer">
+                <div id='container' class="item active" style="overflow:auto; height:100vh">
+                <canvas id="pageCanvas"> </canvas>
+                </div>
+            <a id="prevPage" class="left carousel-control" onclick="slideTo('prev')">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a id="nextPage" class="right carousel-control" onclick="slideTo('next')">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+            </div>
+        </div> <!-- /carousel --> 
+    </div> <!-- /col-sm-12 -->
+    </div><!-- /row -->
+</div> <!-- /container -->
+
+
+</div> <!-- content -->
+
+{% endblock %}
+

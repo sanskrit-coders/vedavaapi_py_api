@@ -1,0 +1,31 @@
+{
+  "py/object": "common.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "textract.backend.data_containers.BookPortion",
+    "path": "samskrit/misc"
+  },
+  "children": [
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/misc/Kandanu1.jpg",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/misc/savitri_sanskrit.jpg",
+        "title": "pg_1",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}

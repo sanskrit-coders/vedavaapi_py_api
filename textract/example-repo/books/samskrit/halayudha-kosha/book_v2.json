@@ -1,0 +1,75 @@
+{
+  "py/object": "common.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "textract.backend.data_containers.BookPortion",
+    "path": "samskrit/halayudha-kosha"
+  },
+  "children": [
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o9.jpg",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o5.jpg",
+        "title": "pg_1",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o6.jpg",
+        "title": "pg_2",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o12.jpg",
+        "title": "pg_3",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o8.jpg",
+        "title": "pg_4",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    },
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "samskrit/halayudha-kosha/o10.jpg",
+        "title": "pg_5",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}

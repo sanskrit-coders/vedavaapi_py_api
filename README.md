@@ -14,7 +14,7 @@ Allows users to correct and uses them in subsequent text recognition.
   * install.pl might help.
 * Grant the account running run.py authority to write in /opt/scan2text/.
   * sudo mkdir /opt/scan2text/; sudo chmod a+rwx /opt/scan2text
-  * ln -s ~/textract/example-repo/books /opt/scan2text/data/
+  * ln -s ~/textract/textract/example-repo/books /opt/scan2text/data/
 
 ## Running
 * Launch server: run.py

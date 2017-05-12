@@ -22,7 +22,7 @@ function get_anchor_tag(lpath, text, newwin)
     var url = "";
     if (lpath.startsWith('http') || lpath.startsWith('/'))
         url = lpath;
-    else url = "/relpath/" + lpath;
+    else url = "/textract/relpath/" + lpath;
     return '<a href="' + url + '" ' + newwin + '>' + text + '</a>';
 }
 
