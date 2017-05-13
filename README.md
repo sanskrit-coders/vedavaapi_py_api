@@ -24,28 +24,48 @@ Allows users to correct and uses them in subsequent text recognition.
 * Can generate call graphs:
   * pyan.py --dot -c -e run.py |dot -Tpng > call_graphs/run.png
 
-### Frontend
+### Run code
 * [run.py]() :
   * starts the webservice
-  * creates local temporary and data directories
   * sets up actions to be taken when various URL-s are accessed.
-    * Some of this is redirected to books_api in [books.py]() .
-* [flask_helper.py]() contains various helper methods
-  * Some salient ones pertaining to formatting json responses are:
-    * gen_response()
-    * myerror()
-    * myresult()
-  * Logging functions which need to be replaced.
-### Backend
-* [indicdocs.py]() :
+
+#### common package
+* [flask_helper.py]()
+  * Sets up the flask app.
+  * Defines some basic handlers.
+* [config.py]() contains various helper methods
+
+
+### Textract
+* [__init__.py]():
+  * creates local temporary and data directories
+* [api_v1.py]():
+  * Handles calls to /textract/*
+
+
+#### Backend
+* [data_containers.py]() defines
+  * various objects such as BookPortion, Annotation, SandhiAnnotation.
+  * json helper methods to (de)serialize them to json while writing to the database.
+* [db.py and collections.py]() :
   * Sets up database (an IndicDocs object) with initdb() and getdb()
   * Declares various other pymongo db collection containers, with methods for create /update / insert operations:
     * Books
     * Annotations
     * Sections
     * Users
-* [config.py]() contains various helper methods
-  * most of which are for setup and file operations.
-* [data_containers.py]() defines
-  * various objects such as BookPortion, Annotation, SandhiAnnotation.
-  * json helper methods to (de)serialize them to json while writing to the database.
+
+## Guidelines
+* Don't write ugly code.
+  * Remember that your code will be read many more times than it will be written. Please take care.
+  * Use meaningful identifier names (no naming global functions "myerror").
+  * Follow the appropriate language-specific conventions for identifier naming and code formatting.
+* Don't reinvent the wheel (Eg. Don't write your own logging module). Reuse and share code where possible.
+* Separate client and server logic.
+  * Avoid setting variables using flask templates. The js code should get data by making AJAX calls to the server. 
+  * In fact, one should be able to write (totally separate) pure html/ js code which will communicate with the server only using AJAX calls.
+* Respect the code structure.
+  * JS, python, html template code for different apps are in different directories.
+* While designing REST API:
+  * Read up and follow the best practices. When in doubt, discuss.
+  
