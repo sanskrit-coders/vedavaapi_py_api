@@ -45,6 +45,13 @@ Python based Web API's for the <vedavaapi.org> project.
 
 
 ### Textract
+#### Intro
+This is a web-based tool to rapidly decode scanned Indic document images into searchable text. It enables users to identify and
+ annotate characters in scanned document images and auto-identifies similar characters.
+ Allows users to correct and uses them in subsequent text recognition.
+
+
+#### Root module
 * [__init__.py]():
   * creates local temporary and data directories
 * [api_v1.py]():
