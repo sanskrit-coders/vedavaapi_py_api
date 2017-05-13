@@ -1,15 +1,18 @@
-TOC generated using [this](https://tableofcontents.herokuapp.com/) (needs to be manually updated).
-- [Introduction](#introduction)
-- [Usage](#usage)
-  - [Setup](#setup)
-  - [Running](#running)
-- [Development](#development)
-  - [Understanding the code](#understanding-the-code)
-   - [Run code](#run-code)
-    - [common package](#common-package)
-   - [Textract](#textract)
-    - [Backend](#backend)
-  - [Guidelines](#guidelines)
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Introduction](#)
+- [Usage](#)
+	- [Setup](#)
+	- [Running](#)
+- [Development](#)
+	- [Understanding the code](#)
+		- [Run code](#)
+			- [common package](#)
+		- [Textract](#)
+			- [Intro](#)
+			- [Root module](#)
+			- [Backend](#)
+	- [Guidelines](#)
 
 # Introduction
 Python based Web API's for the <vedavaapi.org> project.  
