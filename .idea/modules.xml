@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/textract.iml" filepath="$PROJECT_DIR$/textract.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vedavaapi_py_api.iml" filepath="$PROJECT_DIR$/vedavaapi_py_api.iml" />
     </modules>
   </component>
 </project>
