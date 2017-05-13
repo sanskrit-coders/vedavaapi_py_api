@@ -1,24 +1,18 @@
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
-
-- [Introduction](#)
-- [Usage](#)
-	- [Setup](#)
-	- [Running](#)
-- [Development](#)
-	- [Understanding the code](#)
-		- [Run code](#)
-			- [common package](#)
-		- [Textract](#)
-			- [Intro](#)
-			- [Root module](#)
-			- [Backend](#)
-	- [Guidelines](#)
+TOC generated using [this](https://tableofcontents.herokuapp.com/) (needs to be manually updated).
+- [Introduction](#introduction)
+- [Usage](#usage)
+  - [Setup](#setup)
+  - [Running](#running)
+- [Development](#development)
+  - [Understanding the code](#understanding-the-code)
+   - [Run code](#run-code)
+    - [common package](#common-package)
+   - [Textract](#textract)
+    - [Backend](#backend)
+  - [Guidelines](#guidelines)
 
 # Introduction
 Python based Web API's for the <vedavaapi.org> project.  
-
-# Accessing API docs:
-* Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/v1/doc/ .
 
 # Usage
 ## Setup
@@ -30,8 +24,12 @@ Python based Web API's for the <vedavaapi.org> project.
   * sudo mkdir /opt/scan2text/; sudo chmod a+rwx /opt/scan2text
   * ln -s ~/vedavaapi_py_api/textract/example-repo/books /opt/scan2text/data/
 
+
 ## Running
 * Launch server: run.py
+
+## Accessing API docs:
+* Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/v1/doc/ .
 
 # Development
 ## Understanding the code
@@ -85,10 +83,9 @@ This is a web-based tool to rapidly decode scanned Indic document images into se
 * Separate client and server logic.
   * Avoid setting variables using flask templates. The js code should get data by making AJAX calls to the server. 
   * In fact, one should be able to write (totally separate) pure html/ js code which will communicate with the server only using AJAX calls.
-* Respect the code structure. 
+* Respect the code structure.
   * JS, python, html template code for different apps are in different directories.
-  * Separate out content in different languages (css, py, js, html) to the maximum extant possible.
-    * In particular putting the js code in a separate js file (instead of just putting it directly in the html file) greatly aids debugging on Chrome.
 * While designing REST API:
   * Read up and follow the best practices. When in doubt, discuss.
+  * Currently we use flask restplus, and set the API docs to appear under the /doc/ path as described in the usage section.
   
