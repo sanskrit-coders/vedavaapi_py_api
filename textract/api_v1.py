@@ -2,6 +2,8 @@ import copy
 import traceback
 from os.path import join
 
+import flask
+
 from common import flask_helper
 import flask_restplus
 from flask_login import current_user
@@ -19,10 +21,9 @@ logging.basicConfig(
 )
 
 app = flask_helper.app
-api = flask_restplus.Api(app, version='1.0', prefix='/textract/v1', title='vedavaapi py API',
-                         description='vedavaapi py API',
-                         )
-
+URL_PREFIX = '/textract/v1'
+api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
+                         description='vedavaapi py API', doc= URL_PREFIX + '/doc/')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 

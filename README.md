@@ -14,6 +14,9 @@ TOC generated using [this](https://tableofcontents.herokuapp.com/) (needs to be 
 # Introduction
 Python based Web API's for the <vedavaapi.org> project.  
 
+# Accessing API docs:
+* Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/v1/doc/ .
+
 # Usage
 ## Setup
 * We're currently using Python 2.7.
@@ -79,8 +82,10 @@ This is a web-based tool to rapidly decode scanned Indic document images into se
 * Separate client and server logic.
   * Avoid setting variables using flask templates. The js code should get data by making AJAX calls to the server. 
   * In fact, one should be able to write (totally separate) pure html/ js code which will communicate with the server only using AJAX calls.
-* Respect the code structure.
+* Respect the code structure. 
   * JS, python, html template code for different apps are in different directories.
+  * Separate out content in different languages (css, py, js, html) to the maximum extant possible.
+    * In particular putting the js code in a separate js file (instead of just putting it directly in the html file) greatly aids debugging on Chrome.
 * While designing REST API:
   * Read up and follow the best practices. When in doubt, discuss.
   
