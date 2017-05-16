@@ -1,8 +1,8 @@
 // Initially based on (likely) https://github.com/simonsarris/Canvas-tutorials/blob/master/shapes.js By Simon Sarris, modified heavily by deshmup.
 
-// Constructor for Shape objects to hold data for all drawn objects.
+// Constructor for Rectangle objects to hold data for all drawn objects.
 // For now they will just be defined as rectangles.
-function Shape(x, y, w, h, fill, obj) {
+function Rectangle(x, y, w, h, fill, obj) {
     /*
      This is a very simple and unsafe constructor. All we're doing is checking
      if the values exist. "x || 0" just means "if there is a value for x, use
@@ -33,7 +33,7 @@ function Shape(x, y, w, h, fill, obj) {
     }
 }
 
-Shape.prototype = {
+Rectangle.prototype = {
     // Draws this shape to a given context with different stroke and fill
     draw: function (ctx) {
         if (this.state == "system_inferred") {
@@ -187,6 +187,8 @@ CanvasStateList.prototype = {
             return null;
         }
     },
+
+    // Properly sets curCanvasState.
     moveTo: function (canvasStateName) {
         if (typeof this.csList[canvasStateName] !== "undefined" &&
             this.csList[canvasStateName] !== null) {
@@ -276,7 +278,7 @@ function CanvasState(canvasId, dataURL, oid) {
     this.scrollY = 0;
 
     this.valid = false; // when set to false, the canvas will redraw everything
-    this.shapes = [];  // the collection of things to be drawn
+    this.rectangles = [];  // the collection of things to be drawn
     this.containerScrollLeft = 0;
     this.containerScrollTop = 0;
     this.dragForScrolling = false;  // True when mouse down in canvas 
@@ -319,7 +321,7 @@ function CanvasState(canvasId, dataURL, oid) {
         var mouse = myState.getMouse(e);
         var mx = mouse.x;
         var my = mouse.y;
-        var shapes = myState.shapes;
+        var shapes = myState.rectangles;
         var l = shapes.length;
         for (var i = l - 1; i >= 0; i--) {
             if (shapes[i].contains(mx, my)) {
@@ -511,7 +513,7 @@ function CanvasState(canvasId, dataURL, oid) {
         this.style.cursor = 'auto';
     }, true);
 
-    // double click for making new shapes
+    // double click for making new rectangles
     canvas.addEventListener('dblclick', function (e) {
         if (!myState.active) {
             return;
@@ -521,7 +523,7 @@ function CanvasState(canvasId, dataURL, oid) {
         // rectangle by the amount the image is scaled down
         var width = Math.round(30 / myState.scale);
         var height = Math.round(30 / myState.scale);
-        myState.addShape(new Shape(mouse.x - width / 2, mouse.y - height / 2,
+        myState.addRectangle(new Rectangle(mouse.x - width / 2, mouse.y - height / 2,
             width, height, 'rgba(0,255,0,.3)'));
     }, true);
 
@@ -588,7 +590,7 @@ function CanvasState(canvasId, dataURL, oid) {
                 e.preventDefault();
                 e.stopPropagation();
             }
-//            myState.shapes.splice(myState.selectionIndex,1);
+//            myState.rectangles.splice(myState.selectionIndex,1);
 //            myState.selection = null;
 //            myState.selectionIndex = null;
 //            myState.valid = false; // Something's deleted so we must redraw
@@ -660,18 +662,18 @@ CanvasState.prototype.handleTab = function (e) {
     do {
         if (e.shiftKey) {
             if (myState.selectionIndex == 0) {
-                myState.selectionIndex = myState.shapes.length - 1;
+                myState.selectionIndex = myState.rectangles.length - 1;
             } else {
                 myState.selectionIndex--;
             }
         } else {
-            if (myState.selectionIndex == (myState.shapes.length - 1)) {
+            if (myState.selectionIndex == (myState.rectangles.length - 1)) {
                 myState.selectionIndex = 0;
             } else {
                 myState.selectionIndex++;
             }
         }
-        newSelection = myState.shapes[myState.selectionIndex];
+        newSelection = myState.rectangles[myState.selectionIndex];
     } while (newSelection.state == "user_deleted");
 
     myState.selection = newSelection;
@@ -817,7 +819,7 @@ CanvasState.prototype.changeInputLocation = function (selectedShape) {
     } else {
         this.inputText.y(selectedShape.y - (scaledHeight + buffer));
     }
-    console.log("Shape X: " + selectedShape.x + " Y: " + selectedShape.y + " H: " + selectedShape.h + " W: " + selectedShape.w + " Ix: " + this.inputText.x() + " Iy: " + this.inputText.y() + " Ih: " + this.inputText.height() + " Iw: " + this.inputText.width());
+    console.log("Rectangle X: " + selectedShape.x + " Y: " + selectedShape.y + " H: " + selectedShape.h + " W: " + selectedShape.w + " Ix: " + this.inputText.x() + " Iy: " + this.inputText.y() + " Ih: " + this.inputText.height() + " Iw: " + this.inputText.width());
 }
 
 // Determine if a point is inside the input text box
@@ -830,29 +832,29 @@ CanvasState.prototype.inputTextContains = function (mx, my) {
         (this.inputText.y() + (this.inputText.height()) > my);
 }
 
-CanvasState.prototype.addShape = function (shape) {
-    var length = this.shapes.length;
+CanvasState.prototype.addRectangle = function (rectangle) {
+    var length = this.rectangles.length;
     // traversing from the back of the list. Bottom right to top left 
     for (i = length - 1; i >= 0; i--) {
-        var lastShape = this.shapes[i];
+        var lastShape = this.rectangles[i];
         var shapeInserted = false;
-        if (lastShape.x < shape.x && (Math.abs(lastShape.y - shape.y) < (lastShape.h / 2))) { // Right side on the same row
-            this.shapes.splice(i + 1, 0, shape);
+        if (lastShape.x < rectangle.x && (Math.abs(lastShape.y - rectangle.y) < (lastShape.h / 2))) { // Right side on the same row
+            this.rectangles.splice(i + 1, 0, rectangle);
             shapeInserted = true;
             break;
-        } else if ((shape.y - lastShape.y) > (lastShape.h / 2)) { // Next row case
-            this.shapes.splice(i + 1, 0, shape);
+        } else if ((rectangle.y - lastShape.y) > (lastShape.h / 2)) { // Next row case
+            this.rectangles.splice(i + 1, 0, rectangle);
             shapeInserted = true;
             break;
         }
     }
     if (length == 0) {
-        this.shapes.push(shape);
+        this.rectangles.push(rectangle);
     } else if (shapeInserted == false) { // Insert at the begining
-        this.shapes.splice(0, 0, shape);
+        this.rectangles.splice(0, 0, rectangle);
     }
-    if (shape.text != '') {
-        shape.print();
+    if (rectangle.text != '') {
+        rectangle.print();
     }
     this.valid = false;
 }
@@ -871,7 +873,7 @@ CanvasState.prototype.draw = function () {
     // if our state is invalid, redraw and validate!
     if (!this.valid) {
         var ctx = this.ctx;
-        var shapes = this.shapes;
+        var rectangles = this.rectangles;
         var imageURL = this.imageURL;
         this.clear();
 
@@ -896,21 +898,21 @@ CanvasState.prototype.draw = function () {
             this.inputText.focus();
         }
 
-        // draw all shapes
-        var l = shapes.length;
+        // draw all rectangles
+        var l = rectangles.length;
 //        console.log("Shapes Length: "+l);
         for (var i = 0; i < l; i++) {
-            var shape = shapes[i];
+            var shape = rectangles[i];
             // We can skip the drawing of elements that have moved off 
             // the screen:
             if (shape.x > imageObj.width || shape.y > imageObj.height ||
                 shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
-//            console.log("Shape "+i+" draw called");
-            shapes[i].draw(ctx);
+//            console.log("Rectangle "+i+" draw called");
+            rectangles[i].draw(ctx);
         }
 
         // draw selection
-        // right now this is just a stroke along the edge of the selected Shape
+        // right now this is just a stroke along the edge of the selected Rectangle
         if (this.selection != null) {
             ctx.strokeStyle = this.selectionColor;
             ctx.lineWidth = this.selectionWidth;
@@ -979,34 +981,6 @@ CanvasState.prototype.getMouse = function (e) {
 // You could uncomment this init() reference and place the script reference inside the body tag
 //init();
 
-// Shapes are rectangles. This overlays boxes on an image, makes them selectable etc..
-function init(canvas, dataURL, oldShapes, oid) {
-    var s = canvasStateList.get(canvas, dataURL, oid);
-    console.log("Init Called for " + oid);
-//    oldShapes = JSON.parse(oldShapes);
-// JSON.parse did not work so moved to eval however that has some security risks
-//    oldShapes = eval('(' + oldShapes + ')');
-//    console.log(oldShapes);
-    if (oldShapes == null) {
-        return s;
-    }
-    s.shapes = []; // initialize the shapes as we are getting all info together
-    console.log("Length of oldShapes = " + oldShapes.length);
-    for (var i = 0; i < oldShapes.length; i++) {
-        oldShape = oldShapes[i];
-//            console.log(oldShape);
-//            console.log("X:"+oldShape.x+"Y:"+oldShape.y+"W:"+oldShape.w+"H:"+oldShape.h+" Fill:"+oldShape.fill);
-        s.addShape(new Shape(oldShape.x, oldShape.y, oldShape.w, oldShape.h, oldShape));
-    }
-//  s.addShape(new Shape(40,40,50,50)); // The default is gray
-//  s.addShape(new Shape(60,140,40,60, 'lightskyblue'));
-// Lets make some partially transparent
-//  s.addShape(new Shape(80,150,60,30, 'rgba(127, 255, 212, .1)'));
-//  s.addShape(new Shape(125,80,30,80, 'rgba(245, 222, 179, .2)'));
-    return s;
-}
-
-
 // Now go make something amazing!
 
 // Expand the canvas dimensions by 10% fixed value, later that 
@@ -1019,6 +993,18 @@ CanvasState.prototype.zoomOut = function () {
         alert("Cannot scale below 10%")
     }
 }
+
+// Shapes are rectangles. This overlays boxes on an image, makes them selectable etc..
+CanvasState.prototype.setAnnotations = function(annotations) {
+    this.rectangles = []; // initialize the rectangles as we are getting all info together
+    self = this;
+    annotations.forEach(function(annotation, index) {
+        var rectangle = annotation.targets[0].rectangle;
+        self.addRectangle(new Rectangle(rectangle.x1, rectangle.y1, rectangle.w, rectangle.h, annotation));
+    })
+}
+
+
 
 // Currently there are 2 modes supported "E" edit mode and "R" review mode
 CanvasState.prototype.changeMode = function (flag) {
@@ -1060,12 +1046,12 @@ CanvasState.prototype.zoomIn = function () {
     }
 }
 
-CanvasState.prototype.saveShapes = function () {
-    var shapes = this.shapes;
+CanvasState.prototype.saveAnnotations = function () {
+    var shapes = this.rectangles;
     var oid = this.oid;
     var anno_id = this.anno_id;
 
-//    console.log(JSON.stringify(shapes));
+//    console.log(JSON.stringify(rectangles));
     for (var i = 0; i < shapes.length; i++) {
         var shape = shapes[i];
 
@@ -1082,7 +1068,7 @@ CanvasState.prototype.saveShapes = function () {
     $.post('/textract/v1/page/anno/' + anno_id, res, function (data) {
         console.log("Annotations saved successfully.");
     }, "json");
-    //post('/textract/v1/page/anno/'+oid, JSON.stringify(shapes));
+    //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
 }
 
 function post(path, params, method) {

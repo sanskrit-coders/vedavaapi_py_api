@@ -60,7 +60,7 @@ class TestDBRoundTrip(unittest.TestCase):
   def test_ImageAnnotation(self):
     target_page_id = ObjectId()
     annotation = data_containers.ImageAnnotation.from_details(targets=[
-      data_containers.ImageTarget.from_details(container_id=str(target_page_id))],
+      data_containers.ImageTarget.from_details(container_id=str(target_page_id), rectangle=data_containers.Rectangle.from_details())],
       source=data_containers.AnnotationSource.from_details("someProgram", "xyz.py"))
 
     annotations = self.test_db.db.annotations
