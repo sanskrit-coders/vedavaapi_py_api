@@ -39,7 +39,7 @@ class BookList(flask_restplus.Resource):
     logging.info("books list filter = " + str(pattern))
     booklist = get_db().books.list_books(pattern)
     logging.debug(booklist)
-    return common.data_containers.JsonAjaxResponse(result=booklist).to_json_map_via_pickle()
+    return data_containers.JsonObject.get_json_map_list(booklist), 201
 
   def post(self):
     """Handle uploading files."""
@@ -116,8 +116,7 @@ class BookList(flask_restplus.Resource):
       traceback.print_exc()
       return format(e), 500
 
-    response_msg = "Book upload Successful for " + bookpath
-    return common.data_containers.JsonAjaxResponse(result=response_msg).to_json_map_via_pickle(), 201
+    return book_portion_node.to_json_map_via_pickle(), 201
 
 api.add_resource(BookList, '/books')
 
@@ -133,7 +132,7 @@ class BookPortionHandler(flask_restplus.Resource):
       book_node = common.data_containers.JsonObjectNode.from_details(content=book_portion)
       book_node.fill_descendents(some_collection=book_portions_collection)
       # pprint(binfo)
-      return common.data_containers.JsonAjaxResponse(result=book_node).to_json_map_via_pickle(), 200
+      return book_node.to_json_map_via_pickle(), 200
 
 
 api.add_resource(BookPortionHandler, '/books/<string:book_id>')
@@ -143,15 +142,15 @@ class PageAnnotationsHandler(flask_restplus.Resource):
   def get(self, page_id):
     logging.info("page get by id = " + str(page_id))
     book_portions_collection = get_db().books.db_collection
-    page = common.data_containers.JsonObject.from_id(id=page_id, collection=book_portions_collection)
+    page = data_containers.JsonObject.from_id(id=page_id, collection=book_portions_collection)
     if page == None:
       return "No such book portion id", 404
     else:
       image_annotations = get_db().annotations.update_image_annotations(page)
-      return common.data_containers.JsonAjaxResponse(result=image_annotations).to_json_map_via_pickle(), 200
+      return data_containers.JsonObject.get_json_map_list(image_annotations), 201
 
 
-api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/all_segments')
+api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations/all')
 
 
 # @flask_blueprint.route('/page/anno/<anno_id>', methods=['GET', 'POST'])

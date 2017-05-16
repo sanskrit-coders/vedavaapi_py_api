@@ -66,26 +66,6 @@ function getFormParams(formname, fieldname_filter)
     return form_params;
 }
 
-// TODO: Eliminate this and use http error codes.
-function processStatus(resp, okstr, errstr)
-{
-    var $msg="";
-    //alert("returned status = " + JSON.stringify(resp));
-
-    if (resp['status'] != 'ok') {
-        $('#console').html('');
-        $msg += resp['status'] + "<br>\n";
-        var prefix = (errstr === undefined) ? "Error" : errstr;
-        console.log(prefix + ": " + $msg);
-        $('#console').html($msg);
-        return false;
-    }
-    else if (okstr !== undefined) {
-        $('#console').html(okstr + "<br>\n");
-    }
-    return true;
-}
-
 function getEpochTimeFromDateString(d) {
 	var t = new Date(d);
 	return d.getTime()/1000;

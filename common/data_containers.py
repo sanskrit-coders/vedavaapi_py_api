@@ -72,6 +72,10 @@ class JsonObject(object):
   def get_wire_typeid(cls):
     return cls.__module__ + "." + cls.__name__
 
+  @classmethod
+  def get_json_map_list(cls, some_list):
+    return [item.to_json_map_via_pickle() for item in some_list]
+
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)
     setattr(self, TYPE_FIELD, self.__class__.get_wire_typeid())
@@ -183,7 +187,7 @@ class JsonObject(object):
     }
     if entity_type:
       filter[TYPE_FIELD] = entity_type
-    targetting_objs = [item for item in some_collection.find(filter)]
+    targetting_objs = [JsonObject.make_from_dict(item) for item in some_collection.find(filter)]
     return targetting_objs
 
 
@@ -212,7 +216,7 @@ class JsonObjectNode(JsonObject):
     targetting_objs = self.content.get_targetting_entities(some_collection=some_collection)
     self.children = []
     for targetting_obj in targetting_objs:
-      child = JsonObjectNode.from_details(content=JsonObject.make_from_dict(targetting_obj))
+      child = JsonObjectNode.from_details(content=targetting_obj)
       child.fill_descendents(some_collection=some_collection)
       self.children.append(child)
 

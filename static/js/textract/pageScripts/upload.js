@@ -67,20 +67,12 @@ function doUpload() {
         success: function(data) {
             $progressBar.css({"width": "100%"});
             console.log(data)
-            if (processStatus(data)) {
-                 //alert("uploaded successfully..");
-                 $('#upload_popup').fadeOut("slow");
-                  getBooks();
-                  location.reload();
-            }
-            else {
-                window.alert(data.status);
-                $("#upload-form :input").removeAttr("disabled");
-                return;
-            }
-        },
+            //alert("uploaded successfully..");
+            $('#upload_popup').fadeOut("slow");
+            getBooks();
+            location.reload();
+        }
     });
-    
 }
 
 

@@ -21,9 +21,6 @@ function getBooks(hglass)
     $select.empty();
     var pattern=document.getElementById('wload_filter').value;
     $.getJSON('/textract/v1/books?pattern='+pattern, function(data){
-        if (! processStatus(data))
-            return;
-        data = data['result'];
         $select.append('<table class="wltabclass" id="wltable">'+
             '</table>');
         var table= $select.children();
@@ -109,9 +106,6 @@ function bookProcess(wlparams, cmd)
     //console.log(wlparams);
     var $consolediv = $('#console');
     $.getJSON('/textract/v1/'+cmd+'?' + serialize(wlparams), function(data){
-        if (! processStatus(data))
-            return;
-        data = data['result'];
         $('#book_table').empty();
         var $resp = "Response for " + cmd + ":<p>\n";;
         $.each(data, function(ind, book) {

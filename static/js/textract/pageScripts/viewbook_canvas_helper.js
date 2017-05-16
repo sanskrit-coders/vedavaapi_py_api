@@ -1080,8 +1080,7 @@ CanvasState.prototype.saveShapes = function () {
     var res = {'anno': JSON.stringify(shapes)};
 //    console.log('POST anno contents: ' + JSON.stringify(res));
     $.post('/textract/v1/page/anno/' + anno_id, res, function (data) {
-        processStatus(data, "Annotations saved successfully.",
-            "Error saving annotations.");
+        console.log("Annotations saved successfully.");
     }, "json");
     //post('/textract/v1/page/anno/'+oid, JSON.stringify(shapes));
 }

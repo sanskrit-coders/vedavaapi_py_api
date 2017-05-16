@@ -76,11 +76,9 @@ function segmentPage() {
     var bookdetails = viewBookState.bookdetails;
     var pagedetails = bookdetails.children[curpage].content;
 
-    $.getJSON('/textract/v1/pages/' + pagedetails._id + '/all_segments', function(data){
-        if (! processStatus(data))
-            return;
-        console.log("Page Anno: " + JSON.stringify(data.result));
-        curpage_annotations = data.result;
+    $.getJSON('/textract/v1/pages/' + pagedetails._id + '/image_annotations/all', function(data){
+        console.log("Page Anno: " + JSON.stringify(data));
+        curpage_annotations = data;
     });
     loadpage(true);
 }
@@ -115,7 +113,7 @@ function getBook(hglass, bookId)
     }
     var xhr = $.getJSON('/textract/v1/books/'+bookId).success(function(data){
         console.log("in done");
-        viewBookState.bookdetails = data.result;
+        viewBookState.bookdetails = data;
         setcurpage(0);
     }).fail(function (jqXHR, textStatus, errorThrown) {
         console.log("Fie! something went wrong. ", textStatus, errorThrown, jqXHR)
@@ -161,8 +159,8 @@ function loadpage(reparse) {
 //     $.getJSON('/textract/v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
 //         if (! processStatus(data))
 //             return;
-// //        console.log("Page Anno: " + JSON.stringify(data.result));
-//         curpage_annotations = data.result['anno'];
+// //        console.log("Page Anno: " + JSON.stringify(data));
+//         curpage_annotations = data['anno'];
 //         viewBookState.canvasState = init('pageCanvas','/textract/v1/page/image/'+fpath,
 //             curpage_annotations, curpage);
 //         console.log(viewBookState.canvasState);
