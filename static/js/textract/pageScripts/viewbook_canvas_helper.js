@@ -2,7 +2,7 @@
 
 // Constructor for Rectangle objects to hold data for all drawn objects.
 // For now they will just be defined as rectangles.
-function Rectangle(x, y, w, h, fill, obj) {
+function Rectangle(x, y, w, h, annotationNode) {
     /*
      This is a very simple and unsafe constructor. All we're doing is checking
      if the values exist. "x || 0" just means "if there is a value for x, use
@@ -13,7 +13,7 @@ function Rectangle(x, y, w, h, fill, obj) {
     this.y = y || 0;
     this.w = w || 30;
     this.h = h || 30;
-    this.fill = fill || 'rgba(0,255,0,.2)';
+    this.fill = 'rgba(0,255,0,.2)';
     this.stroke = '#FFFF00';
     this.fontType = 'normal';
     this.fontPoints = this.h - 10;
@@ -23,14 +23,7 @@ function Rectangle(x, y, w, h, fill, obj) {
     this.text = '';
     this.state = 'user_supplied';
     this.displayTextAbove = false;
-    // Handle Object
-    if (obj instanceof Object) {
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) {
-                this[attr] = obj[attr];
-            }
-        }
-    }
+    this.annotationNode = annotationNode
 }
 
 Rectangle.prototype = {
@@ -524,7 +517,7 @@ function CanvasState(canvasId, dataURL, oid) {
         var width = Math.round(30 / myState.scale);
         var height = Math.round(30 / myState.scale);
         myState.addRectangle(new Rectangle(mouse.x - width / 2, mouse.y - height / 2,
-            width, height, 'rgba(0,255,0,.3)'));
+            width, height));
     }, true);
 
     window.addEventListener('keydown', function (e) {
@@ -995,12 +988,12 @@ CanvasState.prototype.zoomOut = function () {
 }
 
 // Shapes are rectangles. This overlays boxes on an image, makes them selectable etc..
-CanvasState.prototype.setAnnotations = function(annotations) {
+CanvasState.prototype.setAnnotations = function(annotationNodes) {
     this.rectangles = []; // initialize the rectangles as we are getting all info together
     self = this;
-    annotations.forEach(function(annotation, index) {
-        var rectangle = annotation.targets[0].rectangle;
-        self.addRectangle(new Rectangle(rectangle.x1, rectangle.y1, rectangle.w, rectangle.h, annotation));
+    annotationNodes.forEach(function(annotationNode, index) {
+        var rectangle = annotationNode.content.targets[0].rectangle;
+        self.addRectangle(new Rectangle(rectangle.x1, rectangle.y1, rectangle.w, rectangle.h, annotationNode));
     })
 }
 

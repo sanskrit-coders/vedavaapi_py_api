@@ -1,4 +1,5 @@
 import logging
+from copy import deepcopy
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -25,3 +26,18 @@ def urlize(pathsuffix, text=None, newtab=True):
   if not text:
     text = pathsuffix
   return '<a href="/workloads/taillog/15/' + pathsuffix + '" ' + tabclause + '>' + text + '</a>'
+
+
+def recursively_merge(a, b):
+  assert a.__class__ == b.__class__, str(a.__class__) + " vs " + str(b.__class__)
+
+  if isinstance(b, dict) and isinstance(a, dict):
+    a_and_b = a.viewkeys() & b.viewkeys()
+    every_key = a.viewkeys() | b.viewkeys()
+    return {k: recursively_merge(a[k], b[k]) if k in a_and_b else
+      deepcopy(a[k] if k in a else b[k]) for k in every_key}
+  elif isinstance(b, list) and isinstance(a, list):
+    return list(a + b)
+  else:
+    return b
+  return deepcopy(b)

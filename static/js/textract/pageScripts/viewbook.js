@@ -11,16 +11,11 @@ var curpage_sections = {};
 var viewBookState = {};
 viewBookState.canvasState = undefined;
 viewBookState.curpage = 1;
-viewBookState.curpage_annotations = {};
 
 $(document).ready(function () {
     console.log("In ready function.");
     getBook(true, $.query.get('_id'));
     console.log("Get Book Returned");
-
-    pramukhIME.addLanguage(PramukhIndic,"sanskrit");
-    pramukhIME.enable();
-
 });
 
 document.onkeypress = function (e) {
@@ -78,7 +73,6 @@ function segmentPage() {
 
     $.getJSON('/textract/v1/pages/' + pagedetails._id + '/image_annotations/all', function(data){
         console.log("Page Anno: ", data);
-        viewBookState.curpage_annotations = data;
         loadpage(data);
     });
 }
@@ -134,7 +128,7 @@ function setcurpage(idx)
     loadpage();
 }
 
-function loadpage(annotations) {
+function loadpage(annotationNodes) {
     var curpage = viewBookState.curpage;
     console.log("Loading page " + curpage);
     if (curpage == undefined) {
@@ -149,8 +143,8 @@ function loadpage(annotations) {
     console.log("Loading page path: ",  fpath);
     viewBookState.canvasState = canvasStateList.add('pageCanvas', fpath, curpage);
     viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);
-    if (annotations != undefined) {
-        viewBookState.canvasState.setAnnotations(annotations);
+    if (annotationNodes != undefined) {
+        viewBookState.canvasState.setAnnotations(annotationNodes);
     }
     viewBookState.canvasState.draw();
     //     viewBookState.canvasState.anno_id = anno_id;

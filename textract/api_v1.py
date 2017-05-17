@@ -52,9 +52,8 @@ class BookList(flask_restplus.Resource):
     try:
       createdir(abspath)
     except Exception as e:
-      error_obj = common.data_containers.JsonAjaxErrorResponse(status="Couldn't create upload directory: %s , %s" % (format(abspath), str(e))).to_flask_response()
-      logging.error(error_obj)
-      return error_obj
+      logging.error(str(e))
+      return "Couldn't create upload directory: %s , %s" % (format(abspath), str(e)), 500
 
     if current_user is None:
       user_id = None
@@ -138,7 +137,7 @@ class BookPortionHandler(flask_restplus.Resource):
 api.add_resource(BookPortionHandler, '/books/<string:book_id>')
 
 
-class PageAnnotationsHandler(flask_restplus.Resource):
+class AllPageAnnotationsHandler(flask_restplus.Resource):
   def get(self, page_id):
     logging.info("page get by id = " + str(page_id))
     book_portions_collection = get_db().books.db_collection
@@ -147,33 +146,22 @@ class PageAnnotationsHandler(flask_restplus.Resource):
       return "No such book portion id", 404
     else:
       image_annotations = get_db().annotations.update_image_annotations(page)
-      return data_containers.JsonObject.get_json_map_list(image_annotations), 201
+      image_annotation_nodes = [data_containers.JsonObjectNode.from_details(content=annotation) for annotation in image_annotations]
+      for node in image_annotation_nodes:
+        node.fill_descendents(some_collection=get_db().annotations.db_collection)
+      return data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
+
+api.add_resource(AllPageAnnotationsHandler, '/pages/<string:page_id>/image_annotations/all')
 
 
-api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations/all')
-
-
-# @flask_blueprint.route('/page/anno/<anno_id>', methods=['GET', 'POST'])
-def pageanno(anno_id):
-  if request.method == 'GET':
-    """return the page annotation with id = anno_id"""
-    reparse = json.loads(request.args.get('reparse'))
-    if reparse:
-      get_db().annotations.propagate(anno_id)
-    anno = get_db().annotations.get(anno_id)
-    return common.data_containers.JsonAjaxResponse(result=anno).to_flask_response()
-  elif request.method == 'POST':
-    """modify/update the page annotation with id = anno_id"""
+class PageAnnotationsHandler(flask_restplus.Resource):
+  def post(self, page_id):
     anno = request.form.get('anno')
     logging.info("save page annotations by id = " + str(anno_id))
     # logging.info("save page annotations = " + anno)
     anno = json.loads(anno)
-    res = get_db().annotations.update(anno_id, {'anno': anno})
-    if res == True:
-      x = common.data_containers.JsonAjaxResponse(result="Annotation saved successfully.").to_flask_response()
-    else:
-      x = common.data_containers.JsonAjaxErrorResponse(status="error saving annotation.").to_flask_response()
-    return x
+
+api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
 
 
 @app.route('/textract/relpath/<path:relpath>')

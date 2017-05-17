@@ -20,7 +20,7 @@ jsonpickle.set_encoder_options('simplejson', indent=2)
 
 
 class BookPortion(JsonObject):
-  schema = dict(JsonObject.schema.items() + ({
+  schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
       "title": {
@@ -41,7 +41,7 @@ class BookPortion(JsonObject):
       }
     },
     "required": [TYPE_FIELD, "path"]
-  }).items())
+  }))
 
   @classmethod
   def from_details(cls, path, title, authors=None, targets=None):
@@ -69,6 +69,19 @@ class BookPortion(JsonObject):
 
 
 class AnnotationSource(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "type": {
+        "type": "string"
+      },
+      "id": {
+        "type": "string"
+      }
+    },
+    "required": [TYPE_FIELD, "type"]
+  }))
+
   @classmethod
   def from_details(cls, type, id):
     source = AnnotationSource()
@@ -80,6 +93,19 @@ class AnnotationSource(JsonObject):
 
 
 class Annotation(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "source": {
+        "type": AnnotationSource.schema
+      },
+      "targets": {
+        "type": "array",
+        "items": Target.schema
+      }
+    },
+  }))
+
   def set_base_details(self, targets, source):
     for target in targets:
       assert isinstance(target, Target), target.__class__
@@ -88,6 +114,28 @@ class Annotation(JsonObject):
     self.source = source
 
 class Rectangle(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "x1": {
+        "type": "integer"
+      },
+      "y1": {
+        "type": "integer"
+      },
+      "w": {
+        "type": "integer"
+      },
+      "h": {
+        "type": "integer"
+      },
+      "score": {
+        "type": "number"
+      },
+    },
+    "required": [TYPE_FIELD, "type"]
+  }))
+
   @classmethod
   def from_details(cls, x=-1, y=-1, w=-1, h=-1, score=0.0):
     rectangle = Rectangle()
@@ -124,6 +172,17 @@ class Rectangle(JsonObject):
 
 
 class ImageTarget(Target):
+  schema = common.recursively_merge(Target.schema, ({
+    "type": "object",
+    "properties": {
+      "rectangle": {
+        "type": "array",
+        "items": Rectangle.schema
+      }
+    },
+    "required": ["rectangle"]
+  }))
+
   # TODO use w, h instead.
   @classmethod
   def from_details(cls, container_id, rectangle):
@@ -136,6 +195,17 @@ class ImageTarget(Target):
 
 # Targets: ImageTarget for a BookPortion
 class ImageAnnotation(Annotation):
+  schema = common.recursively_merge(Annotation.schema, ({
+    "type": "object",
+    "properties": {
+      "targets": {
+        "type": "array",
+        "items": ImageTarget.schema
+      }
+    },
+    "required": ["rectangle"]
+  }))
+
   @classmethod
   def from_details(cls, targets, source):
     annotation = ImageAnnotation()
@@ -144,6 +214,22 @@ class ImageAnnotation(Annotation):
 
 
 class TextContent(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string",
+      },
+      "language": {
+        "type": "string",
+      },
+      "encoding": {
+        "type": "string",
+      },
+    },
+    "required": ["text"]
+  }))
+
   @classmethod
   def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
@@ -158,6 +244,16 @@ class TextContent(JsonObject):
 
 # Targets: ImageAnnotation(s) or  TextAnnotation
 class TextAnnotation(Annotation):
+  schema = common.recursively_merge(Annotation.schema, ({
+    "type": "object",
+    "properties": {
+      "content": {
+        "type": TextContent.schema,
+      }
+    },
+    "required": ["content"]
+  }))
+
   @classmethod
   def from_details(cls, targets, source, content):
     annotation = TextAnnotation()

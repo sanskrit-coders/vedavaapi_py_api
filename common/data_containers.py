@@ -244,37 +244,16 @@ class User(JsonObject):
         return self.user_id
 
 
-class JsonAjaxResponse(JsonObject):
-  def __init__(self, status='ok', result=None):
-    assert common.check_class(status, [str])
-    self.status = status
-    if result:
-      allowed_types = [str, unicode, common.data_containers.JsonObject, JsonObject]
-      if isinstance(result, list):
-        assert common.check_list_item_types(result, allowed_types), result.pop().__class__
-      else:
-        assert common.check_class(result, allowed_types), result.__class__
-      self.result = result
-
-  def to_flask_response(self):
-    return flask.make_response(str(self))
-
-
-class JsonAjaxErrorResponse(JsonAjaxResponse):
-  def __init__(self, status):
-    JsonAjaxResponse.__init__(status=status)
-
-
 class Target(JsonObject):
-  schema = dict(JsonObject.schema.items() + ({
+  schema = common.recursively_merge(JsonObject.schema, {
     "type": "object",
     "properties": {
       "container_id": {
         "type": "string"
       }
     },
-    "required": [TYPE_FIELD, "container_id"]
-  }).items())
+    "required": ["container_id"]
+  })
 
   @classmethod
   def from_details(cls, container_id):
