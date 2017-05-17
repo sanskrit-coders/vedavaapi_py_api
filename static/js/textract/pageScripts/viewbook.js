@@ -147,16 +147,6 @@ function loadpage(annotationNodes) {
         viewBookState.canvasState.setAnnotations(annotationNodes);
     }
     viewBookState.canvasState.draw();
-    //     viewBookState.canvasState.anno_id = anno_id;
-//     $.getJSON('/textract/v1/page/anno/'+anno_id+'?' + serialize(params), function(data){
-//         if (! processStatus(data))
-//             return;
-// //        console.log("Page Anno: " + JSON.stringify(data));
-//         curpage_annotations = data['anno'];
-//         console.log(viewBookState.canvasState);
-//     });
-
-//     var sec_id = pagedetails['sections'];
 }
 
 function slideTo(where) {
@@ -181,3 +171,50 @@ function slideTo(where) {
     }
 }
 
+function makeImageAnnotation(rectangle) {
+    return {
+        "py/object": "textract.backend.data_containers.ImageAnnotation",
+        "source": {
+            "py/object": "textract.backend.data_containers.AnnotationSource",
+            "type": "user_supplied",
+            "id": "UNK"
+        },
+        "targets": [
+        {
+            "py/object": "textract.backend.data_containers.ImageTarget",
+            "container_id": viewBookState.curpage._id,
+            "rectangle": {
+                "py/object": "textract.backend.data_containers.Rectangle",
+                "h": rectangle.h,
+                "score": null,
+                "w": rectangle.w,
+                "y1": rectangle.y,
+                "x1": rectangle.x
+            }
+        }
+        ]
+    };
+}
+
+function makeJsonObjectNode(jsonObject) {
+    return {
+        "py/object": "common.data_containers.JsonObjectNode",
+        "content": jsonObject,
+        "children": []
+    };
+}
+
+function makeTextAnnotation(text) {
+    return {
+        "py/object": "textract.backend.data_containers.TextAnnotation",
+        "source": {
+            "py/object": "textract.backend.data_containers.AnnotationSource",
+            "type": "user_supplied",
+            "id": "UNK"
+        },
+        "content": {
+            "py/object": "textract.backend.data_containers.TextContent",
+            "text": text
+        },
+    }
+}

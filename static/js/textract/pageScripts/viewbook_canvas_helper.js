@@ -20,25 +20,51 @@ function Rectangle(x, y, w, h, annotationNode) {
     this.fontName = 'Arial Unicode MS';
     this.font = this.fontType + " " + this.fontPoints + "pt " + this.fontName;
     this.fillStyle = 'black';
-    this.text = '';
-    this.state = 'user_supplied';
     this.displayTextAbove = false;
-    this.annotationNode = annotationNode
+    this.annotationNode = annotationNode;
+    this.modified = false;
+    if (this.annotationNode == undefined) {
+        this.annotationNode = makeJsonObjectNode(makeImageAnnotation(this));
+        this.modified = true;
+    }
 }
 
 Rectangle.prototype = {
+    getText: function () {
+        if (this.annotationNode.children.length == 0) {
+            return null;
+        } else {
+            return this.annotationNode.children[0].content.content.text;
+        }
+    },
+    getTextOrEmpty: function () {
+        var text = this.getText();
+        if (text != null) {
+            return text;
+        } else {
+            return "";
+        }
+    },
+
+    setText: function (text) {
+        if (this.annotationNode.children.length == 0) {
+            this.annotationNode.children[0] = makeJsonObjectNode(makeTextAnnotation(text));
+        }
+        this.modified = true;
+    },
+
     // Draws this shape to a given context with different stroke and fill
     draw: function (ctx) {
-        if (this.state == "system_inferred") {
+        if (this.getState() == "system_inferred") {
             this.stroke = 'rgba(255,0,0,1)';
             this.fill = 'rgba(0,255,0,.3)';
-        } else if (this.state == "user_accepted") {
+        } else if (this.getState() == "user_accepted") {
             this.stroke = 'rgba(255,255,0,0)';
             this.fill = 'rgba(0,255,255,.3)';
-        } else if (this.state == "user_supplied") {
+        } else if (this.getState() == "user_supplied") {
             this.stroke = 'rgba(255,255,0,1)';
             this.fill = 'rgba(0,255,0,.3)';
-        } else if (this.state == "user_deleted") {
+        } else if (this.getState() == "user_deleted") {
             // Dont draw
             return;
         }
@@ -55,21 +81,16 @@ Rectangle.prototype = {
         // Text x,y starts from bottom left, whereas rectangle from top left
         ctx.font = this.font;
         ctx.fillStyle = this.fillStyle;
+        console.log(this.getTextOrEmpty());
         if (this.displayTextAbove == true) {
-            ctx.fillText(this.text, this.x, this.y);
+            ctx.fillText(this.getTextOrEmpty(), this.x, this.y);
         } else {
-            ctx.fillText(this.text, this.x, this.y + this.fontPoints + 4);
+            ctx.fillText(this.getTextOrEmpty(), this.x, this.y + this.fontPoints + 4);
         }
     },
 
     print: function () {
-        var message = "";
-        for (var attr in this) {
-            if (this.hasOwnProperty(attr)) {
-                message = message.concat("{" + attr + ":" + this[attr] + "}");
-            }
-        }
-        console.log(message);
+        console.log(this);
     },
 
     // increment the text font size
@@ -104,12 +125,16 @@ Rectangle.prototype = {
 
     // change state of the shape
     getState: function () {
-        return this.state;
+        return this.annotationNode.content.source.type;
     },
 
     // change state of the shape
     changeStateTo: function (newState) {
-        this.state = newState;
+        this.modified = true;
+        this.annotationNode.content.source.type = newState;
+        if (this.annotationNode.children.length > 0) {
+            this.annotationNode.children[0].source.type = newState;
+        }
     },
 
     // Determine if a point is inside the shape's bounds
@@ -232,8 +257,8 @@ function CanvasState(canvasId, dataURL, oid) {
         borderWidth: 0,
         borderRadius: 0,
         onsubmit: function () {
-            if (myState.selection) {
-                myState.handleOnSubmit();
+            if (canvasStateContext.selectedRectangle) {
+                canvasStateContext.handleTextSubmission();
             } else {
                 alert("First select the area");
             }
@@ -275,7 +300,7 @@ function CanvasState(canvasId, dataURL, oid) {
     this.containerScrollLeft = 0;
     this.containerScrollTop = 0;
     this.dragForScrolling = false;  // True when mouse down in canvas 
-                                    // without any selection 
+                                    // without any selectedRectangle
     this.dragForScrollingX = 0; // X position when mouse was moved down 
     this.dragForScrollingY = 0; // Y position when mouse was moved down 
     this.dragging = false; // Keep track of when we are dragging
@@ -283,8 +308,8 @@ function CanvasState(canvasId, dataURL, oid) {
                                   // for resizing
 
     // the current selected object. In the future we could turn this into an 
-    // array for multiple selection
-    this.selection = null;
+    // array for multiple selectedRectangle
+    this.selectedRectangle = null;
     this.selectionIndex = null;
     this.dragoffx = 0; // See mousedown and mousemove events for explanation
     this.dragoffy = 0;
@@ -297,7 +322,7 @@ function CanvasState(canvasId, dataURL, oid) {
     // "this" is going to mean the canvas!. Since we still want to use this 
     // particular CanvasState in the events we have to save a reference to it.
     // This is our reference!
-    var myState = this;
+    var canvasStateContext = this;
 
     // fixes a problem where double clicking causes text to get selected on the 
     // canvas
@@ -308,300 +333,300 @@ function CanvasState(canvasId, dataURL, oid) {
 
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function (e) {
-        if (!myState.active) {
+        if (!canvasStateContext.active) {
             return;
         }
-        var mouse = myState.getMouse(e);
+        var mouse = canvasStateContext.getMouse(e);
         var mx = mouse.x;
         var my = mouse.y;
-        var shapes = myState.rectangles;
+        var shapes = canvasStateContext.rectangles;
         var l = shapes.length;
         for (var i = l - 1; i >= 0; i--) {
             if (shapes[i].contains(mx, my)) {
                 var mySel;
-                if (myState.selection && myState.selection.contains(mx, my)) {
-                    mySel = shapes[myState.selectionIndex];
-                    if (myState.mode == "R") {
-                        if (mySel.state != "user_accepted") {
+                if (canvasStateContext.selectedRectangle && canvasStateContext.selectedRectangle.contains(mx, my)) {
+                    mySel = shapes[canvasStateContext.selectionIndex];
+                    if (canvasStateContext.mode == "R") {
+                        if (mySel.getState() != "user_accepted") {
                             mySel.toggleDisplayText();
                         }
                     }
                 } else { // Selection of differnt rectangle
                     mySel = shapes[i];
-                    if (myState.mode == "R") {
-                        if (myState.selection) {
-                            myState.selection.resetDisplayText();
+                    if (canvasStateContext.mode == "R") {
+                        if (canvasStateContext.selectedRectangle) {
+                            canvasStateContext.selectedRectangle.resetDisplayText();
                         }
-                        if (mySel.state != "user_accepted") {
+                        if (mySel.getState() != "user_accepted") {
                             mySel.toggleDisplayText();
                         }
                     }
-                    myState.selection = mySel;
-                    myState.selectionIndex = i;
+                    canvasStateContext.selectedRectangle = mySel;
+                    canvasStateContext.selectionIndex = i;
                 }
                 // Keep track of where in the object we clicked
                 // so we can move it smoothly (see mousemove)
-                myState.dragoffx = mx - mySel.x;
-                myState.dragoffy = my - mySel.y;
-                myState.dragging = true;
+                canvasStateContext.dragoffx = mx - mySel.x;
+                canvasStateContext.dragoffy = my - mySel.y;
+                canvasStateContext.dragging = true;
                 if (mySel.atBorders(mx, my)) {
-                    myState.dragForResizing = true;
+                    canvasStateContext.dragForResizing = true;
                     this.style.cursor = 'se-resize';
                 }
-                myState.scrollX = Math.round(window.scrollX);
-                myState.scrollY = Math.round(window.scrollY);
+                canvasStateContext.scrollX = Math.round(window.scrollX);
+                canvasStateContext.scrollY = Math.round(window.scrollY);
 
-                if (myState.mode == "E") {
-                    myState.changeInputLocation(myState.selection);
+                if (canvasStateContext.mode == "E") {
+                    canvasStateContext.changeInputLocation(canvasStateContext.selectedRectangle);
                 }
 
-                myState.valid = false;
+                canvasStateContext.valid = false;
                 return;
             }
         }
         // havent returned means we have failed to select anything.
         // If there was an object selected, we deselect it
-        if (myState.selection && (!myState.inputTextContains(mx, my))) {
+        if (canvasStateContext.selectedRectangle && (!canvasStateContext.inputTextContains(mx, my))) {
             console.log("Deselecting - MX: " + mx + " MY: " + my);
-            if (myState.mode == "R") {
-                myState.selection.resetDisplayText();
+            if (canvasStateContext.mode == "R") {
+                canvasStateContext.selectedRectangle.resetDisplayText();
             }
-            myState.selection = null;
-            myState.selectionIndex = null;
-            myState.scrollX = Math.round(window.scrollX);
-            myState.scrollY = Math.round(window.scrollY);
-            myState.valid = false; // Need to clear the old selection border
+            canvasStateContext.selectedRectangle = null;
+            canvasStateContext.selectionIndex = null;
+            canvasStateContext.scrollX = Math.round(window.scrollX);
+            canvasStateContext.scrollY = Math.round(window.scrollY);
+            canvasStateContext.valid = false; // Need to clear the old selectedRectangle border
         }
-        if (!myState.dragForResizing && !myState.dragging) {
-            myState.scrollX = Math.round(window.scrollX);
-            myState.scrollY = Math.round(window.scrollY);
+        if (!canvasStateContext.dragForResizing && !canvasStateContext.dragging) {
+            canvasStateContext.scrollX = Math.round(window.scrollX);
+            canvasStateContext.scrollY = Math.round(window.scrollY);
             /**
-             myState.dragForScrolling = true;
-             myState.dragForScrollingX = e.pageX;
-             myState.dragForScrollingY = e.pageY;
+             canvasStateContext.dragForScrolling = true;
+             canvasStateContext.dragForScrollingX = e.pageX;
+             canvasStateContext.dragForScrollingY = e.pageY;
              */
-            myState.valid = false; // Need to move the canvas 
+            canvasStateContext.valid = false; // Need to move the canvas
         }
     }, true);
 
     canvas.addEventListener('mousemove', function (e) {
-        if (!myState.active) {
+        if (!canvasStateContext.active) {
             return;
         }
         e.preventDefault();
-        if (myState.dragging) {
-            var mouse = myState.getMouse(e);
-            if (!myState.dragForResizing) {
+        if (canvasStateContext.dragging) {
+            var mouse = canvasStateContext.getMouse(e);
+            if (!canvasStateContext.dragForResizing) {
                 // We don't want to drag the object by its top-left corner,
                 // we want to drag it from where we clicked. Thats why we
                 // saved the offset and use it here
-                myState.selection.x = mouse.x - myState.dragoffx;
-                myState.selection.y = mouse.y - myState.dragoffy;
+                canvasStateContext.selectedRectangle.x = mouse.x - canvasStateContext.dragoffx;
+                canvasStateContext.selectedRectangle.y = mouse.y - canvasStateContext.dragoffy;
             } else {
-                // Not allowing the selection to go -ve and keeping the min
+                // Not allowing the selectedRectangle to go -ve and keeping the min
                 // size of rectangle as 15.
-                if ((mouse.x - myState.selection.x) > 15 &&
-                    (mouse.y - myState.selection.y) > 15) {
-                    myState.selection.w = mouse.x - myState.selection.x;
-                    myState.selection.h = mouse.y - myState.selection.y;
+                if ((mouse.x - canvasStateContext.selectedRectangle.x) > 15 &&
+                    (mouse.y - canvasStateContext.selectedRectangle.y) > 15) {
+                    canvasStateContext.selectedRectangle.w = mouse.x - canvasStateContext.selectedRectangle.x;
+                    canvasStateContext.selectedRectangle.h = mouse.y - canvasStateContext.selectedRectangle.y;
                 }
             }
-            myState.scrollX = Math.round(window.scrollX);
-            myState.scrollY = Math.round(window.scrollY);
-            myState.valid = false; // Something's dragging so we must redraw
-        } else if (myState.selection) {
-            var mouse = myState.getMouse(e);
+            canvasStateContext.scrollX = Math.round(window.scrollX);
+            canvasStateContext.scrollY = Math.round(window.scrollY);
+            canvasStateContext.valid = false; // Something's dragging so we must redraw
+        } else if (canvasStateContext.selectedRectangle) {
+            var mouse = canvasStateContext.getMouse(e);
             var mx = mouse.x;
             var my = mouse.y;
-            if (myState.selection.atBorders(mx, my)) {
+            if (canvasStateContext.selectedRectangle.atBorders(mx, my)) {
                 this.style.cursor = 'se-resize';
             } else {
                 this.style.cursor = 'auto';
             }
-        } else if (myState.dragForScrolling) {
+        } else if (canvasStateContext.dragForScrolling) {
             /*
              this.style.cursor = 'all-scroll';
-             var leftMove = myState.canvasContainer.scrollLeft;
-             var topMove = myState.canvasContainer.scrollTop;
+             var leftMove = canvasStateContext.canvasContainer.scrollLeft;
+             var topMove = canvasStateContext.canvasContainer.scrollTop;
 
              console.log("1.Scrolling Div To"+ leftMove+" "+ topMove);
 
-             leftMove += (myState.dragForScrollingX - e.pageX);
+             leftMove += (canvasStateContext.dragForScrollingX - e.pageX);
              if (leftMove < 0 ) {
              leftMove = 0;
              }
              console.log("2.Scrolling Div To"+ leftMove+" "+ topMove);
 
-             if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
-             leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
+             if (leftMove > (canvasStateContext.canvasContainer.scrollWidth - canvasStateContext.canvasContainer.clientWidth)) {
+             leftMove = canvasStateContext.canvasContainer.scrollWidth - canvasStateContext.canvasContainer.clientWidth;
              }
              leftMove = Math.round(leftMove);
 
-             topMove += (myState.dragForScrollingY - e.pageY);
+             topMove += (canvasStateContext.dragForScrollingY - e.pageY);
              if (topMove < 0 ) {
              topMove = 0;
              }
-             if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
-             topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
+             if (topMove > (canvasStateContext.canvasContainer.scrollHeight - canvasStateContext.canvasContainer.clientHeight)) {
+             topMove = canvasStateContext.canvasContainer.scrollHeight - canvasStateContext.canvasContainer.clientHeight;
              }
              topMove = Math.round(topMove);
 
-             myState.dragForScrollingX = e.pageX;
-             myState.dragForScrollingY = e.pageY;
-             myState.canvasContainer.scrollLeft = leftMove;
-             myState.canvasContainer.scrollTop = topMove;
-             myState.containerScrollLeft = leftMove;
-             myState.containerScrollTop = topMove;
+             canvasStateContext.dragForScrollingX = e.pageX;
+             canvasStateContext.dragForScrollingY = e.pageY;
+             canvasStateContext.canvasContainer.scrollLeft = leftMove;
+             canvasStateContext.canvasContainer.scrollTop = topMove;
+             canvasStateContext.containerScrollLeft = leftMove;
+             canvasStateContext.containerScrollTop = topMove;
              console.log("Scrolling Div To"+ leftMove+" "+ topMove);
 
-             myState.valid = false; // Something's dragging so we must redraw
+             canvasStateContext.valid = false; // Something's dragging so we must redraw
              */
         }
     }, true);
 
     canvas.addEventListener('mouseup', function (e) {
-        if (!myState.active) {
+        if (!canvasStateContext.active) {
             return;
         }
-        if (myState.dragForScrolling) {
+        if (canvasStateContext.dragForScrolling) {
             /*
-             var leftMove = myState.canvasContainer.scrollLeft;
-             var topMove = myState.canvasContainer.scrollTop;
+             var leftMove = canvasStateContext.canvasContainer.scrollLeft;
+             var topMove = canvasStateContext.canvasContainer.scrollTop;
 
-             leftMove += (myState.dragForScrollingX - e.pageX);
+             leftMove += (canvasStateContext.dragForScrollingX - e.pageX);
              if (leftMove < 0 ) {
              leftMove = 0;
              }
-             if (leftMove > (myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth)) {
-             leftMove = myState.canvasContainer.scrollWidth - myState.canvasContainer.clientWidth;
+             if (leftMove > (canvasStateContext.canvasContainer.scrollWidth - canvasStateContext.canvasContainer.clientWidth)) {
+             leftMove = canvasStateContext.canvasContainer.scrollWidth - canvasStateContext.canvasContainer.clientWidth;
              }
              leftMove = Math.round(leftMove);
 
-             topMove += (myState.dragForScrollingY - e.pageY);
+             topMove += (canvasStateContext.dragForScrollingY - e.pageY);
              if (topMove < 0 ) {
              topMove = 0;
              }
-             if (topMove > (myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight)) {
-             topMove = myState.canvasContainer.scrollHeight - myState.canvasContainer.clientHeight;
+             if (topMove > (canvasStateContext.canvasContainer.scrollHeight - canvasStateContext.canvasContainer.clientHeight)) {
+             topMove = canvasStateContext.canvasContainer.scrollHeight - canvasStateContext.canvasContainer.clientHeight;
              }
              topMove = Math.round(topMove);
 
-             myState.dragForScrollingX = e.pageX;
-             myState.dragForScrollingY = e.pageY;
-             myState.canvasContainer.scrollLeft = leftMove;
-             myState.canvasContainer.scrollTop = topMove;
-             myState.containerScrollLeft = leftMove;
-             myState.containerScrollTop = topMove;
+             canvasStateContext.dragForScrollingX = e.pageX;
+             canvasStateContext.dragForScrollingY = e.pageY;
+             canvasStateContext.canvasContainer.scrollLeft = leftMove;
+             canvasStateContext.canvasContainer.scrollTop = topMove;
+             canvasStateContext.containerScrollLeft = leftMove;
+             canvasStateContext.containerScrollTop = topMove;
              console.log("Scrolling Div To"+ leftMove+" "+ topMove);
-             myState.valid = false; // Something's dragging so we must redraw
+             canvasStateContext.valid = false; // Something's dragging so we must redraw
              */
         }
-        if (myState.selection) {
-            myState.changeInputLocation(myState.selection);
+        if (canvasStateContext.selectedRectangle) {
+            canvasStateContext.changeInputLocation(canvasStateContext.selectedRectangle);
         }
-        myState.valid = false;
-        myState.dragging = false;
-        myState.dragForResizing = false;
-//        myState.dragForScrolling = false; 
+        canvasStateContext.valid = false;
+        canvasStateContext.dragging = false;
+        canvasStateContext.dragForResizing = false;
+//        canvasStateContext.dragForScrolling = false;
         this.style.cursor = 'auto';
     }, true);
 
     // double click for making new rectangles
     canvas.addEventListener('dblclick', function (e) {
-        if (!myState.active) {
+        if (!canvasStateContext.active) {
             return;
         }
-        var mouse = myState.getMouse(e);
+        var mouse = canvasStateContext.getMouse(e);
         // To keep the rectangle of same size, we would need to scale up the 
         // rectangle by the amount the image is scaled down
-        var width = Math.round(30 / myState.scale);
-        var height = Math.round(30 / myState.scale);
-        myState.addRectangle(new Rectangle(mouse.x - width / 2, mouse.y - height / 2,
+        var width = Math.round(30 / canvasStateContext.scale);
+        var height = Math.round(30 / canvasStateContext.scale);
+        canvasStateContext.addRectangle(new Rectangle(mouse.x - width / 2, mouse.y - height / 2,
             width, height));
     }, true);
 
     window.addEventListener('keydown', function (e) {
-        if (!myState.active) {
+        if (!canvasStateContext.active) {
             return false;
         }
         var charPressed = e.which || e.keyCode;
 //        console.log("You pressed Key "+charPressed);
         if (charPressed == 9) {
-            myState.handleOnSubmit();
-            myState.handleTab(e);
+            canvasStateContext.handleTextSubmission();
+            canvasStateContext.handleTab(e);
             e.preventDefault();
             e.stopPropagation();
         }
         // Undo operation called
         if (charPressed == 90 && e.ctrlKey) {
-            myState.undoActivity();
+            canvasStateContext.undoActivity();
             e.preventDefault();
             e.stopPropagation();
         } else if (charPressed == 89 && e.ctrlKey) {
-            myState.redoActivity();
+            canvasStateContext.redoActivity();
             e.preventDefault();
             e.stopPropagation();
         }
 
         // Alt+up/down should hide and unhide the inputText bar
         if ((charPressed == 40 || charPressed == 38) && e.shiftKey) {
-            if (myState.mode == "R") {
+            if (canvasStateContext.mode == "R") {
                 return;
             } //No action taken
-            if (myState.inputText.height() == 1) {
-                if (myState.selection) {
-                    myState.changeInputLocation(myState.selection);
+            if (canvasStateContext.inputText.height() == 1) {
+                if (canvasStateContext.selectedRectangle) {
+                    canvasStateContext.changeInputLocation(canvasStateContext.selectedRectangle);
                 }
-                myState.inputText.height(24);
-                myState.inputText.width(90);
+                canvasStateContext.inputText.height(24);
+                canvasStateContext.inputText.width(90);
             } else {
-                myState.inputText.height(1);
-                myState.inputText.width(1);
+                canvasStateContext.inputText.height(1);
+                canvasStateContext.inputText.width(1);
             }
-            myState.valid = false; // Something's changed so we must redraw
+            canvasStateContext.valid = false; // Something's changed so we must redraw
         }
-        if (!myState.selection) {
+        if (!canvasStateContext.selectedRectangle) {
             return;
         }
         if (charPressed == 39 && e.shiftKey) {
 //            console.log("You pressed + key");
-            myState.selection.increaseFont();
-            myState.valid = false; // Something's changed so we must redraw
+            canvasStateContext.selectedRectangle.increaseFont();
+            canvasStateContext.valid = false; // Something's changed so we must redraw
         } else if (charPressed == 37 && e.shiftKey) {
 //            console.log("You pressed - key");
-            myState.selection.decreaseFont();
-            myState.valid = false; // Something's changed so we must redraw
+            canvasStateContext.selectedRectangle.decreaseFont();
+            canvasStateContext.valid = false; // Something's changed so we must redraw
         } else if (charPressed == 46) { // Del key triggered
 //            console.log("You pressed del key");
             //removing the shape from the array
-            if (myState.mode != "S") {
-                var oldState = myState.selection.getState();
-                myState.addActivity('StateChange', myState.selection, oldState, 'user_deleted');
-                myState.selection.changeStateTo('user_deleted');
-                myState.selection.resetDisplayText();
-                myState.valid = false; // Something's changed so we must redraw
+            if (canvasStateContext.mode != "S") {
+                var oldState = canvasStateContext.selectedRectangle.getState();
+                canvasStateContext.addActivity('StateChange', canvasStateContext.selectedRectangle, oldState, 'user_deleted');
+                canvasStateContext.selectedRectangle.changeStateTo('user_deleted');
+                canvasStateContext.selectedRectangle.resetDisplayText();
+                canvasStateContext.valid = false; // Something's changed so we must redraw
                 e.preventDefault();
                 e.stopPropagation();
             }
-//            myState.rectangles.splice(myState.selectionIndex,1);
-//            myState.selection = null;
-//            myState.selectionIndex = null;
-//            myState.valid = false; // Something's deleted so we must redraw
+//            canvasStateContext.rectangles.splice(canvasStateContext.selectionIndex,1);
+//            canvasStateContext.selectedRectangle = null;
+//            canvasStateContext.selectionIndex = null;
+//            canvasStateContext.valid = false; // Something's deleted so we must redraw
         } else if (charPressed == 65) {
-            if (myState.mode == "R") {
-                var oldState = myState.selection.getState();
-                myState.addActivity('StateChange', myState.selection, oldState, 'user_accepted');
-                myState.selection.changeStateTo('user_accepted');
-                myState.selection.resetDisplayText();
-                myState.valid = false; // Something's changed so we must redraw
+            if (canvasStateContext.mode == "R") {
+                var oldState = canvasStateContext.selectedRectangle.getState();
+                canvasStateContext.addActivity('StateChange', canvasStateContext.selectedRectangle, oldState, 'user_accepted');
+                canvasStateContext.selectedRectangle.changeStateTo('user_accepted');
+                canvasStateContext.selectedRectangle.resetDisplayText();
+                canvasStateContext.valid = false; // Something's changed so we must redraw
                 e.preventDefault();
                 e.stopPropagation();
             }
         } else if (charPressed == 72 && e.ctrlKey && e.shiftKey) {
-            if (myState.selection.state != "user_accepted") {
-                myState.selection.toggleDisplayText();
+            if (canvasStateContext.selectedRectangle.getState() != "user_accepted") {
+                canvasStateContext.selectedRectangle.toggleDisplayText();
             }
-            myState.valid = false; // Something's changed so we must redraw
+            canvasStateContext.valid = false; // Something's changed so we must redraw
             e.preventDefault();
             e.stopPropagation();
         } else {
@@ -617,88 +642,89 @@ function CanvasState(canvasId, dataURL, oid) {
     this.undoStack = []; // Items stores as {"Op",oldState,newShape}
     this.redoStack = []; // Items stores as {"Op",newShape,oldShape}
 //    this.interval = 30;
-//    setInterval(function() { myState.draw(); }, myState.interval);
+//    setInterval(function() { canvasStateContext.draw(); }, canvasStateContext.interval);
 }
 
-CanvasState.prototype.handleOnSubmit = function () {
-    myState = this;
-    if (myState.selection) {
-        myState.selection.print();
-        var prevValue = myState.selection.text;
-        myState.selection.text = myState.inputText.value();
-//        myState.selection.fontPoints = Math.round(myState.selection.h - 5/myState.scale);
-//        myState.selection.font = myState.selection.fontType+" "+myState.selection.fontPoints+"pt "+myState.selection.fontName;
-        myState.valid = false;
-        console.log("Prev =" + prevValue + " New=" + myState.selection.text);
-        if (myState.selection.text != prevValue) {
-            var oldState = myState.selection.getState();
-            myState.addActivity('StateChange', myState.selection, oldState, 'user_supplied');
-            myState.selection.changeStateTo('user_supplied');
+CanvasState.prototype.handleTextSubmission = function () {
+    var canvasStateContext = this;
+    if (canvasStateContext.selectedRectangle) {
+        canvasStateContext.selectedRectangle.print();
+        var prevValue = canvasStateContext.selectedRectangle.getText();
+        canvasStateContext.selectedRectangle.setText(canvasStateContext.inputText.value());
+//        canvasStateContext.selectedRectangle.fontPoints = Math.round(canvasStateContext.selectedRectangle.h - 5/canvasStateContext.scale);
+//        canvasStateContext.selectedRectangle.font = canvasStateContext.selectedRectangle.fontType+" "+canvasStateContext.selectedRectangle.fontPoints+"pt "+canvasStateContext.selectedRectangle.fontName;
+        canvasStateContext.valid = false;
+        console.log("Prev =" + prevValue + " New=" + canvasStateContext.selectedRectangle.getText());
+        if (canvasStateContext.selectedRectangle.getText() != prevValue) {
+            var oldState = canvasStateContext.selectedRectangle.getState();
+            canvasStateContext.addActivity('StateChange', canvasStateContext.selectedRectangle, oldState, 'user_supplied');
+            canvasStateContext.selectedRectangle.changeStateTo('user_supplied');
         }
-        myState.inputText.value('');
-        myState.selection.print();
+        canvasStateContext.inputText.value('');
+        canvasStateContext.selectedRectangle.print();
+        // canvasStateContext.selectedRectangle.draw(canvasStateContext.ctx);
     } else {
         console.log("First select the area");
     }
 }
 
 CanvasState.prototype.handleTab = function (e) {
-    myState = this;
-    if (myState.selection) {
-        myState.selection.resetDisplayText();
+    var canvasStateContext = this;
+    if (canvasStateContext.selectedRectangle) {
+        canvasStateContext.selectedRectangle.resetDisplayText();
     } else {
-        console.log("No selection done ");
+        console.log("No selectedRectangle done ");
         return false;
     }
-    var prevSelection = myState.selection;
+    var prevSelection = canvasStateContext.selectedRectangle;
     var newSelection = prevSelection;
     do {
         if (e.shiftKey) {
-            if (myState.selectionIndex == 0) {
-                myState.selectionIndex = myState.rectangles.length - 1;
+            if (canvasStateContext.selectionIndex == 0) {
+                canvasStateContext.selectionIndex = canvasStateContext.rectangles.length - 1;
             } else {
-                myState.selectionIndex--;
+                canvasStateContext.selectionIndex--;
             }
         } else {
-            if (myState.selectionIndex == (myState.rectangles.length - 1)) {
-                myState.selectionIndex = 0;
+            if (canvasStateContext.selectionIndex == (canvasStateContext.rectangles.length - 1)) {
+                canvasStateContext.selectionIndex = 0;
             } else {
-                myState.selectionIndex++;
+                canvasStateContext.selectionIndex++;
             }
         }
-        newSelection = myState.rectangles[myState.selectionIndex];
-    } while (newSelection.state == "user_deleted");
+        newSelection = canvasStateContext.rectangles[canvasStateContext.selectionIndex];
+    } while (newSelection.getState() == "user_deleted");
 
-    myState.selection = newSelection;
+    canvasStateContext.selectedRectangle = newSelection;
 
-    if (myState.mode == "R") {
-        if (myState.selection.state != "user_accepted") {
-            myState.selection.toggleDisplayText();
+    if (canvasStateContext.mode == "R") {
+        if (canvasStateContext.selectedRectangle.getState() != "user_accepted") {
+            canvasStateContext.selectedRectangle.toggleDisplayText();
         }
     }
-    if (myState.mode == "E") {
-        myState.changeInputLocation(myState.selection);
+    if (canvasStateContext.mode == "E") {
+        canvasStateContext.changeInputLocation(canvasStateContext.selectedRectangle);
     }
 
-    myState.scrollX = Math.round(window.scrollX);
-    myState.scrollY = Math.round(window.scrollY);
-//  console.log("ScrollX = "+myState.scrollX+" ScrollY = "+myState.scrollY);
+    canvasStateContext.scrollX = Math.round(window.scrollX);
+    canvasStateContext.scrollY = Math.round(window.scrollY);
+//  console.log("ScrollX = "+canvasStateContext.scrollX+" ScrollY = "+canvasStateContext.scrollY);
 
-    var scrollLeft = myState.canvasContainer.scrollLeft;
-    var scrollTop = myState.canvasContainer.scrollTop;
-    var scrollWidth = myState.canvasContainer.scrollWidth;
-    var scrollHeight = myState.canvasContainer.scrollHeight;
-    var clientWidth = myState.canvasContainer.clientWidth;
-    var clientHeight = myState.canvasContainer.clientHeight;
+    var scrollLeft = canvasStateContext.canvasContainer.scrollLeft;
+    var scrollTop = canvasStateContext.canvasContainer.scrollTop;
+    var scrollWidth = canvasStateContext.canvasContainer.scrollWidth;
+    var scrollHeight = canvasStateContext.canvasContainer.scrollHeight;
+    var clientWidth = canvasStateContext.canvasContainer.clientWidth;
+    var clientHeight = canvasStateContext.canvasContainer.clientHeight;
     var horizontalMove = 0;
     var verticalMove = 0;
 //  console.log("ScrollHeight = "+scrollHeight+" clientHeight "+clientHeight);
 //  console.log("ScrollWidth = "+scrollWidth+" clientWidth "+clientWidth);
 
-    var hDistance = Math.abs((newSelection.x - prevSelection.x) * myState.scale);
+    var hDistance = Math.abs((newSelection.x - prevSelection.x) * canvasStateContext.scale);
 //  console.log("H-Distance = "+hDistance);
-    //Check if the new selection is on right or left of viewport
-    if ((newSelection.x * myState.scale) > (scrollLeft + clientWidth)) {
+    //Check if the new selectedRectangle is on right or left of viewport
+    if ((newSelection.x * canvasStateContext.scale) > (scrollLeft + clientWidth)) {
         if (hDistance < (clientWidth / 4)) {
             horizontalMove = Math.min(clientWidth / 4,
                 (scrollWidth - (scrollLeft + clientWidth)));
@@ -709,7 +735,7 @@ CanvasState.prototype.handleTab = function (e) {
             horizontalMove = Math.min(clientWidth / 2,
                 (scrollWidth - (scrollLeft + clientWidth)));
         }
-    } else if ((newSelection.x * myState.scale) < scrollLeft) {
+    } else if ((newSelection.x * canvasStateContext.scale) < scrollLeft) {
         if (hDistance < (clientWidth / 4)) {
             horizontalMove = -(Math.min(clientWidth / 4, scrollLeft));
         } else if (hDistance > (clientWidth / 2)) {
@@ -721,10 +747,10 @@ CanvasState.prototype.handleTab = function (e) {
     }
     horizontalMove = Math.round(horizontalMove);
 
-    var vDistance = Math.abs((newSelection.y - prevSelection.y) * myState.scale);
+    var vDistance = Math.abs((newSelection.y - prevSelection.y) * canvasStateContext.scale);
 //    console.log("V-Distance = "+vDistance);
-    //Check if the new selection is on top or bottom of viewport
-    if ((newSelection.y * myState.scale) > (scrollTop + clientHeight)) {
+    //Check if the new selectedRectangle is on top or bottom of viewport
+    if ((newSelection.y * canvasStateContext.scale) > (scrollTop + clientHeight)) {
         if (vDistance < (clientHeight / 4)) {
             verticalMove = Math.min(clientHeight / 4,
                 (scrollHeight - (scrollTop + clientHeight)));
@@ -735,7 +761,7 @@ CanvasState.prototype.handleTab = function (e) {
             verticalMove = Math.min(clientHeight / 2,
                 (scrollHeight - (scrollTop + clientHeight)));
         }
-    } else if ((newSelection.y * myState.scale) < scrollTop) {
+    } else if ((newSelection.y * canvasStateContext.scale) < scrollTop) {
         if (vDistance < (clientHeight / 4)) {
             verticalMove = -(Math.min(clientHeight / 4, scrollTop));
         } else if (vDistance > (clientHeight / 2)) {
@@ -749,12 +775,12 @@ CanvasState.prototype.handleTab = function (e) {
 
 //     console.log("Current Scroll by X: "+scrollLeft+" Y: "+scrollTop);
 //     console.log("Scrolling by X: "+horizontalMove+" Y: "+verticalMove);
-    myState.canvasContainer.scrollLeft = scrollLeft + horizontalMove;
-    myState.canvasContainer.scrollTop = scrollTop + verticalMove;
-    myState.valid = false;
+    canvasStateContext.canvasContainer.scrollLeft = scrollLeft + horizontalMove;
+    canvasStateContext.canvasContainer.scrollTop = scrollTop + verticalMove;
+    canvasStateContext.valid = false;
     // For logging purpose only
-//     scrollLeft = myState.canvasContainer.scrollLeft; 
-//     scrollTop = myState.canvasContainer.scrollTop; 
+//     scrollLeft = canvasStateContext.canvasContainer.scrollLeft;
+//     scrollTop = canvasStateContext.canvasContainer.scrollTop;
 //     console.log("New Scroll by X: "+scrollLeft+" Y: "+scrollTop);
 }
 
@@ -812,7 +838,8 @@ CanvasState.prototype.changeInputLocation = function (selectedShape) {
     } else {
         this.inputText.y(selectedShape.y - (scaledHeight + buffer));
     }
-    console.log("Rectangle X: " + selectedShape.x + " Y: " + selectedShape.y + " H: " + selectedShape.h + " W: " + selectedShape.w + " Ix: " + this.inputText.x() + " Iy: " + this.inputText.y() + " Ih: " + this.inputText.height() + " Iw: " + this.inputText.width());
+    console.log(JSON.stringify(selectedShape, null, 2));
+    console.log(selectedShape, this.inputText);
 }
 
 // Determine if a point is inside the input text box
@@ -846,7 +873,7 @@ CanvasState.prototype.addRectangle = function (rectangle) {
     } else if (shapeInserted == false) { // Insert at the begining
         this.rectangles.splice(0, 0, rectangle);
     }
-    if (rectangle.text != '') {
+    if (rectangle.getText() != null) {
         rectangle.print();
     }
     this.valid = false;
@@ -882,11 +909,11 @@ CanvasState.prototype.draw = function () {
         ctx.scale(this.scale, this.scale);
         ctx.drawImage(imageObj, 0, 0);
 
-        if (this.selection != null && this.mode != "R") {
-            this.inputText.width(Math.round(Math.max(this.INPUT_WIDTH / this.scale, this.selection.w)));
+        if (this.selectedRectangle != null && this.mode != "R") {
+            this.inputText.width(Math.round(Math.max(this.INPUT_WIDTH / this.scale, this.selectedRectangle.w)));
             this.inputText.height(Math.round(this.INPUT_HEIGHT / this.scale));
             this.inputText.fontSize(Math.round(this.INPUT_FONT_SIZE / this.scale));
-            this.inputText.value(this.selection.text);
+            this.inputText.value(this.selectedRectangle.getTextOrEmpty());
             this.inputText.render();
             this.inputText.focus();
         }
@@ -904,12 +931,12 @@ CanvasState.prototype.draw = function () {
             rectangles[i].draw(ctx);
         }
 
-        // draw selection
+        // draw selectedRectangle
         // right now this is just a stroke along the edge of the selected Rectangle
-        if (this.selection != null) {
+        if (this.selectedRectangle != null) {
             ctx.strokeStyle = this.selectionColor;
             ctx.lineWidth = this.selectionWidth;
-            var mySel = this.selection;
+            var mySel = this.selectedRectangle;
             ctx.strokeRect(mySel.x, mySel.y, mySel.w, mySel.h);
         }
 //        console.log("Scrolling To"+ this.scrollX+" "+ this.scrollY); 
@@ -922,7 +949,7 @@ CanvasState.prototype.draw = function () {
 }
 
 CanvasState.prototype.log = function (str) {
-    if (!this.selection) {
+    if (!this.selectedRectangle) {
 //        console.log(str);
     }
 }
@@ -1002,8 +1029,8 @@ CanvasState.prototype.setAnnotations = function(annotationNodes) {
 // Currently there are 2 modes supported "E" edit mode and "R" review mode
 CanvasState.prototype.changeMode = function (flag) {
     this.mode = flag;
-    if (this.selection) {
-        this.selection.resetDisplayText();
+    if (this.selectedRectangle) {
+        this.selectedRectangle.resetDisplayText();
     }
     if (this.mode == "E") {
         this.inputText.height(24);
@@ -1017,14 +1044,14 @@ CanvasState.prototype.changeMode = function (flag) {
 
 // Accept the selected shape
 CanvasState.prototype.accept = function () {
-    if (this.selection) {
-        var oldState = this.selection.getState();
+    if (this.selectedRectangle) {
+        var oldState = this.selectedRectangle.getState();
         this.addActivity('StateChange', oldState, 'user_accepted');
-        this.selection.changeStateTo('user_accepted');
-        this.selection.resetDisplayText();
+        this.selectedRectangle.changeStateTo('user_accepted');
+        this.selectedRectangle.resetDisplayText();
         this.valid = false;
     } else {
-        console.log("No active selection");
+        console.log("No active selectedRectangle");
     }
 }
 
@@ -1044,15 +1071,14 @@ CanvasState.prototype.saveAnnotations = function () {
     var oid = this.oid;
     var anno_id = this.anno_id;
 
-//    console.log(JSON.stringify(rectangles));
+//    console.log(rectangles);
     for (var i = 0; i < shapes.length; i++) {
         var shape = shapes[i];
 
-        if (shape.text != '') {
+        if (shape.getText() != null) {
 //            console.log(Object.prototype.toString.call(shape));
 //            console.log("X:"+shape.x+" Y:"+shape.y+" W:"+shape.w+" H:"+shape.h);
-            console.log(JSON.parse(JSON.stringify(shape)));
-            console.log(JSON.stringify(shape));
+            console.log(shape);
         }
     }
     console.log('POST /textract/v1/page/anno/' + anno_id);
@@ -1063,30 +1089,3 @@ CanvasState.prototype.saveAnnotations = function () {
     }, "json");
     //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
 }
-
-function post(path, params, method) {
-    method = method || "post"; // Set method to post by default if unspecified.
-
-    // The rest of this code assumes you are not using a library.
-    // It can be made less wordy if you use one.
-    var form = document.createElement("form");
-    form.setAttribute("method", method);
-    form.setAttribute("action", path);
-
-//    for(var key in params) {
-//        if(params.hasOwnProperty(key)) {
-    var hiddenField = document.createElement("input");
-    hiddenField.setAttribute("type", "hidden");
-    hiddenField.setAttribute("name", "Blob");
-    hiddenField.setAttribute("value", params);
-//            hiddenField.setAttribute("name", key);
-//            hiddenField.setAttribute("value", params[key]);
-
-    form.appendChild(hiddenField);
-//         }
-//    }
-
-    document.body.appendChild(form);
-    form.submit();
-}
-

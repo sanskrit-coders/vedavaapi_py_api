@@ -148,7 +148,13 @@ class JsonObject(object):
     self.set_type_recursively()
     if hasattr(self, "schema"):
       self.validate_schema()
-    updated_doc = some_collection.find_one_and_update(self.to_json_map(), {"$set": self.to_json_map()}, upsert=True,
+
+    if hasattr(self, "_id"):
+      filter = {"_id": ObjectId(self._id)}
+    else:
+      filter = self.to_json_map()
+
+    updated_doc = some_collection.find_one_and_update(filter, {"$set": self.to_json_map()}, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     self.set_type()
     updated_doc[TYPE_FIELD] = getattr(self, TYPE_FIELD)
