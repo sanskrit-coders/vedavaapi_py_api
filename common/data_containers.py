@@ -149,12 +149,14 @@ class JsonObject(object):
     if hasattr(self, "schema"):
       self.validate_schema()
 
+    map_to_write = self.to_json_map()
     if hasattr(self, "_id"):
       filter = {"_id": ObjectId(self._id)}
+      map_to_write.pop("_id", None)
     else:
       filter = self.to_json_map()
 
-    updated_doc = some_collection.find_one_and_update(filter, {"$set": self.to_json_map()}, upsert=True,
+    updated_doc = some_collection.find_one_and_update(filter, {"$set": map_to_write}, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     self.set_type()
     updated_doc[TYPE_FIELD] = getattr(self, TYPE_FIELD)
@@ -163,6 +165,8 @@ class JsonObject(object):
   def validate_schema(self):
     json_map = self.to_json_map()
     json_map.pop("_id", None)
+    logging.debug(str(self))
+    logging.debug(jsonpickle.dumps(self.schema))
     jsonschema.validate(json_map, self.schema)
 
   @classmethod

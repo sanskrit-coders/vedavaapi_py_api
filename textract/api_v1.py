@@ -3,6 +3,7 @@ import traceback
 from os.path import join
 
 import flask
+import jsonpickle
 
 from common import flask_helper
 import flask_restplus
@@ -156,10 +157,11 @@ api.add_resource(AllPageAnnotationsHandler, '/pages/<string:page_id>/image_annot
 
 class PageAnnotationsHandler(flask_restplus.Resource):
   def post(self, page_id):
-    anno = request.form.get('anno')
-    logging.info("save page annotations by id = " + str(anno_id))
+    nodes = jsonpickle.loads( request.form['data'])
+    logging.info(nodes)
+    for node in nodes:
+      node.update_collection(some_collection=get_db().annotations.db_collection)
     # logging.info("save page annotations = " + anno)
-    anno = json.loads(anno)
 
 api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
 

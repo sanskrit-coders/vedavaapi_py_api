@@ -1103,7 +1103,7 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
         return x.annotationNode;
     });
    console.log('POST anno contents: ', updatedAnnotationNodes);
-    $.post('/textract/v1/pages/' + pageId + '/image_annotations', updatedAnnotationNodes, function (data) {
+    $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (data) {
         console.log("Annotations saved successfully.");
     }, "json");
 

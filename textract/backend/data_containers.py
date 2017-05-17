@@ -40,7 +40,7 @@ class BookPortion(JsonObject):
         "items": Target.schema
       }
     },
-    "required": [TYPE_FIELD, "path"]
+    "required": ["path"]
   }))
 
   @classmethod
@@ -79,15 +79,15 @@ class AnnotationSource(JsonObject):
         "type": "string"
       }
     },
-    "required": [TYPE_FIELD, "type"]
+    "required": ["type"]
   }))
 
   @classmethod
-  def from_details(cls, type, id):
+  def from_details(cls, source_type, id):
     source = AnnotationSource()
-    assert common.check_class(type, [str, unicode])
+    assert common.check_class(source_type, [str, unicode])
     assert common.check_class(id, [str, unicode])
-    source.type = type
+    source.type = source_type
     source.id = id
     return source
 
@@ -96,14 +96,13 @@ class Annotation(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
-      "source": {
-        "type": AnnotationSource.schema
-      },
+      "source": AnnotationSource.schema,
       "targets": {
         "type": "array",
         "items": Target.schema
       }
     },
+    "required": ["targets", "source"]
   }))
 
   def set_base_details(self, targets, source):
@@ -133,7 +132,7 @@ class Rectangle(JsonObject):
         "type": "number"
       },
     },
-    "required": [TYPE_FIELD, "type"]
+    "required": ["x1", "y1", "w", "h"]
   }))
 
   @classmethod
@@ -175,10 +174,7 @@ class ImageTarget(Target):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
     "properties": {
-      "rectangle": {
-        "type": "array",
-        "items": Rectangle.schema
-      }
+      "rectangle": Rectangle.schema
     },
     "required": ["rectangle"]
   }))
@@ -203,7 +199,6 @@ class ImageAnnotation(Annotation):
         "items": ImageTarget.schema
       }
     },
-    "required": ["rectangle"]
   }))
 
   @classmethod
@@ -247,9 +242,7 @@ class TextAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
     "properties": {
-      "content": {
-        "type": TextContent.schema,
-      }
+      "content": TextContent.schema,
     },
     "required": ["content"]
   }))

@@ -70,10 +70,10 @@ class Annotations(CollectionWrapper):
 
     new_annotations = []
     for region in detected_regions:
-      region.score = None
+      del region.score
       target = data_containers.ImageTarget.from_details(container_id=page._id, rectangle=region)
       annotation = data_containers.ImageAnnotation.from_details(
-        targets=[target], source=data_containers.AnnotationSource.from_details(type='system_inferred', id="pyCV2"))
+        targets=[target], source=data_containers.AnnotationSource.from_details(source_type='system_inferred', id="pyCV2"))
       annotation = annotation.update_collection(self.db_collection)
       new_annotations.append(annotation)
     return new_annotations

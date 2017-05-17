@@ -37,7 +37,7 @@ def recursively_merge(a, b):
     return {k: recursively_merge(a[k], b[k]) if k in a_and_b else
       deepcopy(a[k] if k in a else b[k]) for k in every_key}
   elif isinstance(b, list) and isinstance(a, list):
-    return list(a + b)
+    return list(set(a + b))
   else:
     return b
   return deepcopy(b)
