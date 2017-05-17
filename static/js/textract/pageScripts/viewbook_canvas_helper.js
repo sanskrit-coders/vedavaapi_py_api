@@ -23,6 +23,7 @@ function Rectangle(x, y, w, h, annotationNode) {
     this.displayTextAbove = false;
     this.annotationNode = annotationNode;
     this.modified = false;
+    this.deleted = false;
     if (this.annotationNode == undefined) {
         this.annotationNode = makeJsonObjectNode(makeImageAnnotation(this));
         this.modified = true;
@@ -30,6 +31,29 @@ function Rectangle(x, y, w, h, annotationNode) {
 }
 
 Rectangle.prototype = {
+    updateBounds: function (x, y, w, h) {
+        if (x != undefined) {
+            this.x = x;
+        }
+        if (y != undefined) {
+            this.y = y;
+        }
+        if (w != undefined) {
+            this.w = w;
+        }
+        if (h != undefined) {
+            this.h = h;
+        }
+        this.updateImageAnnotationBounds();
+    },
+    updateImageAnnotationBounds: function () {
+        var rectangle = this.annotationNode.content.targets[0].rectangle;
+        rectangle.x1 = this.x;
+        rectangle.y1 = this.y;
+        rectangle.w = this.w;
+        rectangle.h = this.h;
+
+    },
     getText: function () {
         if (this.annotationNode.children.length == 0) {
             return null;
@@ -51,6 +75,12 @@ Rectangle.prototype = {
             this.annotationNode.children[0] = makeJsonObjectNode(makeTextAnnotation(text));
         }
         this.modified = true;
+    },
+
+    markDeleted: function () {
+        this.changeStateTo('user_deleted');
+        this.resetDisplayText();
+        this.deleted = true;
     },
 
     // Draws this shape to a given context with different stroke and fill
@@ -133,7 +163,7 @@ Rectangle.prototype = {
         this.modified = true;
         this.annotationNode.content.source.type = newState;
         if (this.annotationNode.children.length > 0) {
-            this.annotationNode.children[0].source.type = newState;
+            this.annotationNode.children[0].content.source.type = newState;
         }
     },
 
@@ -420,15 +450,15 @@ function CanvasState(canvasId, dataURL, oid) {
                 // We don't want to drag the object by its top-left corner,
                 // we want to drag it from where we clicked. Thats why we
                 // saved the offset and use it here
-                canvasStateContext.selectedRectangle.x = mouse.x - canvasStateContext.dragoffx;
-                canvasStateContext.selectedRectangle.y = mouse.y - canvasStateContext.dragoffy;
+                canvasStateContext.selectedRectangle.updateBounds(mouse.x - canvasStateContext.dragoffx,
+                    mouse.y - canvasStateContext.dragoffy, undefined, undefined);
             } else {
                 // Not allowing the selectedRectangle to go -ve and keeping the min
                 // size of rectangle as 15.
                 if ((mouse.x - canvasStateContext.selectedRectangle.x) > 15 &&
                     (mouse.y - canvasStateContext.selectedRectangle.y) > 15) {
-                    canvasStateContext.selectedRectangle.w = mouse.x - canvasStateContext.selectedRectangle.x;
-                    canvasStateContext.selectedRectangle.h = mouse.y - canvasStateContext.selectedRectangle.y;
+                    canvasStateContext.selectedRectangle.updateBounds(undefined, undefined, mouse.x - canvasStateContext.selectedRectangle.x,
+                        mouse.y - canvasStateContext.selectedRectangle.y)
                 }
             }
             canvasStateContext.scrollX = Math.round(window.scrollX);
@@ -602,8 +632,7 @@ function CanvasState(canvasId, dataURL, oid) {
             if (canvasStateContext.mode != "S") {
                 var oldState = canvasStateContext.selectedRectangle.getState();
                 canvasStateContext.addActivity('StateChange', canvasStateContext.selectedRectangle, oldState, 'user_deleted');
-                canvasStateContext.selectedRectangle.changeStateTo('user_deleted');
-                canvasStateContext.selectedRectangle.resetDisplayText();
+                canvasStateContext.selectedRectangle.markDeleted();
                 canvasStateContext.valid = false; // Something's changed so we must redraw
                 e.preventDefault();
                 e.stopPropagation();
@@ -838,7 +867,7 @@ CanvasState.prototype.changeInputLocation = function (selectedShape) {
     } else {
         this.inputText.y(selectedShape.y - (scaledHeight + buffer));
     }
-    console.log(JSON.stringify(selectedShape, null, 2));
+    // console.log(JSON.stringify(selectedShape, null, 2));
     console.log(selectedShape, this.inputText);
 }
 
@@ -1066,26 +1095,18 @@ CanvasState.prototype.zoomIn = function () {
     }
 }
 
-CanvasState.prototype.saveAnnotations = function () {
-    var shapes = this.rectangles;
-    var oid = this.oid;
-    var anno_id = this.anno_id;
-
-//    console.log(rectangles);
-    for (var i = 0; i < shapes.length; i++) {
-        var shape = shapes[i];
-
-        if (shape.getText() != null) {
-//            console.log(Object.prototype.toString.call(shape));
-//            console.log("X:"+shape.x+" Y:"+shape.y+" W:"+shape.w+" H:"+shape.h);
-            console.log(shape);
-        }
-    }
-    console.log('POST /textract/v1/page/anno/' + anno_id);
-    var res = {'anno': JSON.stringify(shapes)};
-//    console.log('POST anno contents: ' + JSON.stringify(res));
-    $.post('/textract/v1/page/anno/' + anno_id, res, function (data) {
+CanvasState.prototype.saveAnnotations = function (pageId) {
+    var modifiedRectangles = this.rectangles.filter(function (x) {
+        return x.modified;
+    });
+    var updatedAnnotationNodes = modifiedRectangles.map(function (x) {
+        return x.annotationNode;
+    });
+   console.log('POST anno contents: ', updatedAnnotationNodes);
+    $.post('/textract/v1/pages/' + pageId + '/image_annotations', updatedAnnotationNodes, function (data) {
         console.log("Annotations saved successfully.");
     }, "json");
+
+    // TODO: Handle deleted annotations.
     //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
 }

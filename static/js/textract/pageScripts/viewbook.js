@@ -66,8 +66,6 @@ function changeMode(mode) {
 function segmentPage() {
 
     var curpage = viewBookState.curpage;
-    if (curpage == undefined)
-        return;
     var bookdetails = viewBookState.bookdetails;
     var pagedetails = bookdetails.children[curpage].content;
 
@@ -78,7 +76,10 @@ function segmentPage() {
 }
 
 function saveData() {
-    viewBookState.canvasState.saveAnnotations();
+    var curpage = viewBookState.curpage;
+    var bookdetails = viewBookState.bookdetails;
+    var pagedetails = bookdetails.children[curpage].content;
+    viewBookState.canvasState.saveAnnotations(pagedetails._id);
 }
 
 function accept() {
@@ -172,6 +173,9 @@ function slideTo(where) {
 }
 
 function makeImageAnnotation(rectangle) {
+    var curpage = viewBookState.curpage;
+    var bookdetails = viewBookState.bookdetails;
+    var pagedetails = bookdetails.children[curpage].content;
     return {
         "py/object": "textract.backend.data_containers.ImageAnnotation",
         "source": {
@@ -182,7 +186,7 @@ function makeImageAnnotation(rectangle) {
         "targets": [
         {
             "py/object": "textract.backend.data_containers.ImageTarget",
-            "container_id": viewBookState.curpage._id,
+            "container_id": pagedetails._id,
             "rectangle": {
                 "py/object": "textract.backend.data_containers.Rectangle",
                 "h": rectangle.h,
