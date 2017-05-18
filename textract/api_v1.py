@@ -158,7 +158,7 @@ api.add_resource(AllPageAnnotationsHandler, '/pages/<string:page_id>/image_annot
 class PageAnnotationsHandler(flask_restplus.Resource):
   def post(self, page_id):
     nodes = jsonpickle.loads( request.form['data'])
-    logging.info(nodes)
+    logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
       node.update_collection(some_collection=get_db().annotations.db_collection)
     return data_containers.JsonObject.get_json_map_list(nodes), 200

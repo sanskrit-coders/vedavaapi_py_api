@@ -45,6 +45,7 @@ Rectangle.prototype = {
             this.h = h;
         }
         this.updateImageAnnotationBounds();
+        this.modified = true;
     },
     updateImageAnnotationBounds: function () {
         var rectangle = this.annotationNode.content.targets[0].rectangle;
@@ -1054,6 +1055,7 @@ CanvasState.prototype.setAnnotations = function(annotationNodes) {
 CanvasState.prototype.addAnnotations = function(annotationNodes) {
     self = this;
     annotationNodes.forEach(function(annotationNode, index) {
+        console.log(annotationNode)
         var rectangle = annotationNode.content.targets[0].rectangle;
         self.addRectangle(new Rectangle(rectangle.x1, rectangle.y1, rectangle.w, rectangle.h, annotationNode));
     })
@@ -1102,10 +1104,10 @@ CanvasState.prototype.zoomIn = function () {
 }
 
 CanvasState.prototype.saveAnnotations = function (pageId) {
-    var modifiedRectangles = this.rectangles.filter(function (x) {
-        return x.modified;
+    var modifiedUndeletedRectangles = this.rectangles.filter(function (x) {
+        return x.modified && !x.deleted;
     });
-    var updatedAnnotationNodes = modifiedRectangles.map(function (x) {
+    var updatedAnnotationNodes = modifiedUndeletedRectangles.map(function (x) {
         return x.annotationNode;
     });
     var unmodifiedRectangles = this.rectangles.filter(function (x) {
@@ -1115,10 +1117,7 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     console.log('POST anno contents: ', updatedAnnotationNodes);
     $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (nodes) {
         console.log("Annotations saved successfully.");
-        this.rectangles = unmodifiedRectangles;
-        var unmodifiedAnnotationNodes = modifiedRectangles.map(function (x) {
-            return x.annotationNode;
-        });
+        canvasStateContext.rectangles = unmodifiedRectangles;
         canvasStateContext.addAnnotations(nodes);
 
     }, "json");

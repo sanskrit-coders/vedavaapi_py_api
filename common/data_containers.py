@@ -165,8 +165,8 @@ class JsonObject(object):
   def validate_schema(self):
     json_map = self.to_json_map()
     json_map.pop("_id", None)
-    logging.debug(str(self))
-    logging.debug(jsonpickle.dumps(self.schema))
+    # logging.debug(str(self))
+    # logging.debug(jsonpickle.dumps(self.schema))
     jsonschema.validate(json_map, self.schema)
 
   @classmethod
