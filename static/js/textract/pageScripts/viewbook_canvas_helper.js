@@ -74,6 +74,7 @@ Rectangle.prototype = {
         if (this.annotationNode.children.length == 0) {
             this.annotationNode.children[0] = makeJsonObjectNode(makeTextAnnotation(text));
         }
+        this.annotationNode.children[0].content.content.text = text;
         this.modified = true;
     },
 
@@ -679,6 +680,7 @@ CanvasState.prototype.handleTextSubmission = function () {
     if (canvasStateContext.selectedRectangle) {
         canvasStateContext.selectedRectangle.print();
         var prevValue = canvasStateContext.selectedRectangle.getText();
+        console.log(canvasStateContext.inputText.value());
         canvasStateContext.selectedRectangle.setText(canvasStateContext.inputText.value());
 //        canvasStateContext.selectedRectangle.fontPoints = Math.round(canvasStateContext.selectedRectangle.h - 5/canvasStateContext.scale);
 //        canvasStateContext.selectedRectangle.font = canvasStateContext.selectedRectangle.fontType+" "+canvasStateContext.selectedRectangle.fontPoints+"pt "+canvasStateContext.selectedRectangle.fontName;
@@ -1046,6 +1048,10 @@ CanvasState.prototype.zoomOut = function () {
 // Shapes are rectangles. This overlays boxes on an image, makes them selectable etc..
 CanvasState.prototype.setAnnotations = function(annotationNodes) {
     this.rectangles = []; // initialize the rectangles as we are getting all info together
+    this.addAnnotations(annotationNodes);
+}
+
+CanvasState.prototype.addAnnotations = function(annotationNodes) {
     self = this;
     annotationNodes.forEach(function(annotationNode, index) {
         var rectangle = annotationNode.content.targets[0].rectangle;
@@ -1102,9 +1108,19 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     var updatedAnnotationNodes = modifiedRectangles.map(function (x) {
         return x.annotationNode;
     });
-   console.log('POST anno contents: ', updatedAnnotationNodes);
-    $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (data) {
+    var unmodifiedRectangles = this.rectangles.filter(function (x) {
+        return !x.modified;
+    });
+    var canvasStateContext = this;
+    console.log('POST anno contents: ', updatedAnnotationNodes);
+    $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (nodes) {
         console.log("Annotations saved successfully.");
+        this.rectangles = unmodifiedRectangles;
+        var unmodifiedAnnotationNodes = modifiedRectangles.map(function (x) {
+            return x.annotationNode;
+        });
+        canvasStateContext.addAnnotations(nodes);
+
     }, "json");
 
     // TODO: Handle deleted annotations.

@@ -161,6 +161,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     logging.info(nodes)
     for node in nodes:
       node.update_collection(some_collection=get_db().annotations.db_collection)
+    return data_containers.JsonObject.get_json_map_list(nodes), 200
     # logging.info("save page annotations = " + anno)
 
 api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
