@@ -24,7 +24,7 @@ logging.basicConfig(
 app = flask_helper.app
 URL_PREFIX = '/textract/v1'
 api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
-                         description='vedavaapi py API', doc= URL_PREFIX + '/doc/')
+                         description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 
@@ -166,6 +166,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
   def delete(self, page_id):
     nodes = jsonpickle.loads( request.form['data'])
     for node in nodes:
+      node.fill_descendents(some_collection=get_db().annotations.db_collection)
       node.delete_in_collection(some_collection=get_db().annotations.db_collection)
     return {}, 200
 

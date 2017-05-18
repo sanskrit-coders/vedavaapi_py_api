@@ -42,7 +42,13 @@ def guestlogin():
 def fill_template(filepath):
   if 'logstatus' in flask.session:
     if flask.session['logstatus'] == 1:
-      return flask.render_template(filepath)
+      from jinja2 import TemplateNotFound
+      try:
+        return flask.render_template(filepath)
+      except TemplateNotFound as e:
+        import traceback
+        traceback.print_exc(e)
+        flask.abort(404)
     else:
       return flask.redirect('/')
   else:
