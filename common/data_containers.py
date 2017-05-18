@@ -162,6 +162,11 @@ class JsonObject(object):
     updated_doc[TYPE_FIELD] = getattr(self, TYPE_FIELD)
     return JsonObject.make_from_dict(updated_doc)
 
+  # To delete referrent items also, use appropriate method in JsonObjectNode.
+  def delete_in_collection(self, some_collection):
+    assert hasattr(self, "_id"), "_id not present!"
+    return some_collection.delete_one({"_id": ObjectId(self._id)})
+
   def validate_schema(self):
     json_map = self.to_json_map()
     json_map.pop("_id", None)
@@ -221,6 +226,18 @@ class JsonObjectNode(JsonObject):
     for child in self.children:
       child.content.targets = [Target.from_details(str(self.content._id))]
       child.update_collection(some_collection)
+
+  def delete_in_collection(self, some_collection):
+    self.content.delete_in_collection(some_collection)
+    id = str(self.content._id)
+    for child in self.children:
+      assert id in child.content.targets, "%d not in %s" % (id, str(child.content.targets))
+      if hasattr(child.content, "_id"):
+        child.content.targets.remove(id)
+        if len(child.content.targets) > 0:
+          child.content.update_collection(some_collection)
+        else:
+          child.delete_in_collection(some_collection)
 
   def fill_descendents(self, some_collection):
     targetting_objs = self.content.get_targetting_entities(some_collection=some_collection)

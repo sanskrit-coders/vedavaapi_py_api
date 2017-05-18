@@ -96,7 +96,7 @@ Rectangle.prototype = {
         } else if (this.getState() == "user_supplied") {
             this.stroke = 'rgba(255,255,0,1)';
             this.fill = 'rgba(0,255,0,.3)';
-        } else if (this.getState() == "user_deleted") {
+        } else if (this.deleted) {
             // Dont draw
             return;
         }
@@ -113,7 +113,7 @@ Rectangle.prototype = {
         // Text x,y starts from bottom left, whereas rectangle from top left
         ctx.font = this.font;
         ctx.fillStyle = this.fillStyle;
-        console.log(this.getTextOrEmpty());
+        // console.log(this.getTextOrEmpty());
         if (this.displayTextAbove == true) {
             ctx.fillText(this.getTextOrEmpty(), this.x, this.y);
         } else {
@@ -1114,14 +1114,40 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
         return !x.modified;
     });
     var canvasStateContext = this;
-    console.log('POST anno contents: ', updatedAnnotationNodes);
-    $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (nodes) {
-        console.log("Annotations saved successfully.");
-        canvasStateContext.rectangles = unmodifiedRectangles;
-        canvasStateContext.addAnnotations(nodes);
+    if (updatedAnnotationNodes.length > 0) {
+        console.log('POST anno contents: ', updatedAnnotationNodes);
+        $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (nodes) {
+            console.log("Annotations saved successfully.");
+            canvasStateContext.rectangles = unmodifiedRectangles;
+            canvasStateContext.addAnnotations(nodes);
+        }, "json");
+    }
 
-    }, "json");
-
-    // TODO: Handle deleted annotations.
-    //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
+    var deletedRectangles = this.rectangles.filter(function (x) {
+        return x.deleted;
+    });
+    // console.log('DELETE deletedRectangles: ', deletedRectangles);
+    var deletedAnnotationNodes = deletedRectangles.map(function (x) {
+        return x.annotationNode;
+    })
+    // console.log('DELETE anno contents: ', deletedAnnotationNodes);
+    var deletedAnnotationNodesWithId = deletedAnnotationNodes.filter(function (x) {
+        return (x.content._id != undefined)
+    });
+    if (deletedAnnotationNodesWithId.length > 0) {
+        console.log('DELETE anno contents: ', deletedAnnotationNodesWithId);
+        //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
+        $.ajax({
+            url: '/textract/v1/pages/' + pageId + '/image_annotations',
+            type: 'DELETE',
+            data: {data: JSON.stringify(deletedAnnotationNodesWithId, null, 2)},
+            success: function(result) {
+                console.log("Annotations deleted successfully. Dropping: ", canvasStateContext.rectangles.length);
+                canvasStateContext.rectangles = canvasStateContext.rectangles.filter(function (x) {
+                    return !x.deleted;
+                })
+                console.log("Dropped: ", canvasStateContext.rectangles.length);
+            }
+        });
+    }
 }

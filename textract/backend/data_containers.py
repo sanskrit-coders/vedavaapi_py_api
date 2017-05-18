@@ -128,9 +128,6 @@ class Rectangle(JsonObject):
       "h": {
         "type": "integer"
       },
-      "score": {
-        "type": "number"
-      },
     },
     "required": ["x1", "y1", "w", "h"]
   }))

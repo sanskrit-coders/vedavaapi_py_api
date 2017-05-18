@@ -190,7 +190,6 @@ function makeImageAnnotation(rectangle) {
             "rectangle": {
                 "py/object": "textract.backend.data_containers.Rectangle",
                 "h": rectangle.h,
-                "score": null,
                 "w": rectangle.w,
                 "y1": rectangle.y,
                 "x1": rectangle.x

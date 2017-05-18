@@ -158,11 +158,16 @@ api.add_resource(AllPageAnnotationsHandler, '/pages/<string:page_id>/image_annot
 class PageAnnotationsHandler(flask_restplus.Resource):
   def post(self, page_id):
     nodes = jsonpickle.loads( request.form['data'])
-    logging.info(jsonpickle.dumps(nodes))
+    # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
       node.update_collection(some_collection=get_db().annotations.db_collection)
     return data_containers.JsonObject.get_json_map_list(nodes), 200
-    # logging.info("save page annotations = " + anno)
+
+  def delete(self, page_id):
+    nodes = jsonpickle.loads( request.form['data'])
+    for node in nodes:
+      node.delete_in_collection(some_collection=get_db().annotations.db_collection)
+    return {}, 200
 
 api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
 
@@ -183,6 +188,4 @@ def listdirtree(abspath):
   data = list_dirtree("/" + abspath)
   # logging.info("Data:" + str(json.dumps(data)))
   return json.dumps(data)
-
-
 
