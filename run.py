@@ -1,46 +1,66 @@
 #!/usr/bin/python -u
-import datetime
 import getopt
 # from flask.ext.cors import CORS
 import logging
 import sys
-from base64 import b64encode
 from sys import argv
 
+import jsonpickle
 import os
 from flask import *
 
 import common
 import textract.api_v1
 from common import data_containers
-from common.flask_helper import app, lm
+from common.flask_helper import app
 from oauth import *
-from textract.backend.db import get_db
 
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-(cmddir, cmdname) = os.path.split(argv[0])
-logging.info("My path is " + os.path.abspath(cmddir))
+@app.route("/sitemap")
+def site_map():
+  output = []
+  for rule in app.url_map.iter_rules():
 
-def usage():
-  logging.info(cmdname + " [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
-  exit(1)
+    options = {}
+    for arg in rule.arguments:
+      options[arg] = "[{0}]".format(arg)
 
+    methods = ','.join(rule.methods)
+    url = url_for(rule.endpoint, **options)
+    import urllib
+    line = urllib.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
+    output.append(line)
 
-params = data_containers.JsonObject()
-
-params.set_from_dict({
-  'reset': False,
-  'dbreset': False,
-  'dbgFlag': False,
-  'myport': common.config.PORTNUM,
-})
+  logging.info(str(output))
+  response = app.response_class(
+    response=jsonpickle.dumps(output),
+    status=200,
+    mimetype='application/json'
+  )
+  return response
 
 
 def main(argv):
+  def usage():
+    logging.info("run.py [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
+    exit(1)
+
+
+  params = data_containers.JsonObject()
+
+  params.set_from_dict({
+    'reset': False,
+    'dbreset': False,
+    'dbgFlag': False,
+    'myport': common.config.PORTNUM,
+  })
+
+
+
   try:
     opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])
   except getopt.GetoptError:
@@ -70,6 +90,7 @@ def main(argv):
     m = re.match('\s*inet addr:(.*?) .*', line)
     if m:
       logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
+  app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.run(
     host="0.0.0.0",
     port=params.myport,

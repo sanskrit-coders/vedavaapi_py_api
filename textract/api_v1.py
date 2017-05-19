@@ -5,7 +5,6 @@ from os.path import join
 import flask
 import jsonpickle
 
-from common import flask_helper
 import flask_restplus
 from flask_login import current_user
 from werkzeug.utils import secure_filename
@@ -21,10 +20,13 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-app = flask_helper.app
-URL_PREFIX = '/textract/v1'
-api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
-                         description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
+URL_PREFIX = '/v1'
+api_blueprint = Blueprint(name='textract_api', import_name=__name__)
+api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API', description='vedavaapi py API',
+                         prefix=URL_PREFIX, doc='/docs')
+
+# api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
+#                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 
@@ -173,7 +175,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
 api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
 
 
-@app.route('/textract/relpath/<path:relpath>')
+@api_blueprint.route('/relpath/<path:relpath>')
 def send_file_relpath(relpath):
   return (send_from_directory(paths.DATADIR, relpath))
 
@@ -183,7 +185,7 @@ def send_file_relpath(relpath):
 #	logging.info("abspath:" + str(abspath))
 #	return render_template("fancytree.html", abspath='/'+abspath)
 
-@app.route('/textract/dirtree/<path:abspath>')
+@api_blueprint.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
   # print abspath
   data = list_dirtree("/" + abspath)
