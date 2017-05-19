@@ -28,8 +28,11 @@ Python based Web API's for the <vedavaapi.org> project.
 ## Running
 * Launch server: run.py
 
+### Diagnostics
+* List routes: /sitemap on your browser.
+
 ## Accessing API docs:
-* Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/v1/doc/ .
+* Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/docs/ .
 
 # Development
 ## Understanding the code

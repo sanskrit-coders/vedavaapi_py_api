@@ -20,46 +20,20 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-@app.route("/sitemap")
-def site_map():
-  output = []
-  for rule in app.url_map.iter_rules():
+params = data_containers.JsonObject()
 
-    options = {}
-    for arg in rule.arguments:
-      options[arg] = "[{0}]".format(arg)
-
-    methods = ','.join(rule.methods)
-    url = url_for(rule.endpoint, **options)
-    import urllib
-    line = urllib.unquote("{:50s} {:20s} {}".format(rule.endpoint, methods, url))
-    output.append(line)
-
-  logging.info(str(output))
-  response = app.response_class(
-    response=jsonpickle.dumps(output),
-    status=200,
-    mimetype='application/json'
-  )
-  return response
+params.set_from_dict({
+  'reset': False,
+  'dbreset': False,
+  'dbgFlag': False,
+  'myport': common.config.PORTNUM,
+})
 
 
 def main(argv):
   def usage():
     logging.info("run.py [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
     exit(1)
-
-
-  params = data_containers.JsonObject()
-
-  params.set_from_dict({
-    'reset': False,
-    'dbreset': False,
-    'dbgFlag': False,
-    'myport': common.config.PORTNUM,
-  })
-
-
 
   try:
     opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])

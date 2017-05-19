@@ -35,6 +35,7 @@ def allowed_file(filename):
          filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+@api.route('/books')
 class BookList(flask_restplus.Resource):
   def get(self):
     logging.info("Session in books_api=" + str(session['logstatus']))
@@ -120,9 +121,8 @@ class BookList(flask_restplus.Resource):
 
     return book_portion_node.to_json_map_via_pickle(), 201
 
-api.add_resource(BookList, '/books')
 
-
+@api.route('/books/<string:book_id>')
 class BookPortionHandler(flask_restplus.Resource):
   def get(self, book_id):
     logging.info("book get by id = " + str(book_id))
@@ -137,9 +137,8 @@ class BookPortionHandler(flask_restplus.Resource):
       return book_node.to_json_map_via_pickle(), 200
 
 
-api.add_resource(BookPortionHandler, '/books/<string:book_id>')
 
-
+@api.route('/pages/<string:page_id>/image_annotations/all')
 class AllPageAnnotationsHandler(flask_restplus.Resource):
   def get(self, page_id):
     logging.info("page get by id = " + str(page_id))
@@ -154,9 +153,8 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
         node.fill_descendents(some_collection=get_db().annotations.db_collection)
       return data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
-api.add_resource(AllPageAnnotationsHandler, '/pages/<string:page_id>/image_annotations/all')
 
-
+@api.route('/pages/<string:page_id>/image_annotations')
 class PageAnnotationsHandler(flask_restplus.Resource):
   def post(self, page_id):
     nodes = jsonpickle.loads( request.form['data'])
@@ -172,7 +170,6 @@ class PageAnnotationsHandler(flask_restplus.Resource):
       node.delete_in_collection(some_collection=get_db().annotations.db_collection)
     return {}, 200
 
-api.add_resource(PageAnnotationsHandler, '/pages/<string:page_id>/image_annotations')
 
 
 @api_blueprint.route('/relpath/<path:relpath>')
