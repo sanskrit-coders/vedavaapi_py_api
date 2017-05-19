@@ -7,9 +7,11 @@ import jsonpickle
 
 import flask_restplus
 from flask_login import current_user
+from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-import common.data_containers
+import common.data_containers as common_data_containers
+import backend.data_containers as backend_data_containers
 from backend.collections import *
 from backend.db import get_db
 from backend.paths import createdir
@@ -30,23 +32,45 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 
-def allowed_file(filename):
-  return '.' in filename and \
-         filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+json_node_model = api.model('JsonObjectNode', data_containers.JsonObjectNode.schema)
 
 
 @api.route('/books')
 class BookList(flask_restplus.Resource):
+
+  # Marshalling as below does not work.
+  # @api.marshal_list_with(json_node_model)
   def get(self):
+    """ Get booklist.
+    
+    :return: a list of JsonObjectNode json-s.
+    """
+    # TODO: does not return uploaded books as of May 19 2017.
     logging.info("Session in books_api=" + str(session['logstatus']))
     pattern = request.args.get('pattern')
     logging.info("books list filter = " + str(pattern))
     booklist = get_db().books.list_books(pattern)
     logging.debug(booklist)
-    return data_containers.JsonObject.get_json_map_list(booklist), 201
+    return data_containers.JsonObject.get_json_map_list(booklist), 200
 
+  @classmethod
+  def allowed_file(cls, filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+  post_parser = api.parser()
+  post_parser.add_argument('in_files', type=FileStorage, location='files')
+  post_parser.add_argument('uploadpath', location='form', type='string')
+  post_parser.add_argument('title', location='form', type='string')
+  post_parser.add_argument('author', location='form', type='string')
+
+  @api.expect(post_parser, validate=True)
   def post(self):
-    """Handle uploading files."""
+    """Handle uploading files.
+    
+    Form should be a json like: {?}
+    TODO: Update booklist.
+    """
     form = request.form
     logging.info("uploading " + str(form))
     bookpath = (form.get('uploadpath')).replace(" ", "_")
@@ -67,8 +91,8 @@ class BookList(flask_restplus.Resource):
     logging.info("User Id: " + str(user_id))
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
-            data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
+    book = (backend_data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
+            backend_data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
 
     if (not book.authors): book.authors = [form.get("author")]
 
@@ -77,7 +101,7 @@ class BookList(flask_restplus.Resource):
     for upload in request.files.getlist("file"):
       page_index = page_index + 1
       filename = upload.filename.rsplit("/")[0]
-      if file and allowed_file(filename):
+      if file and self.__class__.allowed_file(filename):
         filename = secure_filename(filename)
       destination = join(abspath, filename)
       upload.save(destination)
@@ -100,12 +124,12 @@ class BookList(flask_restplus.Resource):
       img.save(out, "JPEG", quality=100)
       out.close()
 
-      page = common.data_containers.JsonObjectNode.from_details(
-        content=data_containers.BookPortion.from_details(
+      page = common_data_containers.JsonObjectNode.from_details(
+        content=backend_data_containers.BookPortion.from_details(
           title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
       pages.append(page)
 
-    book_portion_node = common.data_containers.JsonObjectNode.from_details(content=book, children=pages)
+    book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book, children=pages)
 
     book_portion_node_minus_id = copy.deepcopy(book_portion_node)
     book_portion_node_minus_id.content._id = None
@@ -119,7 +143,7 @@ class BookList(flask_restplus.Resource):
       traceback.print_exc()
       return format(e), 500
 
-    return book_portion_node.to_json_map_via_pickle(), 201
+    return book_portion_node.to_json_map_via_pickle(), 200
 
 
 @api.route('/books/<string:book_id>')
@@ -127,11 +151,11 @@ class BookPortionHandler(flask_restplus.Resource):
   def get(self, book_id):
     logging.info("book get by id = " + str(book_id))
     book_portions_collection = get_db().books.db_collection
-    book_portion = common.data_containers.JsonObject.from_id(id=book_id, collection=book_portions_collection)
+    book_portion = common_data_containers.JsonObject.from_id(id=book_id, collection=book_portions_collection)
     if book_portion == None:
       return "No such book portion id", 404
     else:
-      book_node = common.data_containers.JsonObjectNode.from_details(content=book_portion)
+      book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
       book_node.fill_descendents(some_collection=book_portions_collection)
       # pprint(binfo)
       return book_node.to_json_map_via_pickle(), 200

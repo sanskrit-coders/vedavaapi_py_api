@@ -207,6 +207,21 @@ class JsonObject(object):
 
 
 class JsonObjectNode(JsonObject):
+  schema = common.recursively_merge(
+    JsonObject.schema, {
+      "properties": {
+        "content": {
+          "type": JsonObject.schema
+        },
+        "children": {
+          "type": "array",
+          "items": JsonObject.schema
+        }
+      },
+      "required": [TYPE_FIELD]
+    }
+  )
+
   @classmethod
   def from_details(cls, content, children=None):
     if children is None:

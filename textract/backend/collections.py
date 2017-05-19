@@ -27,7 +27,12 @@ class BookPortions(CollectionWrapper):
     super(BookPortions, self).__init__(db_collection)
 
   def list_books(self, pattern=None):
-    iter = common.data_containers.JsonObject.find(filter={"targets" : {"$exists" : False}}, some_collection=self.db_collection)
+    iter = common.data_containers.JsonObject.find(
+      filter={"$or":
+                [{"targets" : {"$exists" : False}},
+                 {"targets" : {"$size" : 0}}]
+              },
+      some_collection=self.db_collection)
     matches = [b for b in iter if not pattern or re.search(pattern, b.path)]
     return matches
 
