@@ -24,7 +24,10 @@ logging.basicConfig(
 
 URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='textract_api', import_name=__name__)
-api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API', description='vedavaapi py API',
+api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
+                         description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
+                                     'For a list of JSON schema-s see <a href="/textract/schemas"> here</a>. <BR>'
+                                     'A list of REST and non-REST API routes avalilable on this server: <a href="/sitemap">/sitemap</a>.  ',
                          prefix=URL_PREFIX, doc='/docs')
 
 # api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
@@ -45,7 +48,6 @@ class BookList(flask_restplus.Resource):
     
     :return: a list of JsonObjectNode json-s.
     """
-    # TODO: does not return uploaded books as of May 19 2017.
     logging.info("Session in books_api=" + str(session['logstatus']))
     pattern = request.args.get('pattern')
     logging.info("books list filter = " + str(pattern))
@@ -68,8 +70,8 @@ class BookList(flask_restplus.Resource):
   def post(self):
     """Handle uploading files.
     
-    Form should be a json like: {?}
-    TODO: Update booklist.
+    :return: Book details in a json tree like:
+      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
     """
     form = request.form
     logging.info("uploading " + str(form))
@@ -149,6 +151,12 @@ class BookList(flask_restplus.Resource):
 @api.route('/books/<string:book_id>')
 class BookPortionHandler(flask_restplus.Resource):
   def get(self, book_id):
+    """ Get a book.
+    
+    :param book_id: a string. 
+    :return: Book details in a json tree like:
+      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
+    """
     logging.info("book get by id = " + str(book_id))
     book_portions_collection = get_db().books.db_collection
     book_portion = common_data_containers.JsonObject.from_id(id=book_id, collection=book_portions_collection)
@@ -165,6 +173,12 @@ class BookPortionHandler(flask_restplus.Resource):
 @api.route('/pages/<string:page_id>/image_annotations/all')
 class AllPageAnnotationsHandler(flask_restplus.Resource):
   def get(self, page_id):
+    """ Get all annotations (pre existing or automatically generated from open CV) for this page.
+    
+    :param page_id: 
+    :return: A list of JsonObjectNode-s with annotations with the following structure.
+      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
+    """
     logging.info("page get by id = " + str(page_id))
     book_portions_collection = get_db().books.db_collection
     page = data_containers.JsonObject.from_id(id=page_id, collection=book_portions_collection)
@@ -181,6 +195,11 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 @api.route('/pages/<string:page_id>/image_annotations')
 class PageAnnotationsHandler(flask_restplus.Resource):
   def post(self, page_id):
+    """ Add annotations.
+    
+    :param page_id: The page being annotated. Unused. 
+    :return: 
+    """
     nodes = jsonpickle.loads( request.form['data'])
     # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
@@ -188,6 +207,11 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     return data_containers.JsonObject.get_json_map_list(nodes), 200
 
   def delete(self, page_id):
+    """ Delete annotations.
+    
+    :param page_id: unused.
+    :return: 
+    """
     nodes = jsonpickle.loads( request.form['data'])
     for node in nodes:
       node.fill_descendents(some_collection=get_db().annotations.db_collection)
@@ -198,6 +222,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
 
 @api_blueprint.route('/relpath/<path:relpath>')
 def send_file_relpath(relpath):
+  """Get some data file - such as a page image."""
   return (send_from_directory(paths.DATADIR, relpath))
 
 
@@ -208,8 +233,22 @@ def send_file_relpath(relpath):
 
 @api_blueprint.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
+  """???."""
   # print abspath
   data = list_dirtree("/" + abspath)
   # logging.info("Data:" + str(json.dumps(data)))
   return json.dumps(data)
+
+
+@api_blueprint.route('/schemas')
+def list_schemas():
+  """???."""
+  schemas = {
+    "JsonObject":  common_data_containers.JsonObject.schema,
+    "JsonObjectNode": common_data_containers.JsonObjectNode.schema,
+    "BookPortion": backend_data_containers.BookPortion.schema,
+    "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
+    "TextAnnotation": backend_data_containers.TextAnnotation.schema,
+  }
+  return jsonify(schemas)
 
