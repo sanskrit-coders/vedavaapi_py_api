@@ -1116,11 +1116,18 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     var canvasStateContext = this;
     if (updatedAnnotationNodes.length > 0) {
         console.log('POST anno contents: ', updatedAnnotationNodes);
-        $.post('/textract/v1/pages/' + pageId + '/image_annotations', {data: JSON.stringify(updatedAnnotationNodes, null, 2)}, function (nodes) {
-            console.log("Annotations saved successfully.");
-            canvasStateContext.rectangles = unmodifiedRectangles;
-            canvasStateContext.addAnnotations(nodes);
-        }, "json");
+        $.ajax({
+            url: '/textract/v1/pages/' + pageId + '/image_annotations',
+            type: 'POST',
+            data: JSON.stringify(updatedAnnotationNodes),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (nodes) {
+                console.log("Annotations saved successfully.");
+                canvasStateContext.rectangles = unmodifiedRectangles;
+                canvasStateContext.addAnnotations(nodes);
+            }
+        });
     }
 
     var deletedRectangles = this.rectangles.filter(function (x) {
@@ -1140,7 +1147,9 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
         $.ajax({
             url: '/textract/v1/pages/' + pageId + '/image_annotations',
             type: 'DELETE',
-            data: {data: JSON.stringify(deletedAnnotationNodesWithId, null, 2)},
+            data: JSON.stringify(deletedAnnotationNodesWithId),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
             success: function(result) {
                 console.log("Annotations deleted successfully. Dropping: ", canvasStateContext.rectangles.length);
                 canvasStateContext.rectangles = canvasStateContext.rectangles.filter(function (x) {

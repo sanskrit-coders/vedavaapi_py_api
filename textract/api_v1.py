@@ -200,11 +200,12 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     :param page_id: The page being annotated. Unused. 
     :return: 
     """
-    nodes = jsonpickle.loads( request.form['data'])
+    logging.info(str(request.json))
+    nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
       node.update_collection(some_collection=get_db().annotations.db_collection)
-    return data_containers.JsonObject.get_json_map_list(nodes), 200
+    return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   def delete(self, page_id):
     """ Delete annotations.
@@ -212,7 +213,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     :param page_id: unused.
     :return: 
     """
-    nodes = jsonpickle.loads( request.form['data'])
+    nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
       node.fill_descendents(some_collection=get_db().annotations.db_collection)
       node.delete_in_collection(some_collection=get_db().annotations.db_collection)

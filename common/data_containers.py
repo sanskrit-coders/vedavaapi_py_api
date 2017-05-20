@@ -46,6 +46,10 @@ class JsonObject(object):
     return obj
 
   @classmethod
+  def make_from_dict_list(cls, input_dict_list):
+    return [cls.make_from_dict(input_dict=input_dict) for input_dict in input_dict_list]
+
+  @classmethod
   def make_from_pickledstring(cls, pickle):
     obj = jsonpickle.decode(pickle)
     return obj
