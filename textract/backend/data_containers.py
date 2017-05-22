@@ -112,6 +112,7 @@ class Annotation(JsonObject):
     assert isinstance(source, AnnotationSource), source.__class__
     self.source = source
 
+
 class Rectangle(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
@@ -343,5 +344,3 @@ class PadavibhaagaAnnotation(Annotation):
     annotation = PadavibhaagaAnnotation()
     annotation.set_base_details(targets, source)
     return annotation
-
-

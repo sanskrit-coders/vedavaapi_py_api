@@ -1,5 +1,6 @@
 import copy
 import traceback
+from collections import OrderedDict
 from os.path import join
 
 import flask
@@ -35,7 +36,7 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 
-json_node_model = api.model('JsonObjectNode', data_containers.JsonObjectNode.schema)
+json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
 
 @api.route('/books')
@@ -150,6 +151,7 @@ class BookList(flask_restplus.Resource):
 
 @api.route('/books/<string:book_id>')
 class BookPortionHandler(flask_restplus.Resource):
+  @api.doc(responses={404: 'id not found'})
   def get(self, book_id):
     """ Get a book.
     
@@ -172,6 +174,7 @@ class BookPortionHandler(flask_restplus.Resource):
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
 class AllPageAnnotationsHandler(flask_restplus.Resource):
+  @api.doc(responses={404: 'id not found'})
   def get(self, page_id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.
     
@@ -194,11 +197,24 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 
 @api.route('/pages/<string:page_id>/image_annotations')
 class PageAnnotationsHandler(flask_restplus.Resource):
+  # input_node = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
+
+  post_parser = api.parser()
+  post_parser.add_argument('jsonStr', location='json')
+
+  # TODO: The below fails. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
+  # @api.expect(json_node_model, validate=True)
+
+  @api.expect(post_parser, validate=False)
   def post(self, page_id):
     """ Add annotations.
     
-    :param page_id: The page being annotated. Unused. 
+    :param page_id: The page being annotated. Unused. <BR>
+    json:<BR>
+      A list of JsonObjectNode-s with annotations with the following structure.
+      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
     :return: 
+      Same as the input list, with _id-s.
     """
     logging.info(str(request.json))
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
@@ -207,11 +223,15 @@ class PageAnnotationsHandler(flask_restplus.Resource):
       node.update_collection(some_collection=get_db().annotations.db_collection)
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
+  @api.expect(post_parser, validate=False)
   def delete(self, page_id):
     """ Delete annotations.
     
-    :param page_id: unused.
-    :return: 
+    :param page_id: The page being annotated. Unused. 
+    json:
+      A list of JsonObjectNode-s with annotations with the following structure.
+      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
+    :return: Empty.
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
