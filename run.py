@@ -3,16 +3,12 @@ import getopt
 # from flask.ext.cors import CORS
 import logging
 import sys
-from sys import argv
 
-import jsonpickle
-import os
 from flask import *
 
 import common
 import textract.api_v1
 from common import data_containers
-from common.flask_helper import app
 from oauth import *
 
 logging.basicConfig(
@@ -59,6 +55,9 @@ def main(argv):
 
   textract.setup_app(params)
 
+  from common.flask_helper import app
+  logging.info("Root path: " + app.root_path)
+  logging.info(app.instance_path)
   logging.info("Available on the following URLs:")
   for line in common.config.run_command(["/sbin/ifconfig"]).split("\n"):
     m = re.match('\s*inet addr:(.*?) .*', line)

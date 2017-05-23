@@ -7,7 +7,8 @@ import os
 from flask import url_for
 from flask_login import LoginManager
 
-app = flask.Flask("vedavaapi")
+# Pass the root module name - sets root directory.
+app = flask.Flask("run")
 lm = LoginManager(app)
 
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
