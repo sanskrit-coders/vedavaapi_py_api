@@ -21,7 +21,7 @@ Python based Web API's for the <vedavaapi.org> project.
 * Install various necessary python modules.
   * install.pl might help.
 * Grant the account running run.py authority to write in /opt/scan2text/.
-  * sudo mkdir /opt/scan2text/; sudo chmod a+rwx /opt/scan2text
+  * sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text
   * ln -s ~/vedavaapi_py_api/textract/example-repo/books /opt/scan2text/data/
 
 
