@@ -28,7 +28,7 @@ lm.login_view = 'index'
 @app.route('/')
 def index():
   flask.session['logstatus'] = 1
-  return flask.render_template('/textract/listBooks.html', title='Home')
+  return flask.render_template('textract/listBooks.html', title='Home')
 
 
 @app.route('/guestlogin', methods=['GET', 'POST'])
@@ -37,7 +37,7 @@ def guestlogin():
   email = flask.request.args.get('usermail')
   logging.info("email=" + str(email))
   flask.session['logstatus'] = 1
-  return flask.render_template('/textract/listBooks.html', title='Home')
+  return flask.render_template('textract/listBooks.html', title='Home')
 
 
 @app.route('/ui/<path:filepath>')
@@ -59,7 +59,7 @@ def fill_template(filepath):
 
 @app.route('/static/<path:filepath>')
 def static_file(filepath):
-  return app.send_static_file('/static/' + filepath)
+  return app.send_static_file('static/' + filepath)
 
 
 @app.route("/sitemap")
