@@ -2,11 +2,7 @@
 Description= start and stop vedavaapi_py for Ubuntu (systemd)
 
 [Service]
-Type=forking
-Environment=APPDIR=/home/${APPUSER}/vedavaapi_py_api
-Environment=APPBIN=run.py
-Environment=APPARGS=""
-
+Type=simple
 StandardOutput=journal+console
 StandardError=journal+console
 ExecStart=/home/vvasuki/vedavaapi_py_api/run.py
