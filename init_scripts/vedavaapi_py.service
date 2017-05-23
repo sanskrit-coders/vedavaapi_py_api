@@ -1,0 +1,16 @@
+[Unit]
+Description= start and stop vedavaapi_py for Ubuntu (systemd)
+
+[Service]
+Type=forking
+# Environment=APPUSER=samskritam
+Environment=APPUSER=vvasuki
+Environment=APPDIR=/home/$APPUSER/vedavaapi_py_api
+Environment=APPBIN=run.py
+Environment=APPARGS=""
+
+# Does not work as of 2017 May 22.
+ExecStart=/bin/su - ${APPUSER} -c "${APPDIR}/${APPBIN}"
+
+[Install]
+WantedBy=multi-user.target
