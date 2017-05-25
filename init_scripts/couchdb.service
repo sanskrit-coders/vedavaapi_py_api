@@ -1,0 +1,12 @@
+[Unit]
+Description= start and stop couchdb for Ubuntu (systemd)
+
+[Service]
+Type=simple
+User=couchdb
+StandardOutput=journal+console
+StandardError=journal+console
+ExecStart=/home/couchdb/couchdb/bin/couchdb
+
+[Install]
+WantedBy=multi-user.target
