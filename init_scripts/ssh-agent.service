@@ -3,10 +3,9 @@ Description= start and stop couchdb for Ubuntu (systemd)
 
 [Service]
 Type=simple
-User=couchdb
 StandardOutput=journal+console
 StandardError=journal+console
-ExecStart=/home/couchdb/couchdb/bin/couchdb
+ExecStart=/usr/bin/ssh-agent -s
 
 [Install]
 WantedBy=multi-user.target
