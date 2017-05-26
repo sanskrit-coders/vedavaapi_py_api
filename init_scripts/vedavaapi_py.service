@@ -3,9 +3,10 @@ Description= start and stop vedavaapi_py for Ubuntu (systemd)
 
 [Service]
 Type=simple
+User=samskritam
 StandardOutput=journal+console
 StandardError=journal+console
-ExecStart=/home/vvasuki/vedavaapi_py_api/run.py
+ExecStart=/home/samskritam/vedavaapi_py_api/run.py
 
 [Install]
-# WantedBy=multi-user.target
+WantedBy=multi-user.target
