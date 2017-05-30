@@ -23,7 +23,13 @@ Python based Web API's for the <vedavaapi.org> project.
 * Grant the account running run.py authority to write in /opt/scan2text/.
   * sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text
   * ln -s ~/vedavaapi_py_api/textract/example-repo/books /opt/scan2text/data/
-
+* Install and setup mongo.
+  * Add a user by running:
+  ```
+  use admin
+  db.createUser( { user: "vedavaapiUser", pwd: "xyz", roles: [ { role: "dbAdminAnyDatabase", db: "admin" } , { role: "readWriteAnyDatabase", db: "admin" }] } )
+  ```  
+  * Create a server_config_local.json file based on the template accoridingly.
 
 ## Running
 * Launch server: run.py
