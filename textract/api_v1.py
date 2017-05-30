@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 import common.data_containers as common_data_containers
 import backend.data_containers as backend_data_containers
 from backend.collections import *
-from backend.db import get_db
+from backend.mongodb import get_db
 from backend.paths import createdir
 from common import *
 

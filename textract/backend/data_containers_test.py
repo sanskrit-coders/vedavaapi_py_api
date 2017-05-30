@@ -8,7 +8,7 @@ from bson import ObjectId
 
 import common.data_containers
 import data_containers
-from db import DBWrapper
+from mongodb import DBWrapper
 
 logging.basicConfig(
   level=logging.DEBUG,

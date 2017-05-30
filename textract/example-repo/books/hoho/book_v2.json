@@ -1,0 +1,26 @@
+{
+  "py/object": "common.data_containers.JsonObjectNode",
+  "content": {
+    "py/object": "textract.backend.data_containers.BookPortion",
+    "title": "hoho",
+    "authors": [
+      "ambaa"
+    ],
+    "path": "hoho",
+    "_id": null,
+    "targets": []
+  },
+  "children": [
+    {
+      "py/object": "common.data_containers.JsonObjectNode",
+      "content": {
+        "py/object": "textract.backend.data_containers.BookPortion",
+        "path": "hoho/png.jpg",
+        "title": "pg_0",
+        "targets": [],
+        "authors": []
+      },
+      "children": []
+    }
+  ]
+}

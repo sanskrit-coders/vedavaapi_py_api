@@ -25,6 +25,7 @@ params.set_from_dict({
   'myport': common.config.PORTNUM,
 })
 
+server_config = data_containers.JsonObject()
 
 def main(argv):
   def usage():
@@ -53,7 +54,15 @@ def main(argv):
       params.dbgFlag = True
   params.repos = args
 
-  textract.setup_app(params)
+
+
+  with open('server_config_local.json') as config_file:
+    pickled_config = config_file.read()
+    # logging.info(pickled_config)
+    import jsonpickle
+    server_config = jsonpickle.decode(pickled_config)
+
+  textract.setup_app(params, server_config)
 
   from common.flask_helper import app
   logging.info("Root path: " + app.root_path)
@@ -70,7 +79,6 @@ def main(argv):
     debug=params.dbgFlag,
     use_reloader=False
   )
-
 
 if __name__ == "__main__":
   main(sys.argv[1:])

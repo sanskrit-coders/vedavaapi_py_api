@@ -20,8 +20,9 @@ __indicdocs_db = None
 
 # Encapsulates the main database.
 class DBWrapper:
-  def __init__(self, dbname):
+  def __init__(self, dbname, server_config):
     self.dbname = dbname
+    self.server_config = server_config
     self.initialize()
 
   #        if not database.write_concern.acknowledged:
@@ -30,7 +31,7 @@ class DBWrapper:
 
   def initialize(self):
     try:
-      self.client = MongoClient()
+      self.client = MongoClient(host=self.server_config["mongo_host"])
       self.db = self.client[self.dbname]
       if not isinstance(self.db, Database):
         raise TypeError("database must be an instance of Database")
@@ -77,10 +78,10 @@ class DBWrapper:
     return nbooks
 
 
-def initdb(dbname, reset=False):
+def initdb(dbname, server_config, reset=False):
   global __indicdocs_db
   logging.info("Initializing database")
-  __indicdocs_db = DBWrapper(dbname)
+  __indicdocs_db = DBWrapper(dbname, server_config)
   if reset:
     __indicdocs_db.reset()
 
