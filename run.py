@@ -56,7 +56,9 @@ def main(argv):
 
 
 
-  with open('server_config_local.json') as config_file:
+  import os
+  config_file_name = os.path.join(os.path.dirname(__file__), 'server_config_local.json')
+  with open(config_file_name) as config_file:
     pickled_config = config_file.read()
     # logging.info(pickled_config)
     import jsonpickle
