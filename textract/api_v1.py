@@ -203,7 +203,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
   post_parser.add_argument('jsonStr', location='json')
 
   # TODO: The below fails. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
-  # @api.expect(json_node_model, validate=True)
+  # @api.expect(json_node_model, validate=False)
 
   @api.expect(post_parser, validate=False)
   def post(self, page_id):
