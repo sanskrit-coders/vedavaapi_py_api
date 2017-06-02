@@ -67,6 +67,17 @@ nav {
     right:8px;
 }
 
+.viewbook_divDetailedAnnotations {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    border: 1px solid black;
+    padding: 5px;
+    z-index: 100;
+    background-color: #E7C3C3;
+    display: none;
+}
+
 .serverconsole {
     font: 10px arial, sans-serif;
     /* line-height:30px; */

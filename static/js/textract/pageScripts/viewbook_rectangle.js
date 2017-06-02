@@ -1,3 +1,5 @@
+// Initially based on (likely) https://github.com/simonsarris/Canvas-tutorials/blob/master/shapes.js By Simon Sarris, modified heavily by deshmup.
+
 // Constructor for Rectangle objects.
 // Returns what is mainly a data container.
 // For now they will just be defined as rectangles.

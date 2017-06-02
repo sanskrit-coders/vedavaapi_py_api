@@ -1,4 +1,3 @@
-// Initially based on (likely) https://github.com/simonsarris/Canvas-tutorials/blob/master/shapes.js By Simon Sarris, modified heavily by deshmup.
 // Simplest way to understand this file is by seeing how it is called.
 
 // A collection of canvas objects - one for each page image.
@@ -73,6 +72,7 @@ CanvasStateList.prototype = {
 };
 
 // A canvas object is a canvas on an image + a bunch of rectangles.
+// Look at event handlers to understand how it functions.
 function CanvasState(canvasId, dataURL, oid) {
     // **** First some setup! ****
     this.name = canvasId + oid;
@@ -164,6 +164,7 @@ function CanvasState(canvasId, dataURL, oid) {
         return false;
     }, false);
 
+    // Mousedown selects a rectangle. Can resize.
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function (e) {
         if (!canvasStateContext.active) {
