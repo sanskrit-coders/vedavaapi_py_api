@@ -32,7 +32,6 @@ class DBWrapper:
 
 
 def initdb(dbname, server_config, reset=False):
-  global __db
   logging.info("Initializing database")
   __db = DBWrapper(dbname, server_config)
   if reset:

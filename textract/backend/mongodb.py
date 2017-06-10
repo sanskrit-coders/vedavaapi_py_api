@@ -74,11 +74,10 @@ class DBWrapper:
 
 
 def initdb(dbname, server_config, reset=False):
-  global __db
   logging.info("Initializing database")
-  __indicdocs_db = DBWrapper(dbname, server_config)
+  __db = DBWrapper(dbname, server_config)
   if reset:
-    __indicdocs_db.reset()
+    __db.reset()
 
 
 def get_db():
