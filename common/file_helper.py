@@ -10,18 +10,6 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-PORTNUM = 9000
-
-LOG_LEVEL = 1
-
-SERVER_CONFIG = {}
-
-
-def serverconfig():
-  global SERVER_CONFIG
-  return SERVER_CONFIG
-
-
 def convert(value):
   B = float(value)
   KB = float(1024)

@@ -1,3 +1,5 @@
 {
+  "scl_path" : "/home/samskritam/scl-dev/build",
+  "grammar_db" : "vedavaapi_grammardb",
   "mongo_host" : "mongodb://someUser:somePw@localhost/"
 }

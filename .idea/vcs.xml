@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$USER_HOME$/grammar" vcs="Git" />
+    <mapping directory="$USER_HOME$/indic_transliteration" vcs="Git" />
   </component>
 </project>

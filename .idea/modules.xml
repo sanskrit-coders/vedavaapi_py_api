@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$USER_HOME$/grammar/grammar.iml" filepath="$USER_HOME$/grammar/grammar.iml" />
+      <module fileurl="file://$USER_HOME$/indic_transliteration/indic_transliteration.iml" filepath="$USER_HOME$/indic_transliteration/indic_transliteration.iml" />
       <module fileurl="file://$PROJECT_DIR$/vedavaapi_py_api.iml" filepath="$PROJECT_DIR$/vedavaapi_py_api.iml" />
     </modules>
   </component>

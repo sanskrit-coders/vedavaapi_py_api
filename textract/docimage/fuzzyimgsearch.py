@@ -4,10 +4,10 @@ import shutil
 
 import os
 
-from common import config
+from common import file_helper
 from textract.docimage import DocImage
 
-configobj = config.Config()
+configobj = file_helper.Config()
 ap = argparse.ArgumentParser()
 ap.add_argument("-j", "--json", required = True,
                                        help = "Path to the directory that contains the books(json file)")

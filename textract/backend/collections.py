@@ -3,7 +3,7 @@ import re
 from bson.objectid import ObjectId
 
 import common.data_containers
-from common.config import *
+from common.file_helper import *
 from textract.docimage import *
 
 logging.basicConfig(
@@ -114,8 +114,7 @@ class Annotations(CollectionWrapper):
       known_segments.insert(a)
       srch_segments.append(a)
 
-    cfg = serverconfig()
-    thres = cfg['template_match']['threshold']
+    thres = 0.3
 
     logging.info("segments to propagate = " + json.dumps(srch_segments))
     # logging.info("Known segments = " + json.dumps(known_segments.segments))

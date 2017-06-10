@@ -27,6 +27,14 @@ params.set_from_dict({
 
 server_config = data_containers.JsonObject()
 
+def get_mongo_client():
+  try:
+    from pymongo import MongoClient
+    return MongoClient(host=server_config["mongo_host"])
+  except Exception as e:
+    print("Error initializing MongoDB database; aborting.", e)
+    sys.exit(1)
+
 def main(argv):
   def usage():
     logging.info("run.py [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
@@ -64,7 +72,7 @@ def main(argv):
     import jsonpickle
     server_config = jsonpickle.decode(pickled_config)
 
-  textract.setup_app(params, server_config)
+  textract.setup_app(params, get_mongo_client())
 
   from common.flask_helper import app
   logging.info("Root path: " + app.root_path)

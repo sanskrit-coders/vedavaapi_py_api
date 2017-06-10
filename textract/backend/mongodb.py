@@ -7,7 +7,7 @@ import os
 from pymongo import MongoClient
 
 import common.data_containers
-from common.config import run_command
+from common.file_helper import run_command
 from textract.backend import data_containers
 from textract.backend.collections import BookPortions, Annotations, Users
 
@@ -16,31 +16,26 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-__indicdocs_db = None
+__db = None
 
 # Encapsulates the main database.
 class DBWrapper:
-  def __init__(self, dbname, server_config):
+  def __init__(self, dbname, client):
     self.dbname = dbname
-    self.server_config = server_config
+    self.client = client
     self.initialize()
 
-  #        if not database.write_concern.acknowledged:
-  #            raise ConfigurationError('database must use '
-  #                                     'acknowledged write_concern')
+    #        if not database.write_concern.acknowledged:
+    #            raise ConfigurationError('database must use '
+    #                                     'acknowledged write_concern')
 
   def initialize(self):
-    try:
-      self.client = MongoClient(host=self.server_config["mongo_host"])
-      self.db = self.client[self.dbname]
-      if not isinstance(self.db, Database):
-        raise TypeError("database must be an instance of Database")
-      self.books = BookPortions(self.db['book_portions'])
-      self.annotations = Annotations(self.db['annotations'])
-      self.users = Users(self.db['users'])
-    except Exception as e:
-      print("Error initializing MongoDB database; aborting.", e)
-      sys.exit(1)
+    self.db = self.client[self.dbname]
+    if not isinstance(self.db, Database):
+      raise TypeError("database must be an instance of Database")
+    self.books = BookPortions(self.db['book_portions'])
+    self.annotations = Annotations(self.db['annotations'])
+    self.users = Users(self.db['users'])
 
   def reset(self):
     logging.info("Clearing IndicDocs database")
@@ -79,7 +74,7 @@ class DBWrapper:
 
 
 def initdb(dbname, server_config, reset=False):
-  global __indicdocs_db
+  global __db
   logging.info("Initializing database")
   __indicdocs_db = DBWrapper(dbname, server_config)
   if reset:
@@ -87,4 +82,4 @@ def initdb(dbname, server_config, reset=False):
 
 
 def get_db():
-  return __indicdocs_db
+  return __db

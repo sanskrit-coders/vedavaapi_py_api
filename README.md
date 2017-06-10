@@ -40,7 +40,7 @@ Python based Web API's for the <vedavaapi.org> project.
 ## Accessing API docs:
 * Generally, just try the /docs/ path under the appropriate module. Example: http://localhost:9000/textract/docs/ .
 
-# Development
+# General Development
 ## Understanding the code
 * Can generate call graphs:
   * pyan.py --dot -c -e run.py |dot -Tpng > call_graphs/run.png
@@ -57,21 +57,22 @@ Python based Web API's for the <vedavaapi.org> project.
 * [config.py]() contains various helper methods
 
 
-### Textract
-#### Intro
+# Textract
+## Intro
 This is a web-based tool to rapidly decode scanned Indic document images into searchable text. It enables users to identify and
  annotate characters in scanned document images and auto-identifies similar characters.
  Allows users to correct and uses them in subsequent text recognition.
 
+## DevelopmeJSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) .
 
-#### Root module
+### Root module
 * [__init__.py]():
   * creates local temporary and data directories
 * [api_v1.py]():
   * Handles calls to /textract/*
 
 
-#### Backend
+### Backend
 * [data_containers.py]() defines
   * various objects such as BookPortion, Annotation, SandhiAnnotation.
   * json helper methods to (de)serialize them to json while writing to the database.
@@ -83,7 +84,8 @@ This is a web-based tool to rapidly decode scanned Indic document images into se
     * Sections
     * Users
 
-## Guidelines
+
+# Guidelines
 * Don't write ugly code.
   * Remember that your code will be read many more times than it will be written. Please take care.
   * Use meaningful identifier names (no naming global functions "myerror").
