@@ -16,7 +16,7 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-__db = None
+textract_db = None
 
 # Encapsulates the main database.
 class DBWrapper:
@@ -73,12 +73,13 @@ class DBWrapper:
     return nbooks
 
 
-def initdb(dbname, server_config, reset=False):
+def initdb(dbname, client, reset=False):
   logging.info("Initializing database")
-  __db = DBWrapper(dbname, server_config)
+  global textract_db
+  textract_db = DBWrapper(dbname, client)
   if reset:
-    __db.reset()
+    textract_db.reset()
 
 
 def get_db():
-  return __db
+  return textract_db

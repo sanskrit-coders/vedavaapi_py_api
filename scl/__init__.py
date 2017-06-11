@@ -11,11 +11,11 @@ logging.basicConfig(
 
 _DBNAME = "vedavaapi_scl_db"
 
+scl_path = ""
 
 def get_full_path(relative_path):
-  import run
   from os.path import join
-  return join(run.server_config['scl_path'], relative_path)
+  return join(scl_path, relative_path)
 
 
 def analyze_api(parms):
@@ -27,4 +27,6 @@ def analyze_api(parms):
   return o
 
 def setup_app(params, server_config):
+  global scl_path
+  scl_path = server_config['scl_path']
   pass

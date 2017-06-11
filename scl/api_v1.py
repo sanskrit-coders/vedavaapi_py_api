@@ -21,18 +21,11 @@ logging.basicConfig(
 )
 
 URL_PREFIX = '/v1'
-api_blueprint = Blueprint(name='textract_api', import_name=__name__)
+api_blueprint = Blueprint(name='scl_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi SCL py API',
                          description='vedavaapi SCL py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="/scl/schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="/sitemap">/sitemap</a>.  ',
                          prefix=URL_PREFIX, doc='/docs')
-
-# api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
-#                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
-
-
-json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
 

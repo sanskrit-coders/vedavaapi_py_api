@@ -4,6 +4,7 @@ import getopt
 import logging
 import sys
 
+import os
 from flask import *
 
 import common
@@ -22,10 +23,16 @@ params.set_from_dict({
   'reset': False,
   'dbreset': False,
   'dbgFlag': False,
-  'myport': common.config.PORTNUM,
+  'myport': 9000,
 })
 
 server_config = data_containers.JsonObject()
+config_file_name = os.path.join(os.path.dirname(__file__), 'server_config_local.json')
+with open(config_file_name) as config_file:
+  pickled_config = config_file.read()
+  # logging.info(pickled_config)
+  import jsonpickle
+  server_config = jsonpickle.decode(pickled_config)
 
 def get_mongo_client():
   try:
@@ -34,6 +41,8 @@ def get_mongo_client():
   except Exception as e:
     print("Error initializing MongoDB database; aborting.", e)
     sys.exit(1)
+
+mongo_client = get_mongo_client()
 
 def main(argv):
   def usage():
@@ -62,17 +71,7 @@ def main(argv):
       params.dbgFlag = True
   params.repos = args
 
-
-
-  import os
-  config_file_name = os.path.join(os.path.dirname(__file__), 'server_config_local.json')
-  with open(config_file_name) as config_file:
-    pickled_config = config_file.read()
-    # logging.info(pickled_config)
-    import jsonpickle
-    server_config = jsonpickle.decode(pickled_config)
-
-  textract.setup_app(params, get_mongo_client())
+  textract.setup_app(params, mongo_client)
 
   from common.flask_helper import app
   logging.info("Root path: " + app.root_path)
@@ -93,4 +92,4 @@ def main(argv):
 if __name__ == "__main__":
   main(sys.argv[1:])
 else:
-  textract.setup_app(params)
+  textract.setup_app(params, get_mongo_client())

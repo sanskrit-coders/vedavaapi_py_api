@@ -8,7 +8,7 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-__db = None
+scl_db = None
 
 # Encapsulates the main database.
 class DBWrapper:
@@ -33,10 +33,11 @@ class DBWrapper:
 
 def initdb(dbname, server_config, reset=False):
   logging.info("Initializing database")
-  __db = DBWrapper(dbname, server_config)
+  global scl_db
+  scl_db = DBWrapper(dbname, server_config)
   if reset:
-    __db.reset()
+    scl_db.reset()
 
 
 def get_db():
-  return __db
+  return scl_db
