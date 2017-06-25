@@ -82,7 +82,7 @@ def main(argv):
   params.repos = args
 
   setup_app()
-  for line in common.config.run_command(["/sbin/ifconfig"]).split("\n"):
+  for line in common.file_helper.run_command(["/sbin/ifconfig"]).split("\n"):
     m = oauth.re.match('\s*inet addr:(.*?) .*', line)
     if m:
       logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
