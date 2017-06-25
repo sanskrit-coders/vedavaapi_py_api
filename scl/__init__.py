@@ -26,7 +26,7 @@ def analyze_api(parms):
   o = json.loads(outstr)
   return o
 
-def setup_app(params, server_config):
+def setup_app(server_config):
   global scl_path
   scl_path = server_config['scl_path']
   pass

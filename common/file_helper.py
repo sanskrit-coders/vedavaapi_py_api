@@ -59,9 +59,12 @@ def run_command(cmd):
     # print "cmd:",cmd
     # print "type:",shellswitch
     shellval = False if (type(cmd) == type([])) else True
-    return subprocess.Popen(cmd, shell=shellval,
-                            stderr=subprocess.PIPE,
-                            stdout=subprocess.PIPE).communicate()[0]
+    result = subprocess.Popen(cmd, shell=shellval,
+                              stderr=subprocess.PIPE,
+                              stdout=subprocess.PIPE).communicate()
+    if result[1] != "":
+      raise Exception(result[1])
+    return result[0]  # Returns the STDOUT
   except Exception as e:
     logging.error("Error in " + cmd + ": " + str(e))
     raise e

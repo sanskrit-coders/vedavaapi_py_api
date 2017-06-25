@@ -1,19 +1,7 @@
-import copy
-import traceback
-from collections import OrderedDict
-from flask import Blueprint
-from os.path import join
-
-import flask
-import jsonpickle
+import logging
 
 import flask_restplus
-import logging
-from flask_login import current_user
-from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
-
-import common.data_containers as common_data_containers
+from flask import Blueprint
 
 logging.basicConfig(
   level=logging.DEBUG,
