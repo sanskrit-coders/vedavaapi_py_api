@@ -5,12 +5,11 @@ import logging
 import sys
 
 import os
-from flask import *
 
 import common
 import textract.api_v1
 from common import data_containers
-from oauth import *
+import oauth
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -78,7 +77,7 @@ def main(argv):
   logging.info(app.instance_path)
   logging.info("Available on the following URLs:")
   for line in common.config.run_command(["/sbin/ifconfig"]).split("\n"):
-    m = re.match('\s*inet addr:(.*?) .*', line)
+    m = oauth.re.match('\s*inet addr:(.*?) .*', line)
     if m:
       logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
