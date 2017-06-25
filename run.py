@@ -1,4 +1,7 @@
 #!/usr/bin/python -u
+
+# This web app may be run in two modes. See bottom of the file.
+
 import getopt
 # from flask.ext.cors import CORS
 import logging
@@ -42,6 +45,14 @@ def get_mongo_client():
     sys.exit(1)
 
 mongo_client = get_mongo_client()
+from common.flask_helper import app
+
+def setup_app():
+  textract.setup_app(params, mongo_client)
+  logging.info("Root path: " + app.root_path)
+  logging.info(app.instance_path)
+  logging.info("Available on the following URLs:")
+  app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
 
 def main(argv):
   def usage():
@@ -70,17 +81,11 @@ def main(argv):
       params.dbgFlag = True
   params.repos = args
 
-  textract.setup_app(params, mongo_client)
-
-  from common.flask_helper import app
-  logging.info("Root path: " + app.root_path)
-  logging.info(app.instance_path)
-  logging.info("Available on the following URLs:")
+  setup_app()
   for line in common.config.run_command(["/sbin/ifconfig"]).split("\n"):
     m = oauth.re.match('\s*inet addr:(.*?) .*', line)
     if m:
       logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
-  app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.run(
     host="0.0.0.0",
     port=params.myport,
@@ -89,6 +94,8 @@ def main(argv):
   )
 
 if __name__ == "__main__":
+  logging.info("Running in stand-alone mode.")
   main(sys.argv[1:])
 else:
-  textract.setup_app(params, get_mongo_client())
+  logging.info("Likely running as a WSGI app.")
+  setup_app()

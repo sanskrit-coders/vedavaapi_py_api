@@ -13,5 +13,5 @@ os.chdir(app_path)
 logging.info("My path is " + app_path)
 sys.path.insert (0, app_path)
 sys.stdout = sys.stderr
-from run import app
-application = DebuggedApplication(app, True)
+import run
+application = DebuggedApplication(run.app, True)
