@@ -51,7 +51,6 @@ def setup_app():
   textract.setup_app(params, mongo_client)
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
-  logging.info("Available on the following URLs:")
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
 
 def main(argv):
@@ -82,6 +81,8 @@ def main(argv):
   params.repos = args
 
   setup_app()
+
+  logging.info("Available on the following URLs:")
   for line in common.file_helper.run_command(["/sbin/ifconfig"]).split("\n"):
     m = oauth.re.match('\s*inet addr:(.*?) .*', line)
     if m:
