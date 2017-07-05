@@ -16,12 +16,10 @@ logging.basicConfig(
 jsonpickle.set_encoder_options('simplejson', indent=2)
 
 
-# Not intended to be written to the database as is. Portions are expected to be extracted and written.
-
-
 class BookPortion(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
+    "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
       "title": {
         "type": "string"
@@ -35,16 +33,23 @@ class BookPortion(JsonObject):
           "type": "string"
         }
       },
+      "text": {
+        "type": "string",
+        "description": "Curated text of this book-portion."
+      },
       "targets": {
         "type": "array",
-        "items": Target.schema
+        "items": Target.schema,
+        "description": "Id of the BookPortion of which this BookPortion is a part. It is an array only for consistency. "
+                       "For any given BookPortion, one can get the right order of contained BookPortions by seeking all "
+                       "BookPortions referring to it in the targets list, and sorting them by their path values."
       }
     },
     "required": ["path"]
   }))
 
   @classmethod
-  def from_details(cls, path, title, authors=None, targets=None):
+  def from_details(cls, path, title, authors=None, targets=None, text=None):
     if authors is None:
       authors = []
     book_portion = BookPortion()
