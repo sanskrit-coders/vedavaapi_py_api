@@ -4,7 +4,6 @@ import flask
 import jsonpickle
 import jsonschema
 from bson import json_util, ObjectId
-from pymongo import ReturnDocument
 
 import common
 from textract import backend
@@ -149,6 +148,7 @@ class JsonObject(object):
     return dict1 == dict2
 
   def update_collection(self, some_collection):
+    from pymongo import ReturnDocument
     self.set_type_recursively()
     if hasattr(self, "schema"):
       self.validate_schema()

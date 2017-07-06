@@ -163,16 +163,5 @@ class TestDBRoundTrip(unittest.TestCase):
     logging.debug(sandhi_annotation_rAmoavigrahavAn.to_json_map())
 
 
-  def test_JsonObjectNode(self):
-    self.test_db.importAll("~/vedavaapi_py_api/textract/example-repo")
-    book = common.data_containers.JsonObject.find_one(some_collection=self.test_db.books.db_collection, filter={"path": "kannada/skt-dict"})
-    logging.debug(str(book))
-    json_node = common.data_containers.JsonObjectNode.from_details(content=book)
-    json_node.fill_descendents(self.test_db.books.db_collection)
-    logging.debug(str(json_node))
-    self.assertEquals(json_node.children.__len__(), 11)
-
-
-
 if __name__ == '__main__':
   unittest.main()
