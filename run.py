@@ -28,11 +28,11 @@ params.set_from_dict({
   'myport': 9000,
 })
 
-mongo_client = common.get_mongo_client()
-
 from common.flask_helper import app
 
 def setup_app():
+  server_config = common.get_configuration()
+  mongo_client = common.db.mongodb.get_mongo_client(host=server_config["mongo_host"])
   textract.setup_app(params, mongo_client)
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)

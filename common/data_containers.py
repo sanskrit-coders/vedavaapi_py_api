@@ -1,12 +1,10 @@
+import json
 import logging
 
-import flask
 import jsonpickle
 import jsonschema
-from bson import json_util, ObjectId
 
 import common
-from textract import backend
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -36,7 +34,7 @@ class JsonObject(object):
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
     # logging.debug(json_util.dumps(dict_without_id))
-    obj = jsonpickle.decode(json_util.dumps(dict_without_id))
+    obj = jsonpickle.decode(json.dumps(dict_without_id))
     # logging.debug(obj.__class__)
     if _id:
       obj._id = str(_id)
@@ -107,12 +105,11 @@ class JsonObject(object):
         else:
           setattr(self, key, value)
 
-  def set_from_id(self, collection, id):
-    return self.set_from_dict(
-      collection.find_one({"_id": ObjectId(id)}))
+  def set_from_id(self, db_interface, id):
+    return self.set_from_dict(db_interface.find_by_id(id=id))
 
   def to_json_map_via_pickle(self):
-    return json_util.loads(jsonpickle.encode(self))
+    return json.loads(jsonpickle.encode(self))
 
   def to_json_map(self):
     jsonMap = {}
@@ -147,29 +144,12 @@ class JsonObject(object):
     # logging.debug(dict2)
     return dict1 == dict2
 
-  def update_collection(self, some_collection):
-    from pymongo import ReturnDocument
-    self.set_type_recursively()
-    if hasattr(self, "schema"):
-      self.validate_schema()
-
-    map_to_write = self.to_json_map()
-    if hasattr(self, "_id"):
-      filter = {"_id": ObjectId(self._id)}
-      map_to_write.pop("_id", None)
-    else:
-      filter = self.to_json_map()
-
-    updated_doc = some_collection.find_one_and_update(filter, {"$set": map_to_write}, upsert=True,
-                                                      return_document=ReturnDocument.AFTER)
-    self.set_type()
-    updated_doc[TYPE_FIELD] = getattr(self, TYPE_FIELD)
-    return JsonObject.make_from_dict(updated_doc)
+  def update_collection(self, db_interface):
+    return db_interface.update_doc(self)
 
   # To delete referrent items also, use appropriate method in JsonObjectNode.
-  def delete_in_collection(self, some_collection):
-    assert hasattr(self, "_id"), "_id not present!"
-    return some_collection.delete_one({"_id": ObjectId(self._id)})
+  def delete_in_collection(self, db_interface):
+    return db_interface.delete_doc(self)
 
   def validate_schema(self):
     json_map = self.to_json_map()
@@ -179,35 +159,20 @@ class JsonObject(object):
     jsonschema.validate(json_map, self.schema)
 
   @classmethod
-  def find_one(cls, filter, some_collection):
-    attr_dict = some_collection.find_one(filter=filter)
+  def find_one(cls, filter, db_interface):
+    attr_dicts = db_interface.find(filter=filter)
     obj = None
-    if attr_dict:
-      obj = cls.make_from_dict(attr_dict)
+    if attr_dicts and len(attr_dicts) > 0:
+      obj = cls.make_from_dict(attr_dicts[0])
     return obj
 
   @classmethod
-  def find(cls, filter, some_collection):
-    iter = some_collection.find(filter=filter)
-    return [cls.make_from_dict(x) for x in iter]
-
-  @classmethod
-  def from_id(cls, id, collection):
-    item = JsonObject.find_one(filter={"_id": ObjectId(id)}, some_collection=collection)
+  def from_id(cls, id, db_interface):
+    item = db_interface.find_by_id(id=id)
     return item
 
-  def get_targetting_entities(self, some_collection, entity_type=None):
-    filter = {
-      "targets":  {
-        "$elemMatch": {
-          "container_id" : str(self._id)
-        }
-      }
-    }
-    if entity_type:
-      filter[TYPE_FIELD] = entity_type
-    targetting_objs = [JsonObject.make_from_dict(item) for item in some_collection.find(filter)]
-    return targetting_objs
+  def get_targetting_entities(self, db_interface, entity_type=None):
+    return db_interface.get_targetting_entities(self, entity_type=entity_type)
 
 
 class JsonObjectNode(JsonObject):
@@ -240,23 +205,23 @@ class JsonObjectNode(JsonObject):
     node.children = children
     return node
 
-  def update_collection(self, some_collection):
-    self.content = self.content.update_collection(some_collection)
+  def update_collection(self, db_interface):
+    self.content = self.content.update_collection(db_interface)
     for child in self.children:
       child.content.targets = [Target.from_details(str(self.content._id))]
-      child.update_collection(some_collection)
+      child.update_collection(db_interface)
 
-  def delete_in_collection(self, some_collection):
-    self.content.delete_in_collection(some_collection)
+  def delete_in_collection(self, db_interface):
+    self.content.delete_in_collection(db_interface)
     id = str(self.content._id)
     for child in self.children:
       assert id in child.content.targets, "%d not in %s" % (id, str(child.content.targets))
       if hasattr(child.content, "_id"):
         child.content.targets.remove(id)
         if len(child.content.targets) > 0:
-          child.content.update_collection(some_collection)
+          child.content.update_collection(db_interface)
         else:
-          child.delete_in_collection(some_collection)
+          child.delete_in_collection(db_interface)
 
   def fill_descendents(self, some_collection):
     targetting_objs = self.content.get_targetting_entities(some_collection=some_collection)

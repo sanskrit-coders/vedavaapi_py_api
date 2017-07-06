@@ -2,14 +2,14 @@
 import json
 import logging
 import unittest
-import common
 
 import jsonpickle
 from bson import ObjectId
 
+import common
 import common.data_containers
 import data_containers
-from mongodb import DBWrapper
+from textract.backend.db.mongodb import MongoDbWrapper
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -18,7 +18,9 @@ logging.basicConfig(
 
 
 class TestDBRoundTrip(unittest.TestCase):
-  test_db = DBWrapper(dbname="test_db", client=common.get_mongo_client())
+  from textract.backend import db
+  db.initdb(dbname="test_db", client=common.db.mongodb.get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
+  test_db = db.textract_db
 
   def test_PickleDepickle(self):
     book_portion = data_containers.BookPortion.from_details(
@@ -44,7 +46,7 @@ class TestDBRoundTrip(unittest.TestCase):
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.data_containers.Target.from_details(container_id="xyz")])
 
-    book_portions = self.test_db.db.book_portions
+    book_portions = self.test_db.book_portions
     logging.debug(book_portion.to_json_map())
     book_portion.validate_schema()
 
@@ -64,7 +66,7 @@ class TestDBRoundTrip(unittest.TestCase):
       data_containers.ImageTarget.from_details(container_id=str(target_page_id), rectangle=data_containers.Rectangle.from_details())],
       source=data_containers.AnnotationSource.from_details("someProgram", "xyz.py"))
 
-    annotations = self.test_db.db.annotations
+    annotations = self.test_db.annotations
     logging.debug(annotation.to_json_map())
 
     result = annotations.update(annotation.to_json_map(), annotation.to_json_map(), upsert=True)
@@ -83,8 +85,9 @@ class TestDBRoundTrip(unittest.TestCase):
       source=data_containers.AnnotationSource.from_details("someOCRProgram", "xyz.py"),
       content=data_containers.TextContent.from_details(u"इदं नभसि म्भीषण"))
 
-    annotations = self.test_db.db.annotations
+    annotations = self.test_db.annotations
     logging.debug(text_annotation_original.to_json_map())
+    logging.debug(annotations.__class__)
     text_annotation = text_annotation_original.update_collection(annotations)
     logging.info("annotation_retrieved has text " + text_annotation.content.text)
 
@@ -100,7 +103,7 @@ class TestDBRoundTrip(unittest.TestCase):
       content=data_containers.TextContent.from_details(u"रामो विग्रवान् धर्मः।"))
     logging.debug(text_annotation.to_json_map())
 
-    annotations = self.test_db.db.annotations
+    annotations = self.test_db.annotations
 
     text_annotation = text_annotation.update_collection(annotations)
     logging.debug(text_annotation.to_json_map())

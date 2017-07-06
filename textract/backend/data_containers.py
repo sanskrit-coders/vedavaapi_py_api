@@ -94,8 +94,8 @@ class BookPortion(JsonObject):
     return book_portion
 
   @classmethod
-  def from_path(cls, path, collection):
-    book_portion = JsonObject.find_one(filter={"path": path}, some_collection=collection)
+  def from_path(cls, path, db_interface):
+    book_portion = JsonObject.find_one(filter={"path": path}, db_interface=db_interface)
     return book_portion
 
 

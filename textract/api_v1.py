@@ -1,22 +1,17 @@
 import copy
 import traceback
-from collections import OrderedDict
 from os.path import join
-
-import flask
-import jsonpickle
 
 import flask_restplus
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-import common.data_containers as common_data_containers
 import backend.data_containers as backend_data_containers
-from backend.collections import *
-from backend.mongodb import get_db
+import common.data_containers as common_data_containers
 from backend.paths import createdir
-from common import *
+from textract.backend.db.collections import *
+from textract.backend.db import get_db
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -220,7 +215,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
-      node.update_collection(some_collection=get_db().annotations.db_collection)
+      node.update_collection(db_interface=get_db().annotations.db_collection)
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)
@@ -236,7 +231,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
       node.fill_descendents(some_collection=get_db().annotations.db_collection)
-      node.delete_in_collection(some_collection=get_db().annotations.db_collection)
+      node.delete_in_collection(db_interface=get_db().annotations.db_collection)
     return {}, 200
 
 

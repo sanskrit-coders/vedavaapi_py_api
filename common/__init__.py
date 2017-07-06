@@ -21,17 +21,6 @@ def get_configuration():
   return server_config
 
 
-def get_mongo_client():
-  server_config = get_configuration()
-  try:
-    from pymongo import MongoClient
-    return MongoClient(host=server_config["mongo_host"])
-  except Exception as e:
-    print("Error initializing MongoDB database; aborting.", e)
-    import sys
-    sys.exit(1)
-
-
 def check_class(obj, allowed_types):
   results = [isinstance(obj, some_type) for some_type in allowed_types]
   # logging.debug(results)

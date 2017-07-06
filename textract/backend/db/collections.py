@@ -3,6 +3,7 @@ import re
 from bson.objectid import ObjectId
 
 import common.data_containers
+from common.db import DbInterface
 from common.file_helper import *
 from textract.docimage import *
 
@@ -14,47 +15,28 @@ logging.basicConfig(
 logging.info("pymongo version is " + pymongo.__version__)
 
 
-class CollectionWrapper(object):
-  def __init__(self, db_collection):
-    logging.info("Initializing collection :" + str(db_collection))
-    self.db_collection = db_collection
-
-
 # Encapsulates the book_portions collection.
-class BookPortions(CollectionWrapper):
-  def __init__(self, db_collection):
-    logging.info("Initializing collection :" + str(db_collection))
-    super(BookPortions, self).__init__(db_collection)
-
+class BookPortionsInterface(DbInterface):
   def list_books(self, pattern=None):
-    iter = common.data_containers.JsonObject.find(
-      filter={"$or":
-                [{"targets" : {"$exists" : False}},
-                 {"targets" : {"$size" : 0}}]
-              },
-      some_collection=self.db_collection)
+    iter = self.get_no_target_entities()
     matches = [b for b in iter if not pattern or re.search(pattern, b.path)]
     return matches
 
   def get(self, path):
-    book = data_containers.BookPortion.from_path(path=path, collection=self.db_collection)
+    book = data_containers.BookPortion.from_path(path=path, collection=self)
     book_node = common.data_containers.JsonObjectNode.from_details(content=book)
-    book_node.fill_descendents(self.db_collection)
+    book_node.fill_descendents(self)
     return book_node
 
 
 # Encapsulates the annotations collection.
-class Annotations(CollectionWrapper):
-  def __init__(self, db_collection):
-    logging.info("Initializing collection :" + str(db_collection))
-    super(Annotations, self).__init__(db_collection)
-
+class AnnotationsInterface(DbInterface):
   def update_image_annotations(self, page):
     """return the page annotation with id = anno_id"""
     from os import path
     from textract.backend import paths
     page_image = DocImage.from_path(path=path.join(paths.DATADIR, page.path))
-    known_annotations = page.get_targetting_entities(some_collection=self.db_collection,
+    known_annotations = page.get_targetting_entities(db_interface=self,
                                                      entity_type=data_containers.ImageAnnotation.get_wire_typeid())
     if len(known_annotations):
       logging.warning("Annotations exist. Not detecting and merging.")
@@ -139,27 +121,3 @@ class Annotations(CollectionWrapper):
     return True
 
 
-# Encapsulates the users collection.
-class Users(CollectionWrapper):
-  def __init__(self, db_collection):
-    super(Users, self).__init__(db_collection)
-
-  def get(self, user_id):
-    res = self.db_collection.find_one({'_id': ObjectId(user_id)})
-    res['_id'] = str(res['_id'])
-    return res
-
-  def getBySocialId(self, social_id):
-    res = self.db_collection.find_one({'social_id': social_id})
-    if res is not None: res['_id'] = str(res['_id'])
-    return res
-
-  def insert(self, user_data):
-    result = self.db_collection.insert_one(user_data)
-    result = self.get(result.inserted_id)
-    result['_id'] = str(result['_id'])
-    return result
-
-  def update(self, user_id, user_data):
-    result = self.db_collection.update({'_id': ObjectId(user_id)}, user_data)
-    return result['n'] > 0

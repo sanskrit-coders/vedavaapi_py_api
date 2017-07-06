@@ -1,6 +1,7 @@
 import logging
-import os
 import unittest
+
+import os
 
 import common
 import data_containers
@@ -13,11 +14,12 @@ logging.basicConfig(
 
 class TestDBRoundTrip(unittest.TestCase):
   def test_JsonObjectNode(self):
-    from textract.backend.mongodb import DBWrapper
-    test_db = DBWrapper(dbname="test_db", client=common.get_mongo_client())
+    from textract.backend import db
+    db.initdb(dbname="test_db", client=common.db.mongodb.get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
+    self.test_db = db.textract_db
     CODE_ROOT = os.path.dirname(os.path.dirname(__file__))
     self.test_db.importAll(os.path.join(CODE_ROOT, "textract/example-repo"))
-    book = common.data_containers.JsonObject.find_one(some_collection=self.test_db.books.db_collection, filter={"path": "kannada/skt-dict"})
+    book = common.data_containers.JsonObject.find_one(db_interface=self.test_db.books.db_collection, filter={"path": "kannada/skt-dict"})
     logging.debug(str(book))
     json_node = common.data_containers.JsonObjectNode.from_details(content=book)
     json_node.fill_descendents(self.test_db.books.db_collection)

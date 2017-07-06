@@ -1,47 +1,29 @@
 import logging
 import re
-import sys
-from pymongo.database import Database
 
 import os
-from pymongo import MongoClient
 
 import common.data_containers
 from common.file_helper import run_command
 from textract.backend import data_containers
-from textract.backend.collections import BookPortions, Annotations, Users
 
-logging.basicConfig(
-  level=logging.DEBUG,
-  format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
-)
+
+# Encapsulates the main database.
+
 
 textract_db = None
 
-# Encapsulates the main database.
-class DBWrapper:
-  def __init__(self, dbname, client):
-    self.dbname = dbname
-    self.client = client
-    self.initialize()
+
+class DBWrapper(object):
+  def initialize(self):
+    pass
+
+  def reset(self):
+    pass
 
     #        if not database.write_concern.acknowledged:
     #            raise ConfigurationError('database must use '
     #                                     'acknowledged write_concern')
-
-  def initialize(self):
-    self.db = self.client[self.dbname]
-    if not isinstance(self.db, Database):
-      raise TypeError("database must be an instance of Database")
-    self.books = BookPortions(self.db['book_portions'])
-    self.annotations = Annotations(self.db['annotations'])
-    self.users = Users(self.db['users'])
-
-  def reset(self):
-    logging.info("Clearing IndicDocs database")
-    self.client.drop_database(self.dbname)
-    self.initialize()
-
   def importAll(self, rootdir, pattern=None):
     logging.info("Importing books into database from " + rootdir)
     cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
@@ -72,13 +54,11 @@ class DBWrapper:
         nbooks = nbooks + 1
     return nbooks
 
-
-def initdb(dbname, client, reset=False):
+def initdb(dbname, client):
   logging.info("Initializing database")
   global textract_db
-  textract_db = DBWrapper(dbname, client)
-  if reset:
-    textract_db.reset()
+  from textract.backend.db.mongodb import MongoDbWrapper
+  textract_db = MongoDbWrapper(dbname, client)
 
 
 def get_db():
