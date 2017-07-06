@@ -168,7 +168,7 @@ class JsonObject(object):
 
   @classmethod
   def from_id(cls, id, db_interface):
-    item = db_interface.find_by_id(id=id)
+    item = cls.make_from_dict(db_interface.find_by_id(id=id))
     return item
 
   def get_targetting_entities(self, db_interface, entity_type=None):
@@ -223,12 +223,12 @@ class JsonObjectNode(JsonObject):
         else:
           child.delete_in_collection(db_interface)
 
-  def fill_descendents(self, some_collection):
-    targetting_objs = self.content.get_targetting_entities(some_collection=some_collection)
+  def fill_descendents(self, db_interface):
+    targetting_objs = self.content.get_targetting_entities(db_interface=db_interface)
     self.children = []
     for targetting_obj in targetting_objs:
       child = JsonObjectNode.from_details(content=targetting_obj)
-      child.fill_descendents(some_collection=some_collection)
+      child.fill_descendents(db_interface=db_interface)
       self.children.append(child)
 
 

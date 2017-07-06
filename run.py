@@ -9,7 +9,6 @@ import sys
 
 import os
 
-import common
 import textract.api_v1
 from common import data_containers
 import oauth
@@ -31,9 +30,10 @@ params.set_from_dict({
 from common.flask_helper import app
 
 def setup_app():
+  import common
   server_config = common.get_configuration()
-  mongo_client = common.db.mongodb.get_mongo_client(host=server_config["mongo_host"])
-  textract.setup_app(params, mongo_client)
+  from common.db import mongodb
+  textract.setup_app(params, mongodb.get_mongo_client(host=server_config["mongo_host"]))
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
@@ -68,6 +68,7 @@ def main(argv):
   setup_app()
 
   logging.info("Available on the following URLs:")
+  import common
   for line in common.file_helper.run_command(["/sbin/ifconfig"]).split("\n"):
     m = oauth.re.match('\s*inet addr:(.*?) .*', line)
     if m:

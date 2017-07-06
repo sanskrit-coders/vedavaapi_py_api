@@ -40,8 +40,8 @@ class Collection(DbInterface):
       }
     }
     if entity_type:
-      import common
-      filter[common.TYPE_FIELD] = entity_type
+      import common.data_containers
+      filter[common.data_containers.TYPE_FIELD] = entity_type
     targetting_objs = [json_obj.make_from_dict(item) for item in self.mongo_collection.find(filter)]
     return targetting_objs
 
@@ -54,7 +54,7 @@ class Collection(DbInterface):
 
     map_to_write = doc.to_json_map()
     if hasattr(doc, "_id"):
-      filter = {"_id": ObjectId(self._id)}
+      filter = {"_id": ObjectId(doc._id)}
       map_to_write.pop("_id", None)
     else:
       filter = doc.to_json_map()
@@ -66,17 +66,16 @@ class Collection(DbInterface):
     from common.data_containers import JsonObject
     return JsonObject.make_from_dict(updated_doc)
 
-  def delete_doc(self):
-    assert hasattr(self, "_id"), "_id not present!"
-    return self.mongo_collection.delete_one({"_id": ObjectId(self._id)})
+  def delete_doc(self, doc):
+    assert hasattr(doc, "_id"), "_id not present!"
+    return self.mongo_collection.delete_one({"_id": ObjectId(doc._id)})
 
   def get_no_target_entities(self):
     iter = self.mongo_collection.find(
       filter={"$or":
                 [{"targets" : {"$exists" : False}},
                  {"targets" : {"$size" : 0}}]
-              },
-      some_collection=self.db_collection)
+              })
     from common.data_containers import JsonObject
     return [JsonObject.make_from_dict(x) for x in iter]
 

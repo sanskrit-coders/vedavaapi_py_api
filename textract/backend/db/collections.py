@@ -23,7 +23,7 @@ class BookPortionsInterface(DbInterface):
     return matches
 
   def get(self, path):
-    book = data_containers.BookPortion.from_path(path=path, collection=self)
+    book = data_containers.BookPortion.from_path(path=path, db_interface=self)
     book_node = common.data_containers.JsonObjectNode.from_details(content=book)
     book_node.fill_descendents(self)
     return book_node
@@ -61,6 +61,6 @@ class AnnotationsInterface(DbInterface):
       target = data_containers.ImageTarget.from_details(container_id=page._id, rectangle=region)
       annotation = data_containers.ImageAnnotation.from_details(
         targets=[target], source=data_containers.AnnotationSource.from_details(source_type='system_inferred', id="pyCV2"))
-      annotation = annotation.update_collection(self.db_collection)
+      annotation = annotation.update_collection(self)
       new_annotations.append(annotation)
     return new_annotations

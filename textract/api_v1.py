@@ -30,13 +30,11 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 #                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
-
 json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
 
 @api.route('/books')
 class BookList(flask_restplus.Resource):
-
   # Marshalling as below does not work.
   # @api.marshal_list_with(json_node_model)
   def get(self):
@@ -89,7 +87,7 @@ class BookList(flask_restplus.Resource):
     logging.info("User Id: " + str(user_id))
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (backend_data_containers.BookPortion.from_path(path=bookpath, collection= get_db().books.db_collection) or
+    book = (backend_data_containers.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
             backend_data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
 
     if (not book.authors): book.authors = [form.get("author")]
@@ -124,7 +122,7 @@ class BookList(flask_restplus.Resource):
 
       page = common_data_containers.JsonObjectNode.from_details(
         content=backend_data_containers.BookPortion.from_details(
-          title = "pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
+          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
       pages.append(page)
 
     book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book, children=pages)
@@ -135,7 +133,7 @@ class BookList(flask_restplus.Resource):
     book_portion_node_minus_id.dump_to_file(book_mfile)
 
     try:
-      book_portion_node.update_collection(get_db().books.db_collection)
+      book_portion_node.update_collection(get_db().books)
     except Exception as e:
       logging.error(format(e))
       traceback.print_exc()
@@ -155,16 +153,15 @@ class BookPortionHandler(flask_restplus.Resource):
       {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
     """
     logging.info("book get by id = " + str(book_id))
-    book_portions_collection = get_db().books.db_collection
-    book_portion = common_data_containers.JsonObject.from_id(id=book_id, collection=book_portions_collection)
+    book_portions_collection = get_db().books
+    book_portion = common_data_containers.JsonObject.from_id(id=book_id, db_interface=book_portions_collection)
     if book_portion == None:
       return "No such book portion id", 404
     else:
       book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
-      book_node.fill_descendents(some_collection=book_portions_collection)
+      book_node.fill_descendents(db_interface=book_portions_collection)
       # pprint(binfo)
       return book_node.to_json_map_via_pickle(), 200
-
 
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
@@ -178,16 +175,17 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
     """
     logging.info("page get by id = " + str(page_id))
-    book_portions_collection = get_db().books.db_collection
-    page = data_containers.JsonObject.from_id(id=page_id, collection=book_portions_collection)
+    book_portions_collection = get_db().books
+    page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=book_portions_collection)
     if page == None:
       return "No such book portion id", 404
     else:
       image_annotations = get_db().annotations.update_image_annotations(page)
-      image_annotation_nodes = [data_containers.JsonObjectNode.from_details(content=annotation) for annotation in image_annotations]
+      image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
+                                image_annotations]
       for node in image_annotation_nodes:
-        node.fill_descendents(some_collection=get_db().annotations.db_collection)
-      return data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
+        node.fill_descendents(db_interface=get_db().annotations)
+      return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 
 @api.route('/pages/<string:page_id>/image_annotations')
@@ -215,7 +213,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
-      node.update_collection(db_interface=get_db().annotations.db_collection)
+      node.update_collection(db_interface=get_db().annotations)
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)
@@ -230,10 +228,9 @@ class PageAnnotationsHandler(flask_restplus.Resource):
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
-      node.fill_descendents(some_collection=get_db().annotations.db_collection)
-      node.delete_in_collection(db_interface=get_db().annotations.db_collection)
+      node.fill_descendents(db_interface=get_db().annotations)
+      node.delete_in_collection(db_interface=get_db().annotations)
     return {}, 200
-
 
 
 @api_blueprint.route('/relpath/<path:relpath>')
@@ -260,11 +257,10 @@ def listdirtree(abspath):
 def list_schemas():
   """???."""
   schemas = {
-    "JsonObject":  common_data_containers.JsonObject.schema,
+    "JsonObject": common_data_containers.JsonObject.schema,
     "JsonObjectNode": common_data_containers.JsonObjectNode.schema,
     "BookPortion": backend_data_containers.BookPortion.schema,
     "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
     "TextAnnotation": backend_data_containers.TextAnnotation.schema,
   }
   return jsonify(schemas)
-

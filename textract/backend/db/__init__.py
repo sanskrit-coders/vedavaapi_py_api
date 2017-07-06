@@ -43,13 +43,13 @@ class DBWrapper(object):
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      book = data_containers.BookPortion.from_path(path=bpath, collection=self.books.db_collection)
+      book = data_containers.BookPortion.from_path(path=bpath, db_interface=self.books)
       if book:
         logging.info("Book already present %s" % bpath)
       else:
         book_portion_node = common.data_containers.JsonObject.read_from_file(f)
         logging.info("Importing afresh! %s " % book_portion_node)
-        book_portion_node.update_collection(self.books.db_collection)
+        book_portion_node.update_collection(self.books)
         logging.debug(str(book_portion_node))
         nbooks = nbooks + 1
     return nbooks
