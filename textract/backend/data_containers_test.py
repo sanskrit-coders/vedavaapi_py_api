@@ -164,7 +164,7 @@ class TestDBRoundTrip(unittest.TestCase):
 
 
   def test_JsonObjectNode(self):
-    self.test_db.importAll("~/textract/textract/example-repo")
+    self.test_db.importAll("~/vedavaapi_py_api/textract/example-repo")
     book = common.data_containers.JsonObject.find_one(some_collection=self.test_db.books.db_collection, filter={"path": "kannada/skt-dict"})
     logging.debug(str(book))
     json_node = common.data_containers.JsonObjectNode.from_details(content=book)
