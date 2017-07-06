@@ -16,6 +16,35 @@ logging.basicConfig(
 jsonpickle.set_encoder_options('simplejson', indent=2)
 
 
+class TextContent(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string",
+      },
+      "language": {
+        "type": "string",
+      },
+      "encoding": {
+        "type": "string",
+      },
+    },
+    "required": ["text"]
+  }))
+
+  @classmethod
+  def from_details(cls, text, language="UNK", encoding="UNK"):
+    text_content = TextContent()
+    assert common.check_class(text, [str, unicode])
+    assert common.check_class(language, [str, unicode])
+    assert common.check_class(encoding, [str, unicode])
+    text_content.text = text
+    text_content.language = language
+    text_content.encoding = encoding
+    return text_content
+
+
 class BookPortion(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
@@ -33,10 +62,7 @@ class BookPortion(JsonObject):
           "type": "string"
         }
       },
-      "text": {
-        "type": "string",
-        "description": "Curated text of this book-portion."
-      },
+      "curatedContent": TextContent.schema,
       "targets": {
         "type": "array",
         "items": Target.schema,
@@ -209,35 +235,6 @@ class ImageAnnotation(Annotation):
     annotation = ImageAnnotation()
     annotation.set_base_details(targets, source)
     return annotation
-
-
-class TextContent(JsonObject):
-  schema = common.recursively_merge(JsonObject.schema, ({
-    "type": "object",
-    "properties": {
-      "text": {
-        "type": "string",
-      },
-      "language": {
-        "type": "string",
-      },
-      "encoding": {
-        "type": "string",
-      },
-    },
-    "required": ["text"]
-  }))
-
-  @classmethod
-  def from_details(cls, text, language="UNK", encoding="UNK"):
-    text_content = TextContent()
-    assert common.check_class(text, [str, unicode])
-    assert common.check_class(language, [str, unicode])
-    assert common.check_class(encoding, [str, unicode])
-    text_content.text = text
-    text_content.language = language
-    text_content.encoding = encoding
-    return text_content
 
 
 # Targets: ImageAnnotation(s) or  TextAnnotation

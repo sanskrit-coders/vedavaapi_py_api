@@ -28,23 +28,8 @@ params.set_from_dict({
   'myport': 9000,
 })
 
-server_config = data_containers.JsonObject()
-config_file_name = os.path.join(os.path.dirname(__file__), 'server_config_local.json')
-with open(config_file_name) as config_file:
-  pickled_config = config_file.read()
-  # logging.info(pickled_config)
-  import jsonpickle
-  server_config = jsonpickle.decode(pickled_config)
+mongo_client = common.get_mongo_client()
 
-def get_mongo_client():
-  try:
-    from pymongo import MongoClient
-    return MongoClient(host=server_config["mongo_host"])
-  except Exception as e:
-    print("Error initializing MongoDB database; aborting.", e)
-    sys.exit(1)
-
-mongo_client = get_mongo_client()
 from common.flask_helper import app
 
 def setup_app():

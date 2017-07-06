@@ -2,6 +2,7 @@
 import json
 import logging
 import unittest
+import common
 
 import jsonpickle
 from bson import ObjectId
@@ -17,7 +18,7 @@ logging.basicConfig(
 
 
 class TestDBRoundTrip(unittest.TestCase):
-  test_db = DBWrapper("test_db")
+  test_db = DBWrapper(dbname="test_db", client=common.get_mongo_client())
 
   def test_PickleDepickle(self):
     book_portion = data_containers.BookPortion.from_details(

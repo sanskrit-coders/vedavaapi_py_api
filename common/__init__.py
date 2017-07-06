@@ -7,6 +7,31 @@ logging.basicConfig(
 )
 
 
+def get_configuration():
+  import os
+  CODE_ROOT = os.path.dirname(os.path.dirname(__file__))
+  from common import data_containers
+  server_config = data_containers.JsonObject()
+  config_file_name = os.path.join(CODE_ROOT, 'server_config_local.json')
+  with open(config_file_name) as config_file:
+    pickled_config = config_file.read()
+    # logging.info(pickled_config)
+    import jsonpickle
+    server_config = jsonpickle.decode(pickled_config)
+  return server_config
+
+
+def get_mongo_client():
+  server_config = get_configuration()
+  try:
+    from pymongo import MongoClient
+    return MongoClient(host=server_config["mongo_host"])
+  except Exception as e:
+    print("Error initializing MongoDB database; aborting.", e)
+    import sys
+    sys.exit(1)
+
+
 def check_class(obj, allowed_types):
   results = [isinstance(obj, some_type) for some_type in allowed_types]
   # logging.debug(results)
