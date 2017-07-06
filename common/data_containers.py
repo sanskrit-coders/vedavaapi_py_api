@@ -160,10 +160,10 @@ class JsonObject(object):
 
   @classmethod
   def find_one(cls, filter, db_interface):
-    attr_dicts = db_interface.find(filter=filter)
+    attr_dict = db_interface.find_one(filter=filter)
     obj = None
-    if attr_dicts and len(attr_dicts) > 0:
-      obj = cls.make_from_dict(attr_dicts[0])
+    if attr_dict:
+      obj = cls.make_from_dict(attr_dict)
     return obj
 
   @classmethod

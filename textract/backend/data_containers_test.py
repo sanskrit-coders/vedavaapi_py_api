@@ -46,15 +46,14 @@ class TestDBRoundTrip(unittest.TestCase):
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.data_containers.Target.from_details(container_id="xyz")])
 
-    book_portions = self.test_db.book_portions
+    book_portions = self.test_db.books
     logging.debug(book_portion.to_json_map())
     book_portion.validate_schema()
 
-    result = book_portions.update({"path": book_portion.path}, book_portion.to_json_map(), upsert=True)
+    result = book_portions.update_doc(book_portion)
     logging.debug("update result is " + str(result))
 
-    book_portion_retrieved = common.data_containers.JsonObject.make_from_dict(
-      book_portions.find_one({"path": "myrepo/halAyudha"}))
+    book_portion_retrieved = data_containers.BookPortion.from_path(path="myrepo/halAyudha", db_interface=book_portions)
     logging.info(book_portion_retrieved.__class__)
     logging.info(str(book_portion_retrieved.to_json_map()))
     logging.info(book_portion.to_json_map())
@@ -69,10 +68,10 @@ class TestDBRoundTrip(unittest.TestCase):
     annotations = self.test_db.annotations
     logging.debug(annotation.to_json_map())
 
-    result = annotations.update(annotation.to_json_map(), annotation.to_json_map(), upsert=True)
+    result = annotations.update_doc(annotation)
     logging.debug("update result is " + str(result))
 
-    annotation_retrieved = common.data_containers.JsonObject.make_from_dict(annotations.find_one(annotation.to_json_map()))
+    annotation_retrieved = common.data_containers.JsonObject.make_from_dict(annotations.find(annotation.to_json_map())[0])
     logging.info(annotation_retrieved.__class__)
 
     logging.info(str(annotation_retrieved.to_json_map()))

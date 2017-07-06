@@ -23,10 +23,13 @@ class Collection(DbInterface):
     self.mongo_collection = some_collection
 
   def find_by_id(self, id):
-    self.mongo_collection.find_one({"_id": ObjectId(id)})
+    return self.mongo_collection.find_one({"_id": ObjectId(id)})
 
   def find(self, filter):
-    self.mongo_collection.find(filter=filter)
+    return self.mongo_collection.find(filter=filter)
+
+  def find_one(self, filter):
+    return self.mongo_collection.find_one(filter=filter)
 
   def get_targetting_entities(self, json_obj, entity_type=None):
     filter = {

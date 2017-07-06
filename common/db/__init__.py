@@ -14,6 +14,9 @@ class DbInterface(object):
   def find(self, filter):
     pass
 
+  def find_one(self, filter):
+    pass
+
   def get_targetting_entities(self, json_obj, entity_type=None):
     pass
 
