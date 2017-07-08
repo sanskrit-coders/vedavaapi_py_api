@@ -280,3 +280,32 @@ class Target(JsonObject):
   @classmethod
   def from_containers(cls, containers):
     return Target.from_ids(container_ids=[container._id for container in containers])
+
+
+class TextContent(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string",
+      },
+      "language": {
+        "type": "string",
+      },
+      "encoding": {
+        "type": "string",
+      },
+    },
+    "required": ["text"]
+  }))
+
+  @classmethod
+  def from_details(cls, text, language="UNK", encoding="UNK"):
+    text_content = TextContent()
+    assert common.check_class(text, [str, unicode])
+    assert common.check_class(language, [str, unicode])
+    assert common.check_class(encoding, [str, unicode])
+    text_content.text = text
+    text_content.language = language
+    text_content.encoding = encoding
+    return text_content

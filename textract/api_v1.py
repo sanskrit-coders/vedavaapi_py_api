@@ -3,15 +3,15 @@ import traceback
 from os.path import join
 
 import flask_restplus
+import vedavaapi_data.common as common_data_containers
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-import backend.data_containers as backend_data_containers
-import common.data_containers as common_data_containers
+import vedavaapi_data.schema.ullekhanam as backend_data_containers
 from backend.paths import createdir
-from textract.backend.db.collections import *
 from textract.backend.db import get_db
+from textract.backend.db.collections import *
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -19,7 +19,7 @@ logging.basicConfig(
 )
 
 URL_PREFIX = '/v1'
-api_blueprint = Blueprint(name='textract_api', import_name=__name__)
+api_blueprint = flask_restplus.Blueprint(name='textract_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
                          description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
@@ -47,7 +47,7 @@ class BookList(flask_restplus.Resource):
     logging.info("books list filter = " + str(pattern))
     booklist = get_db().books.list_books(pattern)
     logging.debug(booklist)
-    return data_containers.JsonObject.get_json_map_list(booklist), 200
+    return ullekhanam.JsonObject.get_json_map_list(booklist), 200
 
   @classmethod
   def allowed_file(cls, filename):
@@ -236,6 +236,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
 @api_blueprint.route('/relpath/<path:relpath>')
 def send_file_relpath(relpath):
   """Get some data file - such as a page image."""
+  from flask import send_from_directory
   return (send_from_directory(paths.DATADIR, relpath))
 
 
@@ -248,6 +249,7 @@ def send_file_relpath(relpath):
 def listdirtree(abspath):
   """???."""
   # print abspath
+  from common.file_helper import list_dirtree
   data = list_dirtree("/" + abspath)
   # logging.info("Data:" + str(json.dumps(data)))
   return json.dumps(data)
@@ -263,4 +265,5 @@ def list_schemas():
     "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
     "TextAnnotation": backend_data_containers.TextAnnotation.schema,
   }
+  from flask.json import jsonify
   return jsonify(schemas)

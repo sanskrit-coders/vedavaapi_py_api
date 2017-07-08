@@ -1,6 +1,7 @@
 import logging
-import common
 from copy import deepcopy
+
+import common
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -11,8 +12,8 @@ logging.basicConfig(
 def get_configuration():
   import os
   CODE_ROOT = os.path.dirname(os.path.dirname(__file__))
-  from common import data_containers
-  server_config = data_containers.JsonObject()
+  from vedavaapi_data.schema import common
+  server_config = common.JsonObject()
   config_file_name = os.path.join(CODE_ROOT, 'server_config_local.json')
   with open(config_file_name) as config_file:
     pickled_config = config_file.read()

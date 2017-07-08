@@ -7,18 +7,16 @@ import getopt
 import logging
 import sys
 
-import os
-
-import textract.api_v1
-from common import data_containers
 import oauth
+import textract.api_v1
+from vedavaapi_data.schema import common
 
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-params = data_containers.JsonObject()
+params = common.JsonObject()
 
 params.set_from_dict({
   'reset': False,

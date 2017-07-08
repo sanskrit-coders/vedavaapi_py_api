@@ -9,7 +9,8 @@ import os
 from PIL import Image
 
 import preprocessing
-from textract.backend import data_containers, paths
+from textract.backend import paths
+from vedavaapi_data.schema import ullekhanam
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -159,10 +160,10 @@ class DocImage:
    
         loc = np.where(res >= float(thres))
         def ptToImgTarget(pt):
-            return data_containers.Rectangle.from_details(x=pt[0], y= pt[1],
-                                                          w=template_img.w, h=template_img.h,
-                                                          score = float("{0:.2f}".format(res[pt[1], pt[0]]))
-                                                          )
+            return ullekhanam.Rectangle.from_details(x=pt[0], y= pt[1],
+                                                     w=template_img.w, h=template_img.h,
+                                                     score = float("{0:.2f}".format(res[pt[1], pt[0]]))
+                                                     )
         matches = map(ptToImgTarget, zip(*loc[::-1]))
 
         if known_segments is None:
@@ -186,7 +187,7 @@ class DocImage:
 
         if known_segments is None:
             known_segments = DisjointRectangles()
-        known_segments.insert(data_containers.Rectangle(r))
+        known_segments.insert(ullekhanam.Rectangle(r))
         return self.find_matches(template, thres, known_segments)
    
     def self_to_image(self):
@@ -304,7 +305,7 @@ class DocImage:
 
 #            logging.info("x*:"+str(coordinates['x'])+"y:"+str(coordinates['y'])+"w:"+str(coordinates['w'])+"h"+str(coordinates['h']))
             allsegments.append(
-                data_containers.Rectangle.from_details(x=coordinates['x'], y=coordinates['y'], w=coordinates['w'], h=coordinates['h']))
+                ullekhanam.Rectangle.from_details(x=coordinates['x'], y=coordinates['y'], w=coordinates['w'], h=coordinates['h']))
 
         show_img('Boxes_temp 3',boxes_temp)
 

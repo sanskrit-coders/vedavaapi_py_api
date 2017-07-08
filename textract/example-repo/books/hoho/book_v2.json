@@ -1,7 +1,7 @@
 {
-  "py/object": "common.data_containers.JsonObjectNode",
+  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
   "content": {
-    "py/object": "textract.backend.data_containers.BookPortion",
+    "py/object": "vedavaapi_data.schema.books.BookPortion",
     "title": "hoho",
     "authors": [
       "ambaa"
@@ -12,9 +12,9 @@
   },
   "children": [
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "hoho/png.jpg",
         "title": "pg_0",
         "targets": [],

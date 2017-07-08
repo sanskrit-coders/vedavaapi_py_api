@@ -1,7 +1,9 @@
 import logging
+
 from bson import ObjectId
 
 from common.db import DbInterface
+import vedavaapi_data
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -40,14 +42,15 @@ class Collection(DbInterface):
       }
     }
     if entity_type:
-      import common.data_containers
-      filter[common.data_containers.TYPE_FIELD] = entity_type
+      import vedavaapi_data.schema.common
+      filter[vedavaapi_data.schema.common.TYPE_FIELD] = entity_type
     targetting_objs = [json_obj.make_from_dict(item) for item in self.mongo_collection.find(filter)]
     return targetting_objs
 
   def update_doc(self, doc):
-    import common
     from pymongo import ReturnDocument
+
+    # TODO: Move the following block to parent class.
     doc.set_type_recursively()
     if hasattr(doc, "schema"):
       doc.validate_schema()
@@ -62,8 +65,9 @@ class Collection(DbInterface):
     updated_doc = self.mongo_collection.find_one_and_update(filter, {"$set": map_to_write}, upsert=True,
                                                             return_document=ReturnDocument.AFTER)
     doc.set_type()
-    updated_doc[common.data_containers.TYPE_FIELD] = getattr(doc, common.data_containers.TYPE_FIELD)
-    from common.data_containers import JsonObject
+    from vedavaapi_data.schema.common import TYPE_FIELD
+    updated_doc[TYPE_FIELD] = getattr(doc, TYPE_FIELD)
+    from vedavaapi_data.schema.common import JsonObject
     return JsonObject.make_from_dict(updated_doc)
 
   def delete_doc(self, doc):
@@ -76,7 +80,7 @@ class Collection(DbInterface):
                 [{"targets" : {"$exists" : False}},
                  {"targets" : {"$size" : 0}}]
               })
-    from common.data_containers import JsonObject
+    from vedavaapi_data.schema.common import JsonObject
     return [JsonObject.make_from_dict(x) for x in iter]
 
 

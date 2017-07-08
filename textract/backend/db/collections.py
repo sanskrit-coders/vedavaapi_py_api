@@ -1,10 +1,9 @@
 import pymongo
 import re
-from bson.objectid import ObjectId
 
-import common.data_containers
+import vedavaapi_data.common
+
 from common.db import DbInterface
-from common.file_helper import *
 from textract.docimage import *
 
 logging.basicConfig(
@@ -23,8 +22,8 @@ class BookPortionsInterface(DbInterface):
     return matches
 
   def get(self, path):
-    book = data_containers.BookPortion.from_path(path=path, db_interface=self)
-    book_node = common.data_containers.JsonObjectNode.from_details(content=book)
+    book = ullekhanam.BookPortion.from_path(path=path, db_interface=self)
+    book_node = vedavaapi_data.schema.common.JsonObjectNode.from_details(content=book)
     book_node.fill_descendents(self)
     return book_node
 
@@ -37,7 +36,7 @@ class AnnotationsInterface(DbInterface):
     from textract.backend import paths
     page_image = DocImage.from_path(path=path.join(paths.DATADIR, page.path))
     known_annotations = page.get_targetting_entities(db_interface=self,
-                                                     entity_type=data_containers.ImageAnnotation.get_wire_typeid())
+                                                     entity_type=ullekhanam.ImageAnnotation.get_wire_typeid())
     if len(known_annotations):
       logging.warning("Annotations exist. Not detecting and merging.")
       return known_annotations
@@ -58,9 +57,9 @@ class AnnotationsInterface(DbInterface):
     new_annotations = []
     for region in detected_regions:
       del region.score
-      target = data_containers.ImageTarget.from_details(container_id=page._id, rectangle=region)
-      annotation = data_containers.ImageAnnotation.from_details(
-        targets=[target], source=data_containers.AnnotationSource.from_details(source_type='system_inferred', id="pyCV2"))
+      target = ullekhanam.ImageTarget.from_details(container_id=page._id, rectangle=region)
+      annotation = ullekhanam.ImageAnnotation.from_details(
+        targets=[target], source=ullekhanam.AnnotationSource.from_details(source_type='system_inferred', id="pyCV2"))
       annotation = annotation.update_collection(self)
       new_annotations.append(annotation)
     return new_annotations

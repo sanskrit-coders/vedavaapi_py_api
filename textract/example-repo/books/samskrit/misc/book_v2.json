@@ -1,14 +1,14 @@
 {
-  "py/object": "common.data_containers.JsonObjectNode",
+  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
   "content": {
-    "py/object": "textract.backend.data_containers.BookPortion",
+    "py/object": "vedavaapi_data.schema.books.BookPortion",
     "path": "samskrit/misc"
   },
   "children": [
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "samskrit/misc/Kandanu1.jpg",
         "title": "pg_0",
         "targets": [],
@@ -17,9 +17,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "samskrit/misc/savitri_sanskrit.jpg",
         "title": "pg_1",
         "targets": [],

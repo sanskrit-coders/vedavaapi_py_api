@@ -1,14 +1,14 @@
 {
-  "py/object": "common.data_containers.JsonObjectNode",
+  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
   "content": {
-    "py/object": "textract.backend.data_containers.BookPortion",
+    "py/object": "vedavaapi_data.schema.books.BookPortion",
     "path": "kannada/skt-dict"
   },
   "children": [
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img1.png",
         "title": "pg_0",
         "targets": [],
@@ -17,9 +17,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img2.png",
         "title": "pg_1",
         "targets": [],
@@ -28,9 +28,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img3.png",
         "title": "pg_2",
         "targets": [],
@@ -39,9 +39,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img4.png",
         "title": "pg_3",
         "targets": [],
@@ -50,9 +50,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img5.png",
         "title": "pg_4",
         "targets": [],
@@ -61,9 +61,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img6.png",
         "title": "pg_5",
         "targets": [],
@@ -72,9 +72,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img7.png",
         "title": "pg_6",
         "targets": [],
@@ -83,9 +83,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img8.png",
         "title": "pg_7",
         "targets": [],
@@ -94,9 +94,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img9.png",
         "title": "pg_8",
         "targets": [],
@@ -105,9 +105,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img10.png",
         "title": "pg_9",
         "targets": [],
@@ -116,9 +116,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "kannada/skt-dict/img11.png",
         "title": "pg_10",
         "targets": [],

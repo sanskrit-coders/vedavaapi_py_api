@@ -164,18 +164,18 @@ function makeImageAnnotation(rectangle) {
     var bookdetails = viewBookState.bookdetails;
     var pagedetails = bookdetails.children[curpage].content;
     return {
-        "py/object": "textract.backend.data_containers.ImageAnnotation",
+        "py/object": "vedavaapi_data.schema.ullekhanam.ImageAnnotation",
         "source": {
-            "py/object": "textract.backend.data_containers.AnnotationSource",
+            "py/object": "vedavaapi_data.schema.ullekhanam.AnnotationSource",
             "type": "user_supplied",
             "id": "UNK"
         },
         "targets": [
             {
-                "py/object": "textract.backend.data_containers.ImageTarget",
+                "py/object": "vedavaapi_data.schema.ullekhanam.ImageTarget",
                 "container_id": pagedetails._id,
                 "rectangle": {
-                    "py/object": "textract.backend.data_containers.Rectangle",
+                    "py/object": "vedavaapi_data.schema.ullekhanam.Rectangle",
                     "h": rectangle.h,
                     "w": rectangle.w,
                     "y1": rectangle.y,
@@ -188,7 +188,7 @@ function makeImageAnnotation(rectangle) {
 
 function makeJsonObjectNode(jsonObject) {
     return {
-        "py/object": "common.data_containers.JsonObjectNode",
+        "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
         "content": jsonObject,
         "children": []
     };
@@ -196,14 +196,14 @@ function makeJsonObjectNode(jsonObject) {
 
 function makeTextAnnotation(text) {
     return {
-        "py/object": "textract.backend.data_containers.TextAnnotation",
+        "py/object": "vedavaapi_data.schema.ullekhanam.TextAnnotation",
         "source": {
-            "py/object": "textract.backend.data_containers.AnnotationSource",
+            "py/object": "vedavaapi_data.schema.ullekhanam.AnnotationSource",
             "type": "user_supplied",
             "id": "UNK"
         },
         "content": {
-            "py/object": "textract.backend.data_containers.TextContent",
+            "py/object": "vedavaapi_data.schema.common.TextContent",
             "text": text
         }
     }

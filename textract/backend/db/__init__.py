@@ -2,11 +2,10 @@ import logging
 import re
 
 import os
+import vedavaapi_data.common
 
-import common.data_containers
 from common.file_helper import run_command
-from textract.backend import data_containers
-
+from vedavaapi_data.schema import ullekhanam
 
 # Encapsulates the main database.
 
@@ -43,11 +42,11 @@ class DBWrapper(object):
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      book = data_containers.BookPortion.from_path(path=bpath, db_interface=self.books)
+      book = ullekhanam.BookPortion.from_path(path=bpath, db_interface=self.books)
       if book:
         logging.info("Book already present %s" % bpath)
       else:
-        book_portion_node = common.data_containers.JsonObject.read_from_file(f)
+        book_portion_node = vedavaapi_data.schema.common.JsonObject.read_from_file(f)
         logging.info("Importing afresh! %s " % book_portion_node)
         book_portion_node.update_collection(self.books)
         logging.debug(str(book_portion_node))

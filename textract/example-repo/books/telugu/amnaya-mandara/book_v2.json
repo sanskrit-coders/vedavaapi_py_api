@@ -1,14 +1,14 @@
 {
-  "py/object": "common.data_containers.JsonObjectNode",
+  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
   "content": {
-    "py/object": "textract.backend.data_containers.BookPortion",
+    "py/object": "vedavaapi_data.schema.books.BookPortion",
     "path": "telugu/amnaya-mandara"
   },
   "children": [
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "telugu/amnaya-mandara/IMG_0256_srimahaganapati.jpg",
         "title": "pg_0",
         "targets": [],

@@ -1,14 +1,14 @@
 {
-  "py/object": "common.data_containers.JsonObjectNode",
+  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
   "content": {
-    "py/object": "textract.backend.data_containers.BookPortion",
+    "py/object": "vedavaapi_data.schema.books.BookPortion",
     "path": "english"
   },
   "children": [
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "english/2.jpg",
         "title": "pg_0",
         "targets": [],
@@ -17,9 +17,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "english/3.png",
         "title": "pg_1",
         "targets": [],
@@ -28,9 +28,9 @@
       "children": []
     },
     {
-      "py/object": "common.data_containers.JsonObjectNode",
+      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
       "content": {
-        "py/object": "textract.backend.data_containers.BookPortion",
+        "py/object": "vedavaapi_data.schema.books.BookPortion",
         "path": "english/test1.png",
         "title": "pg_2",
         "targets": [],
