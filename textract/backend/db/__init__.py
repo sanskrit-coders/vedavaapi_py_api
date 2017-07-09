@@ -2,10 +2,9 @@ import logging
 import re
 
 import os
-import vedavaapi_data.common
 
-from common.file_helper import run_command
-from vedavaapi_data.schema import ullekhanam
+import vedavaapi_data
+import vedavaapi_data.schema.books
 
 # Encapsulates the main database.
 
@@ -28,6 +27,7 @@ class DBWrapper(object):
     cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
     logging.info(cmd)
     try:
+      from common.file_helper import run_command
       results = run_command(cmd)
     except Exception as e:
       logging.error("Error in find: " + str(e))
@@ -42,7 +42,7 @@ class DBWrapper(object):
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      book = ullekhanam.BookPortion.from_path(path=bpath, db_interface=self.books)
+      book = vedavaapi_data.schema.books.BookPortion.from_path(path=bpath, db_interface=self.books)
       if book:
         logging.info("Book already present %s" % bpath)
       else:

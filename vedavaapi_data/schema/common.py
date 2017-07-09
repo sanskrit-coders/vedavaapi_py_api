@@ -1,5 +1,6 @@
 import json
 import logging
+from copy import deepcopy
 
 import jsonpickle
 import jsonschema
@@ -12,6 +13,33 @@ logging.basicConfig(
 )
 
 TYPE_FIELD = "py/object"
+
+
+def check_class(obj, allowed_types):
+  results = [isinstance(obj, some_type) for some_type in allowed_types]
+  # logging.debug(results)
+  return (True in results)
+
+
+def check_list_item_types(some_list, allowed_types):
+  check_class_results = [check_class(item, allowed_types=allowed_types) for item in some_list]
+  # logging.debug(check_class_results)
+  return not (False in check_class_results)
+
+
+def recursively_merge(a, b):
+  assert a.__class__ == b.__class__, str(a.__class__) + " vs " + str(b.__class__)
+
+  if isinstance(b, dict) and isinstance(a, dict):
+    a_and_b = a.viewkeys() & b.viewkeys()
+    every_key = a.viewkeys() | b.viewkeys()
+    return {k: recursively_merge(a[k], b[k]) if k in a_and_b else
+    deepcopy(a[k] if k in a else b[k]) for k in every_key}
+  elif isinstance(b, list) and isinstance(a, list):
+    return list(set(a + b))
+  else:
+    return b
+  return deepcopy(b)
 
 
 class JsonObject(object):
@@ -33,14 +61,16 @@ class JsonObject(object):
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
-    # logging.debug(json_util.dumps(dict_without_id))
-    obj = jsonpickle.decode(json.dumps(dict_without_id))
-    # logging.debug(obj.__class__)
+    logging.debug(json.dumps(dict_without_id))
+    new_obj = jsonpickle.decode(json.dumps(dict_without_id))
+    logging.debug(new_obj.__class__)
     if _id:
-      obj._id = str(_id)
-    obj.set_type_recursively()
+      logging.debug(new_obj.__class__)
+      logging.debug(str(_id))
+      new_obj._id = str(_id)
+    new_obj.set_type_recursively()
     # logging.debug(obj)
-    return obj
+    return new_obj
 
   @classmethod
   def make_from_dict_list(cls, input_dict_list):
@@ -176,7 +206,7 @@ class JsonObject(object):
 
 
 class JsonObjectNode(JsonObject):
-  schema = common.recursively_merge(
+  schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
         "content": {
@@ -198,7 +228,7 @@ class JsonObjectNode(JsonObject):
     node = JsonObjectNode()
     # logging.debug(content)
     # Strangely, without the backend.data_containers, the below test failed on 20170501
-    assert isinstance(content, common.data_containers.JsonObject), content.__class__
+    assert isinstance(content, JsonObject), content.__class__
     node.content = content
     # logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
     assert common.check_list_item_types(children, [JsonObjectNode])
@@ -216,7 +246,7 @@ class JsonObjectNode(JsonObject):
     id = str(self.content._id)
     for child in self.children:
       assert id in child.content.targets, "%d not in %s" % (id, str(child.content.targets))
-      if hasattr(child.content, "_id"):
+      if hasattr(child.content, "id"):
         child.content.targets.remove(id)
         if len(child.content.targets) > 0:
           child.content.update_collection(db_interface)
@@ -256,7 +286,7 @@ class User(JsonObject):
 
 
 class Target(JsonObject):
-  schema = common.recursively_merge(JsonObject.schema, {
+  schema = recursively_merge(JsonObject.schema, {
     "type": "object",
     "properties": {
       "container_id": {
@@ -283,7 +313,7 @@ class Target(JsonObject):
 
 
 class TextContent(JsonObject):
-  schema = common.recursively_merge(JsonObject.schema, ({
+  schema = recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
       "text": {
@@ -309,3 +339,5 @@ class TextContent(JsonObject):
     text_content.language = language
     text_content.encoding = encoding
     return text_content
+
+

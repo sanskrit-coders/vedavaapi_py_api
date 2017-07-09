@@ -8,6 +8,7 @@ from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+import vedavaapi_data.schema.books
 import vedavaapi_data.schema.ullekhanam as backend_data_containers
 from backend.paths import createdir
 from textract.backend.db import get_db
@@ -87,8 +88,8 @@ class BookList(flask_restplus.Resource):
     logging.info("User Id: " + str(user_id))
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (backend_data_containers.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
-            backend_data_containers.BookPortion.from_details(path=bookpath, title=form.get("title")))
+    book = (vedavaapi_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
+            vedavaapi_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title")))
 
     if (not book.authors): book.authors = [form.get("author")]
 
@@ -121,7 +122,7 @@ class BookList(flask_restplus.Resource):
       out.close()
 
       page = common_data_containers.JsonObjectNode.from_details(
-        content=backend_data_containers.BookPortion.from_details(
+        content=vedavaapi_data.schema.books.BookPortion.from_details(
           title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
       pages.append(page)
 
@@ -207,7 +208,7 @@ class PageAnnotationsHandler(flask_restplus.Resource):
       A list of JsonObjectNode-s with annotations with the following structure.
       {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
     :return: 
-      Same as the input list, with _id-s.
+      Same as the input list, with id-s.
     """
     logging.info(str(request.json))
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
@@ -261,7 +262,7 @@ def list_schemas():
   schemas = {
     "JsonObject": common_data_containers.JsonObject.schema,
     "JsonObjectNode": common_data_containers.JsonObjectNode.schema,
-    "BookPortion": backend_data_containers.BookPortion.schema,
+    "BookPortion": vedavaapi_data.schema.books.BookPortion.schema,
     "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
     "TextAnnotation": backend_data_containers.TextAnnotation.schema,
   }
