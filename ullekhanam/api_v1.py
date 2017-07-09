@@ -24,7 +24,7 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 
 
 @api.route('/book_portions/<string:id>/annotations/all')
-class AllPageAnnotationsHandler(flask_restplus.Resource):
+class AllAnnotationsHandler(flask_restplus.Resource):
   @api.doc(responses={404: 'id not found'})
   def get(self, id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.

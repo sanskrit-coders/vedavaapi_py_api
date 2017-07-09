@@ -14,6 +14,7 @@ from werkzeug.utils import secure_filename
 import vedavaapi_data.schema.books
 import vedavaapi_data.schema.common as common_data_containers
 from textract.docimage import DocImage
+from ullekhanam.api_v1 import AnnotationsHandler
 from ullekhanam.backend import paths
 from ullekhanam.backend.db import *
 
@@ -25,7 +26,7 @@ logging.basicConfig(
 URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='textract_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
-                         description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
+                         description='vedavaapi py API (Textract). Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="../ullekhanam/schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.  ',
                          prefix=URL_PREFIX, doc='/docs')
@@ -194,49 +195,8 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 
 
 @api.route('/pages/<string:page_id>/image_annotations')
-class PageAnnotationsHandler(flask_restplus.Resource):
-  # input_node = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
-
-  post_parser = api.parser()
-  post_parser.add_argument('jsonStr', location='json')
-
-  # TODO: The below fails. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
-  # @api.expect(json_node_model, validate=False)
-
-  @api.expect(post_parser, validate=False)
-  def post(self, page_id):
-    """ Add annotations.
-    
-    :param page_id: The page being annotated. Unused. <BR>
-    json:<BR>
-      A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
-    :return: 
-      Same as the input list, with id-s.
-    """
-    logging.info(str(request.json))
-    nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
-    # logging.info(jsonpickle.dumps(nodes))
-    for node in nodes:
-      node.update_collection(db_interface=get_db().annotations)
-    return common_data_containers.JsonObject.get_json_map_list(nodes), 200
-
-  @api.expect(post_parser, validate=False)
-  def delete(self, page_id):
-    """ Delete annotations.
-    
-    :param page_id: The page being annotated. Unused. 
-    json:
-      A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
-    :return: Empty.
-    """
-    nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
-    for node in nodes:
-      node.fill_descendents(db_interface=get_db().annotations)
-      node.delete_in_collection(db_interface=get_db().annotations)
-    return {}, 200
-
+class PageAnnotationsHandler(AnnotationsHandler):
+  pass
 
 @api_blueprint.route('/relpath/<path:relpath>')
 def send_file_relpath(relpath):
