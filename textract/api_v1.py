@@ -1,9 +1,10 @@
 import copy
 import traceback
+from flask import Blueprint, session, request
 from os.path import join
 
 import flask_restplus
-import vedavaapi_data.common as common_data_containers
+import vedavaapi_data.schema.common as common_data_containers
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
@@ -20,7 +21,7 @@ logging.basicConfig(
 )
 
 URL_PREFIX = '/v1'
-api_blueprint = flask_restplus.Blueprint(name='textract_api', import_name=__name__)
+api_blueprint = Blueprint(name='textract_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
                          description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
