@@ -1,19 +1,21 @@
 import copy
+import json
 import traceback
-from flask import Blueprint, session, request
+from PIL import Image
 from os.path import join
 
+import cv2
 import flask_restplus
-import vedavaapi_data.schema.common as common_data_containers
+from flask import Blueprint, session, request
 from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
 import vedavaapi_data.schema.books
-import vedavaapi_data.schema.ullekhanam as backend_data_containers
-from backend.paths import createdir
-from textract.backend.db import get_db
-from textract.backend.db.collections import *
+import vedavaapi_data.schema.common as common_data_containers
+from textract.docimage import DocImage
+from ullekhanam.backend import paths
+from ullekhanam.backend.db import *
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -24,7 +26,7 @@ URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='textract_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
                          description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
-                                     'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
+                                     'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="../ullekhanam/schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.  ',
                          prefix=URL_PREFIX, doc='/docs')
 
@@ -49,7 +51,7 @@ class BookList(flask_restplus.Resource):
     logging.info("books list filter = " + str(pattern))
     booklist = get_db().books.list_books(pattern)
     logging.debug(booklist)
-    return ullekhanam.JsonObject.get_json_map_list(booklist), 200
+    return common_data_containers.JsonObject.get_json_map_list(booklist), 200
 
   @classmethod
   def allowed_file(cls, filename):
@@ -76,6 +78,7 @@ class BookList(flask_restplus.Resource):
     abspath = join(paths.DATADIR, bookpath)
     logging.info("uploading to " + abspath)
     try:
+      from ullekhanam.backend.paths import createdir
       createdir(abspath)
     except Exception as e:
       logging.error(str(e))
@@ -255,17 +258,3 @@ def listdirtree(abspath):
   data = list_dirtree("/" + abspath)
   # logging.info("Data:" + str(json.dumps(data)))
   return json.dumps(data)
-
-
-@api_blueprint.route('/schemas')
-def list_schemas():
-  """???."""
-  schemas = {
-    "JsonObject": common_data_containers.JsonObject.schema,
-    "JsonObjectNode": common_data_containers.JsonObjectNode.schema,
-    "BookPortion": vedavaapi_data.schema.books.BookPortion.schema,
-    "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
-    "TextAnnotation": backend_data_containers.TextAnnotation.schema,
-  }
-  from flask.json import jsonify
-  return jsonify(schemas)

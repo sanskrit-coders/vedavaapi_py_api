@@ -9,10 +9,10 @@ INDICDOC_DBNAME = "vedavaapi_textract_db"
 
 
 def setup_app(params, client):
-  from textract.backend import paths
+  from ullekhanam.backend import paths
   logging.info(": Using " + paths.DATADIR)
-  from textract.backend.db import get_db
-  from textract.backend.db import initdb
+  from ullekhanam.backend.db import get_db
+  from ullekhanam.backend.db import initdb
   initdb(dbname=INDICDOC_DBNAME, client=client)
 
   # Import all book metadata into the IndicDocs database

@@ -3,16 +3,15 @@ from __future__ import absolute_import
 
 import json
 import logging
-import os
 import unittest
 
 import jsonpickle
+import os
 from bson import ObjectId
 
-import textract
 import vedavaapi_data.schema.books
 from common.db import mongodb
-from textract.backend import db
+from ullekhanam.backend import db
 from vedavaapi_data.schema import ullekhanam, common
 
 logging.basicConfig(
@@ -24,7 +23,7 @@ user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
 class TestDBRoundTrip(unittest.TestCase):
   db.initdb(dbname="test_db",
             client=mongodb.get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
-  test_db = textract.backend.db.textract_db
+  test_db = ullekhanam.backend.db.textract_db
 
   def test_PickleDepickle(self):
     book_portion = vedavaapi_data.schema.books.BookPortion.from_details(

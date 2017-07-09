@@ -1,10 +1,10 @@
 from __future__ import absolute_import
+
 import logging
 import unittest
 
 import os
 
-import common
 from vedavaapi_data.schema.common import JsonObject, JsonObjectNode
 
 logging.basicConfig(
@@ -15,7 +15,7 @@ logging.basicConfig(
 
 class TestDBRoundTrip(unittest.TestCase):
   def test_JsonObjectNode(self):
-    from textract.backend import db as backend_db
+    from ullekhanam.backend import db as backend_db
     from common.db.mongodb import get_mongo_client
     backend_db.initdb(dbname="test_db", client=get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
     self.test_db = backend_db.textract_db

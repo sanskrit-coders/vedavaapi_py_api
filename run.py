@@ -34,7 +34,9 @@ def setup_app():
   textract.setup_app(params, mongodb.get_mongo_client(host=server_config["mongo_host"]))
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
+  import ullekhanam.api_v1
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
+  app.register_blueprint(ullekhanam.api_v1.api_blueprint, url_prefix="/ullekhanam")
 
 def main(argv):
   def usage():

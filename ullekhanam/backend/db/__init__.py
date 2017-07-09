@@ -56,7 +56,7 @@ class DBWrapper(object):
 def initdb(dbname, client):
   logging.info("Initializing database")
   global textract_db
-  from textract.backend.db.mongodb import MongoDbWrapper
+  from ullekhanam.backend.db.mongodb import MongoDbWrapper
   textract_db = MongoDbWrapper(dbname, client)
 
 

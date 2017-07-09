@@ -3,7 +3,6 @@ import re
 
 import vedavaapi_data.schema.books
 import vedavaapi_data.schema.common
-
 from common.db import DbInterface
 from textract.docimage import *
 
@@ -34,7 +33,7 @@ class AnnotationsInterface(DbInterface):
   def update_image_annotations(self, page):
     """return the page annotation with id = anno_id"""
     from os import path
-    from textract.backend import paths
+    from ullekhanam.backend import paths
     page_image = DocImage.from_path(path=path.join(paths.DATADIR, page.path))
     known_annotations = page.get_targetting_entities(db_interface=self,
                                                      entity_type=ullekhanam.ImageAnnotation.get_wire_typeid())

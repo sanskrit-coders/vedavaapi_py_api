@@ -9,7 +9,7 @@ import os
 from PIL import Image
 
 import preprocessing
-from textract.backend import paths
+from ullekhanam.backend import paths
 from vedavaapi_data.schema import ullekhanam
 
 logging.basicConfig(
