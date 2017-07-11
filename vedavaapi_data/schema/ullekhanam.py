@@ -164,6 +164,26 @@ class TextAnnotation(Annotation):
     annotation.validate_schema()
     return annotation
 
+class OffsetAddress(JsonObject):
+  schema = common.recursively_merge(JsonObject.schema, {
+    "type": "object",
+    "properties": {
+      "start": {
+        "type": "integer"
+      },
+      "end": {
+        "type": "integer"
+      }
+    }})
+
+  @classmethod
+  def from_details(cls, start, end):
+    obj = OffsetAddress()
+    obj.start = start
+    obj.end = end
+    obj.validate_schema()
+    return obj
+
 
 class TextTarget(Target):
   schema = common.recursively_merge(Target.schema, ({
@@ -175,16 +195,19 @@ class TextTarget(Target):
                        "Suppose that some shabda in 'rāgādirogān satatānuṣaktān' is being targetted. "
                        "This has the following pada-vigraha: rāga [comp.]-ādi [comp.]-roga [ac.p.m.]  satata [comp.]-anuṣañj [ac.p.m.]."
                        "Then, rāga has the id 1.1. roga has id 1.3. satata has the id 2.1."
-      }
+      },
+      "offset_address": OffsetAddress.schema
     },
   }))
 
   @classmethod
-  def from_details(cls, container_id, shabda_id=None):
+  def from_details(cls, container_id, shabda_id=None, offset_address = None):
     target = TextTarget()
     target.container_id = container_id
     if shabda_id != None:
       target.shabda_id = shabda_id
+    if offset_address != None:
+      target.offset_address = offset_address
     target.validate_schema()
     return target
 
