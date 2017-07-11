@@ -55,22 +55,26 @@ class BookPortionHandler(flask_restplus.Resource):
     :return: Book details in a json tree like:
       {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
     """
-    logging.info("book get by id = " + str(book_id))
-    depth = int(request.args.get('depth'))
+    args = self.get_parser.parse_args()
+    logging.info("book get by id = " + book_id)
     book_portions_collection = get_db().books
     book_portion = common_data_containers.JsonObject.from_id(id=book_id, db_interface=book_portions_collection)
     if book_portion == None:
       return "No such book portion id", 404
     else:
       book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
-      book_node.fill_descendents(db_interface=book_portions_collection, depth=depth)
+      book_node.fill_descendents(db_interface=book_portions_collection, depth=args['depth'])
       # pprint(binfo)
       return book_node.to_json_map_via_pickle(), 200
 
 
 @api.route('/annotated_entities/<string:id>/annotations')
 class EntityAnnotationsHandler(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('depth', location='args', type=int, default=10, help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+
   @api.doc(responses={404: 'id not found'})
+  @api.expect(get_parser, validate=True)
   def get(self, id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.
     
@@ -78,18 +82,16 @@ class EntityAnnotationsHandler(flask_restplus.Resource):
     :return: A list of JsonObjectNode-s with annotations with the following structure.
       {"content": Annotation, "children": [Annotation_1]}    
     """
-    logging.info("page get by id = " + str(id))
+    logging.info("entity id = " + str(id))
     entity = common_data_containers.JsonObject()
     entity._id = str(id)
-    if entity == None:
-      return "No such book portion id", 404
-    else:
-      annotations = get_db().annotations.get_targetting_entities(json_obj=entity)
-      annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
-                                annotations]
-      for node in annotation_nodes:
-        node.fill_descendents(db_interface=get_db().annotations)
-      return common_data_containers.JsonObject.get_json_map_list(annotation_nodes), 200
+    annotations = get_db().annotations.get_targetting_entities(json_obj=entity)
+    annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
+                              annotations]
+    args = self.get_parser.parse_args()
+    for node in annotation_nodes:
+      node.fill_descendents(db_interface=get_db().annotations, depth=args["depth"])
+    return common_data_containers.JsonObject.get_json_map_list(annotation_nodes), 200
 
 
 @api.route('/annotations')
@@ -103,10 +105,9 @@ class AnnotationsListHandler(flask_restplus.Resource):
   # @api.expect(json_node_model, validate=False)
 
   @api.expect(post_parser, validate=False)
-  def post(self, id):
+  def post(self):
     """ Add annotations.
     
-    :param id: The page being annotated. Unused. <BR>
     json:<BR>
       A list of JsonObjectNode-s with annotations with the following structure.
       {"content": Annotation, "children": [Annotation_1]}    
