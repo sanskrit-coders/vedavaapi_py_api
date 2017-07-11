@@ -52,8 +52,6 @@ class Collection(DbInterface):
 
     # TODO: Move the following block to parent class.
     doc.set_type_recursively()
-    if hasattr(doc, "schema"):
-      doc.validate_schema()
 
     map_to_write = doc.to_json_map()
     if hasattr(doc, "_id"):

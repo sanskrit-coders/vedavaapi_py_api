@@ -172,12 +172,15 @@ class JsonObject(object):
     return dict1 == dict2
 
   def update_collection(self, db_interface):
+    if hasattr(self, "schema"):
+      self.validate_schema()
     return db_interface.update_doc(self)
 
   # To delete referrent items also, use appropriate method in JsonObjectNode.
   def delete_in_collection(self, db_interface):
     return db_interface.delete_doc(self)
 
+  # Override and call this method to add extra validations.
   def validate_schema(self):
     json_map = self.to_json_map()
     json_map.pop("_id", None)
