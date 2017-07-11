@@ -61,15 +61,12 @@ class JsonObject(object):
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
-    logging.debug(json.dumps(dict_without_id))
+    # logging.debug(json.dumps(dict_without_id))
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
-    logging.debug(new_obj.__class__)
+    # logging.debug(new_obj.__class__)
     if _id:
-      logging.debug(new_obj.__class__)
-      logging.debug(str(_id))
       new_obj._id = str(_id)
     new_obj.set_type_recursively()
-    # logging.debug(obj)
     return new_obj
 
   @classmethod
@@ -253,13 +250,14 @@ class JsonObjectNode(JsonObject):
         else:
           child.delete_in_collection(db_interface)
 
-  def fill_descendents(self, db_interface):
+  def fill_descendents(self, db_interface, depth=10):
     targetting_objs = self.content.get_targetting_entities(db_interface=db_interface)
     self.children = []
-    for targetting_obj in targetting_objs:
-      child = JsonObjectNode.from_details(content=targetting_obj)
-      child.fill_descendents(db_interface=db_interface)
-      self.children.append(child)
+    if depth > 0:
+      for targetting_obj in targetting_objs:
+        child = JsonObjectNode.from_details(content=targetting_obj)
+        child.fill_descendents(db_interface=db_interface, depth=depth-1)
+        self.children.append(child)
 
 
 class User(JsonObject):

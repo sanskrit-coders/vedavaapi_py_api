@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 import vedavaapi_data.schema.books
 import vedavaapi_data.schema.common as common_data_containers
 from textract.docimage import DocImage
-from ullekhanam.api_v1 import AnnotationsHandler
+from ullekhanam.api_v1 import AnnotationsListHandler, BookList, BookPortionHandler
 from ullekhanam.backend import paths
 from ullekhanam.backend.db import *
 
@@ -39,21 +39,7 @@ json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectN
 
 
 @api.route('/books')
-class BookList(flask_restplus.Resource):
-  # Marshalling as below does not work.
-  # @api.marshal_list_with(json_node_model)
-  def get(self):
-    """ Get booklist.
-    
-    :return: a list of JsonObjectNode json-s.
-    """
-    logging.info("Session in books_api=" + str(session['logstatus']))
-    pattern = request.args.get('pattern')
-    logging.info("books list filter = " + str(pattern))
-    booklist = get_db().books.list_books(pattern)
-    logging.debug(booklist)
-    return common_data_containers.JsonObject.get_json_map_list(booklist), 200
-
+class ImageBookList(BookList):
   @classmethod
   def allowed_file(cls, filename):
     return '.' in filename and \
@@ -149,26 +135,8 @@ class BookList(flask_restplus.Resource):
 
 
 @api.route('/books/<string:book_id>')
-class BookPortionHandler(flask_restplus.Resource):
-  @api.doc(responses={404: 'id not found'})
-  def get(self, book_id):
-    """ Get a book.
-    
-    :param book_id: a string. 
-    :return: Book details in a json tree like:
-      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
-    """
-    logging.info("book get by id = " + str(book_id))
-    book_portions_collection = get_db().books
-    book_portion = common_data_containers.JsonObject.from_id(id=book_id, db_interface=book_portions_collection)
-    if book_portion == None:
-      return "No such book portion id", 404
-    else:
-      book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
-      book_node.fill_descendents(db_interface=book_portions_collection)
-      # pprint(binfo)
-      return book_node.to_json_map_via_pickle(), 200
-
+class ImageBookHandler(BookPortionHandler):
+  pass
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
 class AllPageAnnotationsHandler(flask_restplus.Resource):
@@ -195,7 +163,7 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 
 
 @api.route('/pages/<string:page_id>/image_annotations')
-class PageAnnotationsHandler(AnnotationsHandler):
+class PageAnnotationsHandler(AnnotationsListHandler):
   pass
 
 @api_blueprint.route('/relpath/<path:relpath>')

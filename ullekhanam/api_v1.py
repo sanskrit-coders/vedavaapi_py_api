@@ -1,11 +1,11 @@
 import logging
 
-import vedavaapi_data.schema.ullekhanam as backend_data_containers
-import vedavaapi_data
-import vedavaapi_data.schema.common as common_data_containers
 import flask_restplus
 from flask import Blueprint, request
 
+import vedavaapi_data
+import vedavaapi_data.schema.common as common_data_containers
+import vedavaapi_data.schema.ullekhanam as backend_data_containers
 from ullekhanam.backend.db import get_db
 
 logging.basicConfig(
@@ -22,9 +22,54 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
                          prefix=URL_PREFIX, doc='/docs')
 
 
+@api.route('/books')
+class BookList(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('pattern', location='args', type='string', default=None)
+  @api.expect(get_parser, validate=True)
+  # Marshalling as below does not work.
+  # @api.marshal_list_with(json_node_model)
+  def get(self):
+    """ Get booklist.
+    
+    :return: a list of JsonObjectNode json-s.
+    """
+    pattern = request.args.get('pattern')
+    logging.info("books list filter = " + str(pattern))
+    booklist = get_db().books.list_books(pattern)
+    logging.debug(booklist)
+    return common_data_containers.JsonObject.get_json_map_list(booklist), 200
 
-@api.route('/book_portions/<string:id>/annotations/all')
-class AllAnnotationsHandler(flask_restplus.Resource):
+
+@api.route('/book_portions/<string:book_id>')
+@api.param('book_id', 'Get one from the JSON object returned by the GET books or another GET book_portions call. ')
+class BookPortionHandler(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('depth', location='args', type=int, default=1, help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+  @api.doc(responses={404: 'id not found'})
+  @api.expect(get_parser, validate=True)
+  def get(self, book_id):
+    """ Get a book.
+    
+    :param book_id: String
+    :return: Book details in a json tree like:
+      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
+    """
+    logging.info("book get by id = " + str(book_id))
+    depth = int(request.args.get('depth'))
+    book_portions_collection = get_db().books
+    book_portion = common_data_containers.JsonObject.from_id(id=book_id, db_interface=book_portions_collection)
+    if book_portion == None:
+      return "No such book portion id", 404
+    else:
+      book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
+      book_node.fill_descendents(db_interface=book_portions_collection, depth=depth)
+      # pprint(binfo)
+      return book_node.to_json_map_via_pickle(), 200
+
+
+@api.route('/annotated_entities/<string:id>/annotations')
+class EntityAnnotationsHandler(flask_restplus.Resource):
   @api.doc(responses={404: 'id not found'})
   def get(self, id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.
@@ -34,12 +79,12 @@ class AllAnnotationsHandler(flask_restplus.Resource):
       {"content": Annotation, "children": [Annotation_1]}    
     """
     logging.info("page get by id = " + str(id))
-    book_portions_collection = get_db().books
-    book_portion = common_data_containers.JsonObject.from_id(id=id, db_interface=book_portions_collection)
-    if book_portion == None:
+    entity = common_data_containers.JsonObject()
+    entity._id = str(id)
+    if entity == None:
       return "No such book portion id", 404
     else:
-      annotations = get_db().annotations.get_targetting_entities(json_obj=book_portion)
+      annotations = get_db().annotations.get_targetting_entities(json_obj=entity)
       annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 annotations]
       for node in annotation_nodes:
@@ -47,8 +92,8 @@ class AllAnnotationsHandler(flask_restplus.Resource):
       return common_data_containers.JsonObject.get_json_map_list(annotation_nodes), 200
 
 
-@api.route('/book_portions/<string:id>/annotations')
-class AnnotationsHandler(flask_restplus.Resource):
+@api.route('/annotations')
+class AnnotationsListHandler(flask_restplus.Resource):
   # input_node = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
   post_parser = api.parser()
