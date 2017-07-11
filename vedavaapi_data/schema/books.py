@@ -38,18 +38,15 @@ class BookPortion(JsonObject):
     if authors is None:
       authors = []
     book_portion = BookPortion()
-    assert common.check_class(title, [str, unicode]), title
     book_portion.title = title
-    assert common.check_list_item_types(authors, [str, unicode]), authors
     book_portion.authors = authors
-    assert common.check_class(path, [str, unicode]), path
     # logging.debug(str(book_portion))
     book_portion.path = path
 
     targets = targets or []
-    assert common.check_list_item_types(targets, [Target])
     logging.debug(str(book_portion))
     book_portion.targets = targets
+    book_portion.validate_schema()
     return book_portion
 
   @classmethod

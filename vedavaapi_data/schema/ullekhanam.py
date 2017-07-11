@@ -28,11 +28,6 @@ class AnnotationSource(JsonObject):
     "required": ["type"]
   }))
 
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.type, [str, unicode])
-    assert common.check_class(self.id, [str, unicode])
-
   @classmethod
   def from_details(cls, source_type, id):
     source = AnnotationSource()
@@ -55,17 +50,9 @@ class Annotation(JsonObject):
     "required": ["targets", "source"]
   }))
 
-
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    for target in self.targets:
-      assert isinstance(target, Target), target.__class__
-    assert isinstance(self.source, AnnotationSource), self.source.__class__
-
   def set_base_details(self, targets, source):
     self.targets = targets
     self.source = source
-    self.validate_schema()
 
 
 class Rectangle(JsonObject):
@@ -88,9 +75,6 @@ class Rectangle(JsonObject):
     "required": ["x1", "y1", "w", "h"]
   }))
 
-
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
 
   @classmethod
   def from_details(cls, x=-1, y=-1, w=-1, h=-1, score=0.0):
@@ -133,10 +117,6 @@ class ImageTarget(Target):
     "required": ["rectangle"]
   }))
 
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert isinstance(self.rectangle, Rectangle), self.rectangle.__class__
-
   # TODO use w, h instead.
   @classmethod
   def from_details(cls, container_id, rectangle):
@@ -159,9 +139,6 @@ class ImageAnnotation(Annotation):
     },
   }))
 
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-
   @classmethod
   def from_details(cls, targets, source):
     annotation = ImageAnnotation()
@@ -180,10 +157,6 @@ class TextAnnotation(Annotation):
     "required": ["content"]
   }))
 
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert isinstance(self.content, TextContent), self.content.__class__
-
   @classmethod
   def from_details(cls, targets, source, content):
     annotation = TextAnnotation()
@@ -193,48 +166,18 @@ class TextAnnotation(Annotation):
     return annotation
 
 
-class TinantaDetails(JsonObject):
-
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.lakAra, [str, unicode])
-    assert common.check_class(self.puruSha, [str, unicode])
-    assert common.check_class(self.vachana, [str, unicode])
-
-  @classmethod
-  def from_details(cls, lakAra, puruSha, vachana):
-    obj = TinantaDetails()
-    obj.lakAra = lakAra
-    obj.puruSha = puruSha
-    obj.vachana = vachana
-    obj.validate_schema()
-    return obj
-
-
-class SubantaDetails(JsonObject):
-
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.linga, [str, unicode])
-    assert isinstance(self.vibhakti, int), self.vibhakti.__class__
-    assert isinstance(self.vachana, int), self.vachana.__class__
-
-  @classmethod
-  def from_details(cls, linga, vibhakti, vachana):
-    obj = SubantaDetails()
-    obj.linga = linga
-    obj.vibhakti = vibhakti
-    obj.vachana = vachana
-    obj.validate_schema()
-    return obj
-
-
 class TextTarget(Target):
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.container_id, [str, unicode])
-    assert isinstance(self.start_offset, int), self.start_offset.__class__
-    assert isinstance(self.end_offset, int), self.end_offset.__class__
+  schema = common.recursively_merge(Target.schema, ({
+    "type": "object",
+    "properties": {
+      "start_offset": {
+        "type": "integer"
+      },
+      "end_offset": {
+        "type": "integer"
+      }
+    },
+  }))
 
   @classmethod
   def from_details(cls, container_id, start_offset=-1, end_offset=-1):
@@ -246,34 +189,101 @@ class TextTarget(Target):
     return target
 
 
-# Targets: TextTarget pointing to TextAnnotation
 class PadaAnnotation(Annotation):
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.word, [str, unicode])
-    assert common.check_class(self.root, [str, unicode])
-    assert isinstance(self.tinanta_details, TinantaDetails) or self.tinanta_details is None
-    assert isinstance(self.subanta_details, SubantaDetails) or self.subanta_details is None
+  schema = common.recursively_merge(Annotation.schema, ({
+    "type": "object",
+    "properties": {
+      "word": {
+        "type": "string"
+      },
+      "root": {
+        "type": "string"
+      }
+    },
+  }))
+
+  def set_base_details(self, targets, source, word, root):
+    super(PadaAnnotation, self).set_base_details(targets, source)
+    self.word = word
+    self.root = root
 
   @classmethod
-  def from_details(cls, targets, source, word, root, tinanta_details=None, subanta_details=None):
+  def from_details(cls, targets, source, word, root):
     annotation = PadaAnnotation()
-    common.check_list_item_types(targets, [TextTarget, Target])
-    annotation.set_base_details(targets, source)
-    annotation.word = word
-    annotation.root = root
-    annotation.tinanta_details = tinanta_details
-    annotation.subanta_details = subanta_details
+    annotation.set_base_details(targets, source, word, root)
     annotation.validate_schema()
     return annotation
 
 
+# Targets: TextTarget pointing to TextAnnotation
+class SubantaAnnotation(PadaAnnotation):
+  schema = common.recursively_merge(PadaAnnotation.schema, ({
+    "type": "object",
+    "properties": {
+      "linga": {
+        "type": "string"
+      },
+      "vibhakti": {
+        "type": "integer"
+      },
+      "vachana": {
+        "type": "integer"
+      }
+    },
+  }))
+
+  @classmethod
+  def from_details(cls, targets, source, word, root, linga, vibhakti, vachana):
+    obj = SubantaAnnotation()
+    obj.set_base_details(targets, source, word, root)
+    obj.linga = linga
+    obj.vibhakti = vibhakti
+    obj.vachana = vachana
+    obj.validate_schema()
+    return obj
+
+
+class TinantaAnnotation(PadaAnnotation):
+  schema = common.recursively_merge(PadaAnnotation.schema, ({
+    "type": "object",
+    "properties": {
+      "lakAra": {
+        "type": "string"
+      },
+      "puruSha": {
+        "type": "string"
+      },
+      "vachana": {
+        "type": "integer"
+      }
+    },
+    "required": ["content"]
+  }))
+
+  @classmethod
+  def from_details(cls, targets, source, word, root, lakAra, puruSha, vachana):
+    obj = TinantaAnnotation()
+    obj.set_base_details(targets, source, word, root)
+    obj.lakAra = lakAra
+    obj.puruSha = puruSha
+    obj.vachana = vachana
+    obj.validate_schema()
+    return obj
+
+
 # Targets: two PadaAnnotations
 class SandhiAnnotation(Annotation):
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.combined_string, [str, unicode])
-    assert common.check_class(self.type, [str, unicode])
+  schema = common.recursively_merge(Annotation.schema, ({
+    "type": "object",
+    "properties": {
+      "combined_string": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      }
+    },
+  }))
 
   @classmethod
   def from_details(cls, targets, source, combined_string, type="UNK"):
@@ -287,10 +297,17 @@ class SandhiAnnotation(Annotation):
 
 # Targets: two or more PadaAnnotations
 class SamaasaAnnotation(Annotation):
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-    assert common.check_class(self.combined_string, [str, unicode])
-    assert common.check_class(self.type, [str, unicode])
+  schema = common.recursively_merge(Target.schema, ({
+    "type": "object",
+    "properties": {
+      "combined_string": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string"
+      }
+    },
+  }))
 
   @classmethod
   def from_details(cls, targets, source, combined_string, type="UNK"):
@@ -299,16 +316,4 @@ class SamaasaAnnotation(Annotation):
     annotation.combined_string = combined_string
     annotation.type = type
     annotation.validate_schema()
-    return annotation
-
-
-# Targets: PadaAnnotations
-class PadavibhaagaAnnotation(Annotation):
-  def validate_schema(self):
-    super(AnnotationSource, self).validate_schema()
-
-  @classmethod
-  def from_details(self, targets, source):
-    annotation = PadavibhaagaAnnotation()
-    annotation.set_base_details(targets, source)
     return annotation

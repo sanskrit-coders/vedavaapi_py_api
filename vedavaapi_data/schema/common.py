@@ -220,6 +220,9 @@ class JsonObjectNode(JsonObject):
       "required": [TYPE_FIELD]
     }
   )
+  
+  def validate_schema(self):
+    super(JsonObjectNode, self).validate_schema()
 
   @classmethod
   def from_details(cls, content, children=None):
@@ -228,11 +231,10 @@ class JsonObjectNode(JsonObject):
     node = JsonObjectNode()
     # logging.debug(content)
     # Strangely, without the backend.data_containers, the below test failed on 20170501
-    assert isinstance(content, JsonObject), content.__class__
     node.content = content
     # logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
-    assert common.check_list_item_types(children, [JsonObjectNode])
     node.children = children
+    node.validate_schema()
     return node
 
   def update_collection(self, db_interface):
@@ -301,6 +303,7 @@ class Target(JsonObject):
   def from_details(cls, container_id):
     target = Target()
     target.container_id = container_id
+    target.validate_schema()
     return target
 
   @classmethod
@@ -333,12 +336,10 @@ class TextContent(JsonObject):
   @classmethod
   def from_details(cls, text, language="UNK", encoding="UNK"):
     text_content = TextContent()
-    assert common.check_class(text, [str, unicode])
-    assert common.check_class(language, [str, unicode])
-    assert common.check_class(encoding, [str, unicode])
     text_content.text = text
     text_content.language = language
     text_content.encoding = encoding
+    text_content.validate_schema()
     return text_content
 
 
