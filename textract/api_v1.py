@@ -56,7 +56,7 @@ class ImageBookList(BookList):
     """Handle uploading files.
     
     :return: Book details in a json tree like:
-      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
+      {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pg1, JsonObjectNode with BookPortion_Pg2]}    
     """
     form = request.form
     logging.info("uploading " + str(form))
@@ -146,7 +146,7 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
     
     :param page_id: 
     :return: A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": ImageAnnotation, "children": [TextAnnotation_1]}    
+      {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}    
     """
     logging.info("page get by id = " + str(page_id))
     book_portions_collection = get_db().books

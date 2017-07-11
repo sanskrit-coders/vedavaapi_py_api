@@ -53,7 +53,7 @@ class BookPortionHandler(flask_restplus.Resource):
     
     :param book_id: String
     :return: Book details in a json tree like:
-      {"content": BookPortionObj, "children": [BookPortion_Pg1, BookPortion_Pg2]}    
+      {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pt1, JsonObjectNode with BookPortion_Pt2]}    
     """
     args = self.get_parser.parse_args()
     logging.info("book get by id = " + book_id)
@@ -76,11 +76,11 @@ class EntityAnnotationsHandler(flask_restplus.Resource):
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, id):
-    """ Get all annotations (pre existing or automatically generated from open CV) for this page.
+    """ Get all annotations for this entity.
     
     :param id: 
     :return: A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": Annotation, "children": [Annotation_1]}    
+      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
     """
     logging.info("entity id = " + str(id))
     entity = common_data_containers.JsonObject()
@@ -110,7 +110,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     
     json:<BR>
       A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": Annotation, "children": [Annotation_1]}    
+      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
     :return: 
       Same as the input list, with id-s.
     """
@@ -128,7 +128,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     :param id: The page being annotated. Unused. 
     json:
       A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": Annotation, "children": [Annotation_1]}    
+      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
     :return: Empty.
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
