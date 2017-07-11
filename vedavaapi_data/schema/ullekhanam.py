@@ -75,7 +75,6 @@ class Rectangle(JsonObject):
     "required": ["x1", "y1", "w", "h"]
   }))
 
-
   @classmethod
   def from_details(cls, x=-1, y=-1, w=-1, h=-1, score=0.0):
     rectangle = Rectangle()
@@ -147,7 +146,7 @@ class ImageAnnotation(Annotation):
     return annotation
 
 
-# Targets: ImageAnnotation(s) or  TextAnnotation
+# Targets: ImageAnnotation(s) or  TextAnnotation or BookPortion
 class TextAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
@@ -170,21 +169,22 @@ class TextTarget(Target):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
     "properties": {
-      "start_offset": {
-        "type": "integer"
-      },
-      "end_offset": {
-        "type": "integer"
+      "shabda_id": {
+        "type": "string",
+        "description": "Format: pada_index.shabda_index or just pada_index."
+                       "Suppose that some shabda in 'rāgādirogān satatānuṣaktān' is being targetted. "
+                       "This has the following pada-vigraha: rāga [comp.]-ādi [comp.]-roga [ac.p.m.]  satata [comp.]-anuṣañj [ac.p.m.]."
+                       "Then, rāga has the id 1.1. roga has id 1.3. satata has the id 2.1."
       }
     },
   }))
 
   @classmethod
-  def from_details(cls, container_id, start_offset=-1, end_offset=-1):
+  def from_details(cls, container_id, shabda_id=None):
     target = TextTarget()
     target.container_id = container_id
-    target.start_offset = start_offset
-    target.end_offset = end_offset
+    if shabda_id != None:
+      target.shabda_id = shabda_id
     target.validate_schema()
     return target
 
@@ -193,6 +193,10 @@ class PadaAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
     "properties": {
+      "targets": {
+        "type": "array",
+        "items": TextTarget.schema
+      },
       "word": {
         "type": "string"
       },
@@ -257,7 +261,6 @@ class TinantaAnnotation(PadaAnnotation):
         "type": "integer"
       }
     },
-    "required": ["content"]
   }))
 
   @classmethod
@@ -283,6 +286,7 @@ class SandhiAnnotation(Annotation):
         "type": "string"
       }
     },
+    "required": ["combined_string"]
   }))
 
   @classmethod
@@ -307,6 +311,7 @@ class SamaasaAnnotation(Annotation):
         "type": "string"
       }
     },
+    "required": ["combined_string"]
   }))
 
   @classmethod
