@@ -15,10 +15,11 @@ logging.basicConfig(
 
 URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='ullekhanam_api', import_name=__name__)
-api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
-                         description='vedavaapi py API. Report issues <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
+api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py ullekhanam API',
+                         description='For detailed intro and to report issues: see <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.  ',
+                         default_label = api_blueprint.name,
                          prefix=URL_PREFIX, doc='/docs')
 
 
@@ -105,6 +106,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
   # @api.expect(json_node_model, validate=False)
 
   @api.expect(post_parser, validate=False)
+  @api.doc("Hello")
   def post(self):
     """ Add annotations.
     
@@ -133,7 +135,6 @@ class AnnotationsListHandler(flask_restplus.Resource):
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
-      node.fill_descendents(db_interface=get_db().annotations, depth=100)
       node.delete_in_collection(db_interface=get_db().annotations)
     return {}, 200
 

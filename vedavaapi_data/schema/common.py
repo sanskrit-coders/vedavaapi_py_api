@@ -254,16 +254,11 @@ class JsonObjectNode(JsonObject):
       child.update_collection(db_interface)
 
   def delete_in_collection(self, db_interface):
-    self.content.delete_in_collection(db_interface)
-    id = str(self.content._id)
+    self.fill_descendents(db_interface=db_interface, depth=100)
     for child in self.children:
-      assert id in child.content.targets, "%d not in %s" % (id, str(child.content.targets))
-      if hasattr(child.content, "id"):
-        child.content.targets.remove(id)
-        if len(child.content.targets) > 0:
-          child.content.update_collection(db_interface)
-        else:
-          child.delete_in_collection(db_interface)
+      child.delete_in_collection(db_interface)
+    # Delete or disconnect children before deleting oneself.
+    self.content.delete_in_collection(db_interface)
 
   def fill_descendents(self, db_interface, depth=10):
     targetting_objs = self.content.get_targetting_entities(db_interface=db_interface)

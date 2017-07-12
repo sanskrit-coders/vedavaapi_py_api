@@ -324,12 +324,15 @@ class TinantaAnnotation(PadaAnnotation):
     return obj
 
 
-# Targets: a pair of textAnnotation or BookPortion
+# Targets: a pair of textAnnotation or BookPortion objects
 class TextSambandhaAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
     "description": "Describes connection between two text portions. Such connection is directional (ie it connects words in a source sentence to words in a target sentence.)",
     "properties": {
+      "targets": {
+        "description": "A pair of texts being connected. First text is the 'source text', second is the 'target text'",
+      },
       "category": {
         "type": "string"
       },
