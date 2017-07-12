@@ -19,7 +19,7 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
                          description='For detailed intro and to report issues: see <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.  ',
-                         default_label = api_blueprint.name,
+                         default_label=api_blueprint.name,
                          prefix=URL_PREFIX, doc='/docs')
 
 
@@ -27,6 +27,7 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
 class BookList(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('pattern', location='args', type='string', default=None)
+
   @api.expect(get_parser, validate=True)
   # Marshalling as below does not work.
   # @api.marshal_list_with(json_node_model)
@@ -46,7 +47,9 @@ class BookList(flask_restplus.Resource):
 @api.param('book_id', 'Get one from the JSON object returned by the GET books or another GET book_portions call. ')
 class BookPortionHandler(flask_restplus.Resource):
   get_parser = api.parser()
-  get_parser.add_argument('depth', location='args', type=int, default=1, help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+  get_parser.add_argument('depth', location='args', type=int, default=1,
+                          help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, book_id):
@@ -72,7 +75,8 @@ class BookPortionHandler(flask_restplus.Resource):
 @api.route('/annotated_entities/<string:id>/annotations')
 class EntityAnnotationsHandler(flask_restplus.Resource):
   get_parser = api.parser()
-  get_parser.add_argument('depth', location='args', type=int, default=10, help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+  get_parser.add_argument('depth', location='args', type=int, default=10,
+                          help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
 
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
@@ -88,7 +92,7 @@ class EntityAnnotationsHandler(flask_restplus.Resource):
     entity._id = str(id)
     annotations = get_db().annotations.get_targetting_entities(json_obj=entity)
     annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
-                              annotations]
+                        annotations]
     args = self.get_parser.parse_args()
     for node in annotation_nodes:
       node.fill_descendents(db_interface=get_db().annotations, depth=args["depth"])
@@ -106,7 +110,10 @@ class AnnotationsListHandler(flask_restplus.Resource):
   # @api.expect(json_node_model, validate=False)
 
   @api.expect(post_parser, validate=False)
-  @api.doc("Hello")
+  @api.doc(responses={
+    200: 'Update success.',
+    417: 'JSON schema validation error.'
+  })
   def post(self):
     """ Add a tree of annotations. (You **cannot** add a DAG graph of nodes in one shot.)
     
@@ -121,7 +128,16 @@ class AnnotationsListHandler(flask_restplus.Resource):
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
-      node.update_collection(db_interface=get_db().annotations)
+      from jsonschema import ValidationError
+      try:
+        node.update_collection(db_interface=get_db().annotations)
+      except ValidationError as e:
+        import traceback
+        message = {
+          "message": "Some input object does not fit the schema. Some of the submitted objects may have been written - so please clean up after yourself and report this corrupt data.",
+          "exception_dump": (traceback.format_exc())
+        }
+        return message, 417
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)
