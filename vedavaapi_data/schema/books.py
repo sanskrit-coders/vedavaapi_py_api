@@ -25,6 +25,10 @@ class BookPortion(JsonObject):
         "type": "string",
         "enum": ["image", "text"]
       },
+      "portion_class": {
+        "type": "string",
+        "description": "book, part, chapter, verse, line etc.."
+      },
       "curated_content": TextContent.schema,
       "targets": {
         "type": "array",
@@ -38,7 +42,8 @@ class BookPortion(JsonObject):
   }))
 
   @classmethod
-  def from_details(cls, path, title, authors=None, targets=None, base_data = None, curated_content=None):
+  def from_details(cls, path, title, authors=None, targets=None, base_data = None,
+                   curated_content=None, portion_class=None):
     if authors is None:
       authors = []
     book_portion = BookPortion()
@@ -54,6 +59,8 @@ class BookPortion(JsonObject):
       book_portion.curated_content = curated_content
     if base_data != None:
       book_portion.base_data = base_data
+    if portion_class != None:
+      book_portion.portion_class = portion_class
     book_portion.validate_schema()
     return book_portion
 

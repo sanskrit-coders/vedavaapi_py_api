@@ -186,7 +186,12 @@ class JsonObject(object):
     json_map.pop("_id", None)
     # logging.debug(str(self))
     # logging.debug(jsonpickle.dumps(self.schema))
-    jsonschema.validate(json_map, self.schema)
+    from jsonschema import ValidationError
+    try:
+      jsonschema.validate(json_map, self.schema)
+    except ValidationError as e:
+      logging.error(self)
+      raise e
 
   @classmethod
   def find_one(cls, filter, db_interface):

@@ -48,7 +48,14 @@ class DBWrapper(object):
       else:
         book_portion_node = vedavaapi_data.schema.common.JsonObject.read_from_file(f)
         logging.info("Importing afresh! %s " % book_portion_node)
-        book_portion_node.update_collection(self.books)
+        from jsonschema import ValidationError
+        try:
+          book_portion_node.update_collection(self.books)
+        except ValidationError as e:
+          import traceback
+          traceback.print_exc()
+          import sys
+          sys.exit
         logging.debug(str(book_portion_node))
         nbooks = nbooks + 1
     return nbooks
