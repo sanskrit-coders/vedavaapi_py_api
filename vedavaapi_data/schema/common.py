@@ -218,6 +218,7 @@ class JsonObject(object):
 
 
 class JsonObjectNode(JsonObject):
+  """Represents a tree (not a general Directed Acyclic Graph) of JsonObjects."""
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
@@ -250,7 +251,11 @@ class JsonObjectNode(JsonObject):
   def update_collection(self, db_interface):
     self.content = self.content.update_collection(db_interface)
     for child in self.children:
-      child.content.targets = [Target.from_details(str(self.content._id))]
+      if child.content.targets == None or len(child.content.targets) == 0:
+        child.content.targets = [Target.from_details(str(self.content._id))]
+      else:
+        assert len(child.content.targets) == 1
+        child.content.targets[0].container_id = self.content._id
       child.update_collection(db_interface)
 
   def delete_in_collection(self, db_interface):

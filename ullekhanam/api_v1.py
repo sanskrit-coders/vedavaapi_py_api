@@ -108,11 +108,12 @@ class AnnotationsListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc("Hello")
   def post(self):
-    """ Add annotations.
+    """ Add a tree of annotations. (You **cannot** add a DAG graph of nodes in one shot.)
     
-    json:<BR>
+    input json:<BR>
       A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
+      {"content": Annotation, "children": [JsonObjectNode with child Annotation]} 
+      Warning: For every child node, content.target **will be** overwritten.
     :return: 
       Same as the input list, with id-s.
     """
@@ -127,8 +128,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
   def delete(self):
     """ Delete annotations.
     
-    :param id: The page being annotated. Unused. 
-    json:
+    input json:
       A list of JsonObjectNode-s with annotations with the following structure.
       {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
     :return: Empty.
