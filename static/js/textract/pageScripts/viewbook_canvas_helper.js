@@ -919,7 +919,7 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     if (updatedAnnotationNodes.length > 0) {
         console.log('POST anno contents: ', updatedAnnotationNodes);
         $.ajax({
-            url: '/textract/v1/pages/' + pageId + '/image_annotations',
+            url: '/ullekhanam/v1/annotations',
             type: 'POST',
             data: JSON.stringify(updatedAnnotationNodes),
             contentType: 'application/json; charset=utf-8',
@@ -947,7 +947,7 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
         console.log('DELETE anno contents: ', deletedAnnotationNodesWithId);
         //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
         $.ajax({
-            url: '/textract/v1/pages/' + pageId + '/image_annotations',
+            url: '/ullekhanam/v1/annotations',
             type: 'DELETE',
             data: JSON.stringify(deletedAnnotationNodesWithId),
             contentType: 'application/json; charset=utf-8',

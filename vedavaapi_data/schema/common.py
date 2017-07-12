@@ -141,12 +141,14 @@ class JsonObject(object):
   def to_json_map(self):
     jsonMap = {}
     for key, value in self.__dict__.iteritems():
+      # logging.debug("%s %s", key, value)
       if isinstance(value, JsonObject):
         jsonMap[key] = value.to_json_map()
       elif isinstance(value, list):
         jsonMap[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         jsonMap[key] = value
+    jsonMap[TYPE_FIELD] = self.__class__.get_wire_typeid()
     return jsonMap
 
   def equals_ignore_id(self, other):
@@ -187,10 +189,15 @@ class JsonObject(object):
     # logging.debug(str(self))
     # logging.debug(jsonpickle.dumps(self.schema))
     from jsonschema import ValidationError
+    from jsonschema import SchemaError
     try:
       jsonschema.validate(json_map, self.schema)
+    except SchemaError as e:
+      logging.error(self.schema)
+      raise e
     except ValidationError as e:
       logging.error(self)
+      logging.error(json_map)
       raise e
 
   @classmethod
@@ -214,9 +221,7 @@ class JsonObjectNode(JsonObject):
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
-        "content": {
-          "type": JsonObject.schema
-        },
+        "content": JsonObject.schema,
         "children": {
           "type": "array",
           "items": JsonObject.schema

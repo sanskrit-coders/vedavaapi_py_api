@@ -53,9 +53,8 @@ class DBWrapper(object):
           book_portion_node.update_collection(self.books)
         except ValidationError as e:
           import traceback
-          traceback.print_exc()
-          import sys
-          sys.exit
+          logging.error(e)
+          logging.error(traceback.format_exc())
         logging.debug(str(book_portion_node))
         nbooks = nbooks + 1
     return nbooks

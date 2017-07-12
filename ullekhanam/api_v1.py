@@ -122,7 +122,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)
-  def delete(self, id):
+  def delete(self):
     """ Delete annotations.
     
     :param id: The page being annotated. Unused. 
@@ -133,7 +133,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
-      node.fill_descendents(db_interface=get_db().annotations)
+      node.fill_descendents(db_interface=get_db().annotations, depth=100)
       node.delete_in_collection(db_interface=get_db().annotations)
     return {}, 200
 
