@@ -73,12 +73,19 @@ A general API to access and annotate a text corpus.
 
 ## Development
 ### Data model
-- JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) .
-
-- The data containers are saved in the vedavaapi_data module - so that it can be extracted and used outside this server.
+- Motivating principles
+  - Books are stored as a hierarchy of BookPortion objects - book containing many chapters containing many lines etc..
+  - Annotations are stored in a similar hierarchy, for example - a TextAnnotation having PadaAnnotations having SamaasaAnnotations.
+    - Some Annotations (eg. SandhiAnnotation, TextAnnotation) can have multiple "targets" (ie. other objects being annotated).
+    - Rather than a simple tree, we end up with a Directed Acyclic Graph (DAG) of Annotation objects.
+- JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) (Updated as needed).
+- The data containers are in a separate vedavaapi_data module - so that it can be extracted and used outside this server.
     * [data_containers.py]() defines
       * various objects such as BookPortion, Annotation, SandhiAnnotation.
       * json helper methods to (de)serialize them to json while writing to the database.
+
+### REST API
+- API docs [here](http://api.vedavaapi.org/py/ullekhanam/docs) .
 
 ### Root module
 * [__init__.py]():
@@ -98,7 +105,10 @@ This is a web-based tool (based on the ullekhanam module) to rapidly decode scan
 - It will enable users to identify and annotate characters in scanned document images and auto-identifies similar characters.
 
 ## Development
-JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) .
+See general notes from the ullekhanam module apply.
+
+### REST API
+See general notes from the ullekhanam module apply. Additional API docs [here](http://api.vedavaapi.org/py/textract/docs) .
 
 ### Root module
 * [__init__.py]():
@@ -106,7 +116,7 @@ JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%
 * [api_v1.py]():
   * Handles calls to /textract/*
 
-# Guidelines
+# Deveolopment guidelines
 * Don't write ugly code.
   * Remember that your code will be read many more times than it will be written. Please take care.
   * Use meaningful identifier names (no naming global functions "myerror").

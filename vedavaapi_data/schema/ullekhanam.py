@@ -17,12 +17,16 @@ jsonpickle.set_encoder_options('simplejson', indent=2)
 class AnnotationSource(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
+    "description": "Source of the annotation which contains this node.",
     "properties": {
       "type": {
-        "type": "string"
+        "type": "string",
+        "enum": ["bot", "human"],
+        "description": "Does this annotation come from a machine, or a human?",
       },
       "id": {
-        "type": "string"
+        "type": "string",
+        "description": "Something to identify the particular annotation source.",
       }
     },
     "required": ["type"]
@@ -44,6 +48,7 @@ class Annotation(JsonObject):
       "source": AnnotationSource.schema,
       "targets": {
         "type": "array",
+        "description": "The entity being annotated.",
         "items": Target.schema
       }
     },
@@ -58,6 +63,7 @@ class Annotation(JsonObject):
 class Rectangle(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
+    "description": "A rectangle within an image.",
     "properties": {
       "x1": {
         "type": "integer"
@@ -90,8 +96,8 @@ class Rectangle(JsonObject):
     def __eq__(self, other):
       xmax = max(self.x, other.x)
       ymax = max(self.y, other.y)
-      w = min(self.x+self.w, other.x+other.w) - xmax
-      h = min(self.y+self.h, other.y+other.h) - ymax
+      w = min(self.x + self.w, other.x + other.w) - xmax
+      h = min(self.y + self.h, other.y + other.h) - ymax
       return w > 0 and h > 0
 
     def __ne__(self, other):
@@ -110,6 +116,7 @@ class Rectangle(JsonObject):
 class ImageTarget(Target):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
+    "description": "The rectangle within the image being targetted.",
     "properties": {
       "rectangle": Rectangle.schema
     },
@@ -130,6 +137,7 @@ class ImageTarget(Target):
 class ImageAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
+    "description": "A rectangle within an image, picked by a particular annotation source.",
     "properties": {
       "targets": {
         "type": "array",
@@ -150,6 +158,7 @@ class ImageAnnotation(Annotation):
 class TextAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
+    "description": "Annotation of some (sub)text from within the object (image or another text) being annotated.",
     "properties": {
       "content": TextContent.schema,
     },
@@ -164,9 +173,17 @@ class TextAnnotation(Annotation):
     annotation.validate_schema()
     return annotation
 
-class OffsetAddress(JsonObject):
+
+class CommentAnnotation(TextAnnotation):
+  schema = common.recursively_merge(TextAnnotation.schema, ({
+    "description": "A comment that can be associated with nearly any Annotation or BookPortion.",
+  }))
+
+
+class TextOffsetAddress(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, {
     "type": "object",
+    "description": "A way to specify a substring.",
     "properties": {
       "start": {
         "type": "integer"
@@ -178,7 +195,7 @@ class OffsetAddress(JsonObject):
 
   @classmethod
   def from_details(cls, start, end):
-    obj = OffsetAddress()
+    obj = TextOffsetAddress()
     obj.start = start
     obj.end = end
     obj.validate_schema()
@@ -188,6 +205,7 @@ class OffsetAddress(JsonObject):
 class TextTarget(Target):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
+    "description": "A way to specify a particular substring within a string.",
     "properties": {
       "shabda_id": {
         "type": "string",
@@ -196,12 +214,12 @@ class TextTarget(Target):
                        "This has the following pada-vigraha: rāga [comp.]-ādi [comp.]-roga [ac.p.m.]  satata [comp.]-anuṣañj [ac.p.m.]."
                        "Then, rāga has the id 1.1. roga has id 1.3. satata has the id 2.1."
       },
-      "offset_address": OffsetAddress.schema
+      "offset_address": TextOffsetAddress.schema
     },
   }))
 
   @classmethod
-  def from_details(cls, container_id, shabda_id=None, offset_address = None):
+  def from_details(cls, container_id, shabda_id=None, offset_address=None):
     target = TextTarget()
     target.container_id = container_id
     if shabda_id != None:
@@ -215,6 +233,7 @@ class TextTarget(Target):
 class PadaAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
+    "description": "A grammatical pada - subanta or tiNanta.",
     "properties": {
       "targets": {
         "type": "array",
@@ -246,15 +265,19 @@ class PadaAnnotation(Annotation):
 class SubantaAnnotation(PadaAnnotation):
   schema = common.recursively_merge(PadaAnnotation.schema, ({
     "type": "object",
+    "description": "Anything ending with a sup affix. Includes avyaya-s.",
     "properties": {
       "linga": {
-        "type": "string"
+        "type": "string",
+        "enum": ["strii", "pum", "napum", "avyaya"]
       },
       "vibhakti": {
-        "type": "integer"
+        "type": "string",
+        "enum": ["1", "2", "3", "4", "5", "6", "7", "1.sambodhana"]
       },
       "vachana": {
-        "type": "integer"
+        "type": "integer",
+        "enum": [1, 2, 3]
       }
     },
   }))
@@ -273,15 +296,19 @@ class SubantaAnnotation(PadaAnnotation):
 class TinantaAnnotation(PadaAnnotation):
   schema = common.recursively_merge(PadaAnnotation.schema, ({
     "type": "object",
+    "description": "Anything ending with a tiN affix.",
     "properties": {
       "lakAra": {
-        "type": "string"
+        "type": "string",
+        "enum": ["laT", "laN", "vidhi-liN", "AshIr-liN", "loT", "liT", "luT", "LT", "luN", "LN", "leT"]
       },
       "puruSha": {
-        "type": "string"
+        "type": "string",
+        "enum": ["prathama", "madhyama", "uttama"]
       },
       "vachana": {
-        "type": "integer"
+        "type": "integer",
+        "enum": [1, 2, 3]
       }
     },
   }))
@@ -297,7 +324,31 @@ class TinantaAnnotation(PadaAnnotation):
     return obj
 
 
-# Targets: two PadaAnnotations
+# Targets: a pair of textAnnotation or BookPortion
+class TextSambandhaAnnotation(Annotation):
+  schema = common.recursively_merge(Annotation.schema, ({
+    "type": "object",
+    "description": "Describes connection between two text portions. Such connection is directional (ie it connects words in a source sentence to words in a target sentence.)",
+    "properties": {
+      "category": {
+        "type": "string"
+      },
+      "source_text_padas": {
+        "type": "array",
+        "description": "The entity being annotated.",
+        "items": Target.schema
+      },
+      "target_text_padas": {
+        "type": "array",
+        "description": "The entity being annotated.",
+        "items": Target.schema
+      }
+    },
+    "required": ["combined_string"]
+  }))
+
+
+# Targets: two or more PadaAnnotations
 class SandhiAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
@@ -322,13 +373,15 @@ class SandhiAnnotation(Annotation):
     return annotation
 
 
-# Targets: two or more PadaAnnotations
+# Targets: one PadaAnnotation (the samasta-pada)
 class SamaasaAnnotation(Annotation):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
     "properties": {
-      "combined_string": {
-        "type": "string"
+      "component_padas": {
+        "type": "array",
+        "description": "Pointers to PadaAnnotation objects corresponding to components of the samasta-pada",
+        "items": Target.schema
       },
       "type": {
         "type": "string"
