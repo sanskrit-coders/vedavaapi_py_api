@@ -1,7 +1,7 @@
 import logging
 
 from vedavaapi_data.schema import common
-from vedavaapi_data.schema.common import JsonObject, TextContent, Target
+from vedavaapi_data.schema.common import JsonObject, TextContent, Target, TYPE_FIELD
 
 
 class BookPortion(JsonObject):
@@ -9,6 +9,9 @@ class BookPortion(JsonObject):
     "type": "object",
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
+      TYPE_FIELD: {
+        "enum": __name__ + ".BookPortion"
+      },
       "title": {
         "type": "string"
       },

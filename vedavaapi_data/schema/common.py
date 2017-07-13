@@ -4,6 +4,7 @@ from copy import deepcopy
 
 import jsonpickle
 import jsonschema
+import sys
 
 import common
 
@@ -47,7 +48,8 @@ class JsonObject(object):
     "type": "object",
     "properties": {
       TYPE_FIELD: {
-        "type": "string"
+        "type": "string",
+        "enum": __name__ + ".JsonObject"
       },
     },
     "required": [TYPE_FIELD]
@@ -222,6 +224,9 @@ class JsonObjectNode(JsonObject):
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
+        TYPE_FIELD: {
+          "enum": __name__ + ".JsonObject"
+        },
         "content": JsonObject.schema,
         "children": {
           "type": "array",
@@ -302,6 +307,9 @@ class Target(JsonObject):
   schema = recursively_merge(JsonObject.schema, {
     "type": "object",
     "properties": {
+      TYPE_FIELD: {
+        "enum": __name__ + ".Target"
+      },
       "container_id": {
         "type": "string"
       }
@@ -330,6 +338,9 @@ class TextContent(JsonObject):
   schema = recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
+      TYPE_FIELD: {
+        "enum": __name__ + ".TextContent"
+      },
       "text": {
         "type": "string",
       },

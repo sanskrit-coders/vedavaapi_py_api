@@ -18,6 +18,9 @@ class AnnotationSource(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "description": "Source of the annotation which contains this node.",
+    common.TYPE_FIELD: {
+      "enum": __name__ + ".AnnotationSource"
+    },
     "properties": {
       "type": {
         "type": "string",
@@ -45,6 +48,9 @@ class Annotation(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".Annotation"
+      },
       "source": AnnotationSource.schema,
       "targets": {
         "type": "array",
@@ -65,6 +71,9 @@ class Rectangle(JsonObject):
     "type": "object",
     "description": "A rectangle within an image.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".Rectangle"
+      },
       "x1": {
         "type": "integer"
       },
@@ -118,6 +127,9 @@ class ImageTarget(Target):
     "type": "object",
     "description": "The rectangle within the image being targetted.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".ImageTarget"
+      },
       "rectangle": Rectangle.schema
     },
     "required": ["rectangle"]
@@ -139,6 +151,9 @@ class ImageAnnotation(Annotation):
     "type": "object",
     "description": "A rectangle within an image, picked by a particular annotation source.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".ImageAnnotation"
+      },
       "targets": {
         "type": "array",
         "items": ImageTarget.schema
@@ -160,6 +175,9 @@ class TextAnnotation(Annotation):
     "type": "object",
     "description": "Annotation of some (sub)text from within the object (image or another text) being annotated.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".TextAnnotation"
+      },
       "content": TextContent.schema,
     },
     "required": ["content"]
@@ -185,6 +203,9 @@ class TextOffsetAddress(JsonObject):
     "type": "object",
     "description": "A way to specify a substring.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".TextOffsetAddress"
+      },
       "start": {
         "type": "integer"
       },
@@ -207,6 +228,9 @@ class TextTarget(Target):
     "type": "object",
     "description": "A way to specify a particular substring within a string.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".TextTarget"
+      },
       "shabda_id": {
         "type": "string",
         "description": "Format: pada_index.shabda_index or just pada_index."
@@ -235,6 +259,9 @@ class PadaAnnotation(Annotation):
     "type": "object",
     "description": "A grammatical pada - subanta or tiNanta.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".PadaAnnotation"
+      },
       "targets": {
         "type": "array",
         "items": TextTarget.schema
@@ -267,6 +294,9 @@ class SubantaAnnotation(PadaAnnotation):
     "type": "object",
     "description": "Anything ending with a sup affix. Includes avyaya-s.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".SubantaAnnotation"
+      },
       "linga": {
         "type": "string",
         "enum": ["strii", "pum", "napum", "avyaya"]
@@ -298,6 +328,9 @@ class TinantaAnnotation(PadaAnnotation):
     "type": "object",
     "description": "Anything ending with a tiN affix.",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".TinantaAnnotation"
+      },
       "lakAra": {
         "type": "string",
         "enum": ["laT", "laN", "vidhi-liN", "AshIr-liN", "loT", "liT", "luT", "LT", "luN", "LN", "leT"]
@@ -330,6 +363,9 @@ class TextSambandhaAnnotation(Annotation):
     "type": "object",
     "description": "Describes connection between two text portions. Such connection is directional (ie it connects words in a source sentence to words in a target sentence.)",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".TextSambandhaAnnotation"
+      },
       "targets": {
         "description": "A pair of texts being connected. First text is the 'source text', second is the 'target text'",
       },
@@ -356,6 +392,9 @@ class SandhiAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".SandhiAnnotation"
+      },
       "combined_string": {
         "type": "string"
       },
@@ -381,6 +420,9 @@ class SamaasaAnnotation(Annotation):
   schema = common.recursively_merge(Target.schema, ({
     "type": "object",
     "properties": {
+      common.TYPE_FIELD: {
+        "enum": __name__ + ".SamaasaAnnotation"
+      },
       "component_padas": {
         "type": "array",
         "description": "Pointers to PadaAnnotation objects corresponding to components of the samasta-pada",
