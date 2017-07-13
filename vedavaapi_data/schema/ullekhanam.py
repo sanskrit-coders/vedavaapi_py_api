@@ -4,6 +4,7 @@ import logging
 import jsonpickle
 
 import common
+from vedavaapi_data.schema.books import BookPortion
 from vedavaapi_data.schema.common import JsonObject, JsonObjectWithTarget, Target, TextContent
 
 logging.basicConfig(
@@ -60,6 +61,10 @@ class Annotation(JsonObjectWithTarget):
     },
     "required": ["targets", "source"]
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, Annotation]
 
   def set_base_details(self, targets, source):
     self.targets = targets
@@ -145,7 +150,6 @@ class ImageTarget(Target):
     return target
 
 
-# Targets: ImageTarget for a BookPortion
 class ImageAnnotation(Annotation):
   schema = common.recursively_merge(Annotation.schema, ({
     "type": "object",
@@ -160,6 +164,10 @@ class ImageAnnotation(Annotation):
       }
     },
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, ImageAnnotation]
 
   @classmethod
   def from_details(cls, targets, source):
@@ -184,6 +192,10 @@ class TextAnnotation(Annotation):
   }))
 
   @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, ImageAnnotation]
+
+  @classmethod
   def from_details(cls, targets, source, content):
     annotation = TextAnnotation()
     annotation.set_base_details(targets, source)
@@ -196,6 +208,10 @@ class CommentAnnotation(TextAnnotation):
   schema = common.recursively_merge(TextAnnotation.schema, ({
     "description": "A comment that can be associated with nearly any Annotation or BookPortion.",
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, Annotation]
 
 
 class TextOffsetAddress(JsonObject):
@@ -274,6 +290,10 @@ class PadaAnnotation(Annotation):
       }
     },
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, TextAnnotation]
 
   def set_base_details(self, targets, source, word, root):
     super(PadaAnnotation, self).set_base_details(targets, source)
@@ -385,6 +405,16 @@ class TextSambandhaAnnotation(Annotation):
     },
     "required": ["combined_string"]
   }))
+  
+  def validate(self, db_interface=None):
+    super(TextSambandhaAnnotation, self).validate(db_interface=db_interface)
+    self.validate_targets(targets=self.source_text_padas, allowed_types=[PadaAnnotation])
+    self.validate_targets(targets=self.target_text_padas, allowed_types=[PadaAnnotation])
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion, TextAnnotation]
+
 
 
 # Targets: two or more PadaAnnotations
@@ -404,6 +434,10 @@ class SandhiAnnotation(Annotation):
     },
     "required": ["combined_string"]
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [PadaAnnotation]
 
   @classmethod
   def from_details(cls, targets, source, combined_string, type="UNK"):
@@ -434,6 +468,14 @@ class SamaasaAnnotation(Annotation):
     },
     "required": ["combined_string"]
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [PadaAnnotation]
+
+  def validate(self, db_interface=None):
+    super(SamaasaAnnotation, self).validate(db_interface=db_interface)
+    self.validate_targets(targets=self.component_padas, allowed_types=[PadaAnnotation])
 
   @classmethod
   def from_details(cls, targets, source, combined_string, type="UNK"):

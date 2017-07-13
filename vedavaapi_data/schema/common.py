@@ -190,7 +190,7 @@ class JsonObject(object):
     :param db_interface: Potentially useful in subclasses to perfrom validations (eg. is the target_id valid)
     :return: 
     """
-    self.validate_schema
+    self.validate_schema()
 
   # Override and call this method to add extra validations.
   def validate_schema(self):
@@ -267,17 +267,20 @@ class JsonObjectWithTarget(JsonObject):
   def get_allowed_target_classes(cls):
     return []
 
+  def validate_targets(self, targets, allowed_types):
+    if targets and len(targets) > 0:
+      for target in targets:
+        target_entity = target.get_target_entity()
+        if not check_class(target_entity, allowed_types):
+          raise TargetValidationError(targetting_obj=self, target_obj=target_entity)
+
   def validate(self, db_interface=None):
     super(JsonObjectWithTarget, self).validate(db_interface=db_interface)
-    if self.targets and len(self.targets) > 0:
-      for target in self.targets:
-        target_entity = self.target.get_target_entity()
-        if not check_class(target_entity, self.get_allowed_target_classes()):
-          raise TargetValidationError(targetting_obj=self, target_obj=target_entity)
+    self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes())
 
 
 class JsonObjectNode(JsonObject):
-  """Represents a tree (not a general Directed Acyclic Graph) of JsonObjects."""
+  """Represents a tree (not a general Directed Acyclic Graph) of JsonObjectWithTargets."""
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
