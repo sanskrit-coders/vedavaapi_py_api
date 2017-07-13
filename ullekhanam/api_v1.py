@@ -112,7 +112,8 @@ class AnnotationsListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc(responses={
     200: 'Update success.',
-    417: 'JSON schema validation error.'
+    417: 'JSON schema validation error.',
+    418: "Target entity class validation error."
   })
   def post(self):
     """ Add some trees of annotations. (You **cannot** add a DAG graph of nodes in one shot - you'll need multiple calls.)
@@ -137,10 +138,17 @@ class AnnotationsListHandler(flask_restplus.Resource):
       except ValidationError as e:
         import traceback
         message = {
-          "message": "Some input object does not fit the schema. Some of the submitted objects may have been written - so please clean up after yourself and report this corrupt data.",
+          "message": "Some input object does not fit the schema.",
           "exception_dump": (traceback.format_exc())
         }
         return message, 417
+      except common_data_containers.TargetValidationError as e:
+        import traceback
+        message = {
+          "message": "Target validation failed.",
+          "exception_dump": (traceback.format_exc())
+        }
+        return message, 418
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)

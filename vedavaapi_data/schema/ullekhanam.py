@@ -4,7 +4,7 @@ import logging
 import jsonpickle
 
 import common
-from vedavaapi_data.schema.common import JsonObject, Target, TextContent
+from vedavaapi_data.schema.common import JsonObject, JsonObjectWithTarget, Target, TextContent
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -44,8 +44,8 @@ class AnnotationSource(JsonObject):
     return source
 
 
-class Annotation(JsonObject):
-  schema = common.recursively_merge(JsonObject.schema, ({
+class Annotation(JsonObjectWithTarget):
+  schema = common.recursively_merge(JsonObjectWithTarget.schema, ({
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
@@ -98,7 +98,7 @@ class Rectangle(JsonObject):
     rectangle.w = w
     rectangle.h = h
     rectangle.score = score
-    rectangle.validate_schema()
+    rectangle.validate()
     return rectangle
 
     # Two (segments are 'equal' if they overlap
@@ -141,7 +141,7 @@ class ImageTarget(Target):
     target = ImageTarget()
     target.container_id = container_id
     target.rectangle = rectangle
-    target.validate_schema()
+    target.validate()
     return target
 
 
@@ -165,7 +165,7 @@ class ImageAnnotation(Annotation):
   def from_details(cls, targets, source):
     annotation = ImageAnnotation()
     annotation.set_base_details(targets, source)
-    annotation.validate_schema()
+    annotation.validate()
     return annotation
 
 
@@ -188,7 +188,7 @@ class TextAnnotation(Annotation):
     annotation = TextAnnotation()
     annotation.set_base_details(targets, source)
     annotation.content = content
-    annotation.validate_schema()
+    annotation.validate()
     return annotation
 
 
@@ -219,7 +219,7 @@ class TextOffsetAddress(JsonObject):
     obj = TextOffsetAddress()
     obj.start = start
     obj.end = end
-    obj.validate_schema()
+    obj.validate()
     return obj
 
 
@@ -250,7 +250,7 @@ class TextTarget(Target):
       target.shabda_id = shabda_id
     if offset_address != None:
       target.offset_address = offset_address
-    target.validate_schema()
+    target.validate()
     return target
 
 
@@ -284,7 +284,7 @@ class PadaAnnotation(Annotation):
   def from_details(cls, targets, source, word, root):
     annotation = PadaAnnotation()
     annotation.set_base_details(targets, source, word, root)
-    annotation.validate_schema()
+    annotation.validate()
     return annotation
 
 
@@ -319,7 +319,7 @@ class SubantaAnnotation(PadaAnnotation):
     obj.linga = linga
     obj.vibhakti = vibhakti
     obj.vachana = vachana
-    obj.validate_schema()
+    obj.validate()
     return obj
 
 
@@ -353,7 +353,7 @@ class TinantaAnnotation(PadaAnnotation):
     obj.lakAra = lakAra
     obj.puruSha = puruSha
     obj.vachana = vachana
-    obj.validate_schema()
+    obj.validate()
     return obj
 
 
@@ -411,7 +411,7 @@ class SandhiAnnotation(Annotation):
     annotation.set_base_details(targets, source)
     annotation.combined_string = combined_string
     annotation.type = type
-    annotation.validate_schema()
+    annotation.validate()
     return annotation
 
 
@@ -441,5 +441,5 @@ class SamaasaAnnotation(Annotation):
     annotation.set_base_details(targets, source)
     annotation.combined_string = combined_string
     annotation.type = type
-    annotation.validate_schema()
+    annotation.validate()
     return annotation

@@ -1,10 +1,10 @@
 import logging
 
 from vedavaapi_data.schema import common
-from vedavaapi_data.schema.common import JsonObject, TextContent, Target, TYPE_FIELD
+from vedavaapi_data.schema.common import JsonObjectWithTarget, TextContent, TYPE_FIELD, JsonObject
 
 
-class BookPortion(JsonObject):
+class BookPortion(JsonObjectWithTarget):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
@@ -34,15 +34,18 @@ class BookPortion(JsonObject):
       },
       "curated_content": TextContent.schema,
       "targets": {
-        "type": "array",
-        "items": Target.schema,
-        "description": "Id of the BookPortion of which this BookPortion is a part. It is an array only for consistency. "
+        "maxLength": 1,
+        "description": "Target for BookPortion of which this BookPortion is a part. It is an array only for consistency. "
                        "For any given BookPortion, one can get the right order of contained BookPortions by seeking all "
                        "BookPortions referring to it in the targets list, and sorting them by their path values."
       }
     },
     "required": ["path"]
   }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return [BookPortion]
 
   @classmethod
   def from_details(cls, path, title, authors=None, targets=None, base_data = None,
@@ -64,7 +67,7 @@ class BookPortion(JsonObject):
       book_portion.base_data = base_data
     if portion_class != None:
       book_portion.portion_class = portion_class
-    book_portion.validate_schema()
+    book_portion.validate()
     return book_portion
 
   @classmethod

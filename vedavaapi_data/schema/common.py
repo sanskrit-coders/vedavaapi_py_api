@@ -177,12 +177,20 @@ class JsonObject(object):
 
   def update_collection(self, db_interface):
     if hasattr(self, "schema"):
-      self.validate_schema()
+      self.validate(db_interface)
     return db_interface.update_doc(self)
 
   # To delete referrent items also, use appropriate method in JsonObjectNode.
   def delete_in_collection(self, db_interface):
     return db_interface.delete_doc(self)
+
+  def validate(self, db_interface=None):
+    """
+    
+    :param db_interface: Potentially useful in subclasses to perfrom validations (eg. is the target_id valid)
+    :return: 
+    """
+    self.validate_schema
 
   # Override and call this method to add extra validations.
   def validate_schema(self):
@@ -204,6 +212,7 @@ class JsonObject(object):
 
   @classmethod
   def find_one(cls, filter, db_interface):
+    """Returns None if nothing is found."""
     attr_dict = db_interface.find_one(filter=filter)
     obj = None
     if attr_dict:
@@ -212,11 +221,59 @@ class JsonObject(object):
 
   @classmethod
   def from_id(cls, id, db_interface):
-    item = cls.make_from_dict(db_interface.find_by_id(id=id))
+    """Returns None if nothing is found."""
+    item_dict = db_interface.find_by_id(id=id)
+    item = None
+    if item_dict != None:
+      item = cls.make_from_dict(item_dict)
     return item
 
   def get_targetting_entities(self, db_interface, entity_type=None):
     return db_interface.get_targetting_entities(self, entity_type=entity_type)
+
+
+class TargetValidationError(Exception):
+  def __init__(self, allowed_types, target_obj, targetting_obj):
+    self.allowed_types = allowed_types
+    self.target_obj = target_obj
+    self.targetting_obj = targetting_obj
+
+  def __str__(self):
+    return "%s\n targets object \n" \
+           "%s,\n" \
+           "which does not belong to \n" \
+           "%s" % (self.targetting_obj, self.target_obj, str(self.allowed_types))
+
+
+class JsonObjectWithTarget(JsonObject):
+  """A JsonObject with a target field."""
+
+  schema = common.recursively_merge(JsonObject.schema, ({
+    "type": "object",
+    "description": "A JsonObject with a target field.",
+    "properties": {
+      TYPE_FIELD: {
+        "enum": __name__ + ".JsonObjectWithTarget"
+      },
+      "targets": {
+        "type": "array",
+        "items": Target.schema,
+        "description": "This field lets us define a directed graph involving JsonObjects stored in a database."
+      }
+    }
+  }))
+
+  @classmethod
+  def get_allowed_target_classes(cls):
+    return []
+
+  def validate(self, db_interface=None):
+    super(JsonObjectWithTarget, self).validate(db_interface=db_interface)
+    if self.targets and len(self.targets) > 0:
+      for target in self.targets:
+        target_entity = self.target.get_target_entity()
+        if not check_class(target_entity, self.get_allowed_target_classes()):
+          raise TargetValidationError(targetting_obj=self, target_obj=target_entity)
 
 
 class JsonObjectNode(JsonObject):
@@ -225,20 +282,27 @@ class JsonObjectNode(JsonObject):
     JsonObject.schema, {
       "properties": {
         TYPE_FIELD: {
-          "enum": __name__ + ".JsonObject"
+          "enum": __name__ + ".JsonObjectNode"
         },
         "content": JsonObject.schema,
         "children": {
           "type": "array",
-          "items": JsonObject.schema
+          "items": JsonObjectWithTarget.schema
         }
       },
       "required": [TYPE_FIELD]
     }
   )
-  
-  def validate_schema(self):
-    super(JsonObjectNode, self).validate_schema()
+
+  def validate(self, db_interface=None):
+    super(JsonObjectNode, self).validate(db_interface=None)
+    for child in self.children:
+      if not check_class(self.content, child.get_allowed_target_classes()):
+        raise TargetValidationError(targetting_obj=child, target_obj=self.content)
+
+    for child in self.children:
+      child.validate(db_interface=None)
+
 
   @classmethod
   def from_details(cls, content, children=None):
@@ -250,10 +314,11 @@ class JsonObjectNode(JsonObject):
     node.content = content
     # logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
     node.children = children
-    node.validate_schema()
+    node.validate(db_interface=None)
     return node
 
   def update_collection(self, db_interface):
+    self.validate(db_interface=db_interface)
     self.content = self.content.update_collection(db_interface)
     for child in self.children:
       if child.content.targets == None or len(child.content.targets) == 0:
@@ -317,11 +382,15 @@ class Target(JsonObject):
     "required": ["container_id"]
   })
 
+  def get_target_entity(self, db_interface):
+    """Returns null if db_interface doesnt have any such entity."""
+    return JsonObject.from_id(id=self.container_id, db_interface=db_interface)
+
   @classmethod
   def from_details(cls, container_id):
     target = Target()
     target.container_id = container_id
-    target.validate_schema()
+    target.validate()
     return target
 
   @classmethod
@@ -360,7 +429,7 @@ class TextContent(JsonObject):
     text_content.text = text
     text_content.language = language
     text_content.encoding = encoding
-    text_content.validate_schema()
+    text_content.validate()
     return text_content
 
 

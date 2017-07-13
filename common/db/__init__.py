@@ -7,6 +7,7 @@ class DbInterface(object):
   def delete_doc(self, doc):
     pass
 
+  # Returns None if nothing is found.
   def find_by_id(self, id):
     pass
 
@@ -14,6 +15,7 @@ class DbInterface(object):
   def find(self, filter):
     pass
 
+  # Returns None if nothing is found.
   def find_one(self, filter):
     pass
 
