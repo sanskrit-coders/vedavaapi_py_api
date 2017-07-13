@@ -115,14 +115,17 @@ class AnnotationsListHandler(flask_restplus.Resource):
     417: 'JSON schema validation error.'
   })
   def post(self):
-    """ Add a tree of annotations. (You **cannot** add a DAG graph of nodes in one shot.)
+    """ Add some trees of annotations. (You **cannot** add a DAG graph of nodes in one shot - you'll need multiple calls.)
     
-    input json:<BR>
+    input json:
+
       A list of JsonObjectNode-s with annotations with the following structure.
+
       {"content": Annotation, "children": [JsonObjectNode with child Annotation]} 
-      Warning: For every child node, content.target **will be** overwritten.
+
     :return: 
-      Same as the input list, with id-s.
+
+      Same as the input trees, with id-s.
     """
     logging.info(str(request.json))
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
@@ -145,8 +148,11 @@ class AnnotationsListHandler(flask_restplus.Resource):
     """ Delete annotations.
     
     input json:
+
       A list of JsonObjectNode-s with annotations with the following structure.
+
       {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
+
     :return: Empty.
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
@@ -155,15 +161,13 @@ class AnnotationsListHandler(flask_restplus.Resource):
     return {}, 200
 
 
-@api_blueprint.route('/schemas')
-def list_schemas():
-  """???."""
-  schemas = {
-    "JsonObject": common_data_containers.JsonObject.schema,
-    "JsonObjectNode": common_data_containers.JsonObjectNode.schema,
-    "BookPortion": vedavaapi_data.schema.books.BookPortion.schema,
-    "ImageAnnotation": backend_data_containers.ImageAnnotation.schema,
-    "TextAnnotation": backend_data_containers.TextAnnotation.schema,
-  }
-  from flask.json import jsonify
-  return jsonify(schemas)
+@api.route('/schemas')
+class AnnotationsListHandler(flask_restplus.Resource):
+  def get(self):
+    """Just list the schemas."""
+    from vedavaapi_data.schema import common, books, ullekhanam
+    logging.debug(common.get_schemas(common))
+    schemas = common.get_schemas(common)
+    schemas.update(common.get_schemas(books))
+    schemas.update(common.get_schemas(ullekhanam))
+    return schemas, 200
