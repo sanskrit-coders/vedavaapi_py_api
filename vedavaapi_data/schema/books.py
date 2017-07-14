@@ -19,6 +19,15 @@ class BookPositionTarget(Target):
     }
     })
 
+  @classmethod
+  def from_details(cls, container_id=None, position=None):
+    target = BookPositionTarget()
+    if container_id:
+      target.container_id = container_id
+    if position:
+      target.position = position
+    target.validate(db_interface=None)
+    return target
 
 class BookPortion(JsonObjectWithTarget):
   schema = common.recursively_merge(JsonObject.schema, ({

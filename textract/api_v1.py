@@ -79,7 +79,7 @@ class ImageBookList(BookList):
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
     book = (vedavaapi_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
-            vedavaapi_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title")))
+            vedavaapi_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"), base_data="image", portion_class="book"))
 
     if (not book.authors): book.authors = [form.get("author")]
 
@@ -113,7 +113,9 @@ class ImageBookList(BookList):
 
       page = common_data_containers.JsonObjectNode.from_details(
         content=vedavaapi_data.schema.books.BookPortion.from_details(
-          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName)))
+          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName), base_data="image", portion_class="page",
+          targets=[vedavaapi_data.BookPositionTarget.from_details(position=page_index)]
+        ))
       pages.append(page)
 
     book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book, children=pages)
