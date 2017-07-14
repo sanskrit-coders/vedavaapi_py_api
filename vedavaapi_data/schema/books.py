@@ -59,6 +59,8 @@ class BookPortion(JsonObjectWithTarget):
     },
   }))
 
+  target_class = BookPositionTarget
+
   @classmethod
   def get_allowed_target_classes(cls):
     return [BookPortion]

@@ -273,7 +273,6 @@ class Target(JsonObject):
 
   @classmethod
   def from_ids(cls, container_ids):
-    target = Target()
     return [Target.from_details(str(container_id)) for container_id in container_ids]
 
   @classmethod
@@ -295,6 +294,8 @@ class JsonObjectWithTarget(JsonObject):
       }
     }
   }))
+
+  target_class = Target
 
   @classmethod
   def get_allowed_target_classes(cls):
@@ -358,7 +359,10 @@ class JsonObjectNode(JsonObject):
     self.validate(db_interface=db_interface)
     self.content = self.content.update_collection(db_interface)
     for child in self.children:
-      child.content.targets = [Target.from_details(str(self.content._id))]
+      if (not hasattr(child.content, "targets")) or child.content.targets == None or len(child.content.targets) == 0:
+        child.content.targets = [child.content.target_class()]
+      assert len(child.content.targets) == 1
+      child.content.targets[0].container_id = str(self.content._id)
       child.update_collection(db_interface)
 
   def delete_in_collection(self, db_interface):

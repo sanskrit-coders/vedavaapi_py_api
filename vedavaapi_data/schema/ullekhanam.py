@@ -168,6 +168,8 @@ class ImageAnnotation(Annotation):
     },
   }))
 
+  target_class = ImageTarget
+
   @classmethod
   def get_allowed_target_classes(cls):
     return [BookPortion, ImageAnnotation]
@@ -293,6 +295,8 @@ class PadaAnnotation(Annotation):
       }
     },
   }))
+
+  target_class = TextTarget
 
   @classmethod
   def get_allowed_target_classes(cls):
