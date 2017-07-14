@@ -53,11 +53,11 @@ class EntityHandler(flask_restplus.Resource):
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, id):
-    """ Get a book.
+    """ Get any entity.
     
-    :param book_id: String
-    :return: Book details in a json tree like:
-      {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pt1, JsonObjectNode with BookPortion_Pt2]}    
+    :param id: String
+    :return: Entity with descendents in a json tree like:
+      {"content": EntityObj, "children": [JsonObjectNode with Child_1, JsonObjectNode with Child_2]}    
     """
     args = self.get_parser.parse_args()
     logging.info("book get by id = " + id)
