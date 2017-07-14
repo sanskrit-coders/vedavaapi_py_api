@@ -12,9 +12,6 @@ class DbInterface(object):
     pass
 
   # filter: A dict mapping field names to expected values.
-  def find(self, filter):
-    pass
-
   # Returns None if nothing is found.
   def find_one(self, filter):
     pass

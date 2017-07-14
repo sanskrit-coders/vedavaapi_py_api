@@ -212,15 +212,6 @@ class JsonObject(object):
       raise e
 
   @classmethod
-  def find_one(cls, filter, db_interface):
-    """Returns None if nothing is found."""
-    attr_dict = db_interface.find_one(filter=filter)
-    obj = None
-    if attr_dict:
-      obj = cls.make_from_dict(attr_dict)
-    return obj
-
-  @classmethod
   def from_id(cls, id, db_interface):
     """Returns None if nothing is found."""
     item_dict = db_interface.find_by_id(id=id)

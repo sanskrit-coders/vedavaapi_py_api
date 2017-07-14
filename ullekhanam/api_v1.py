@@ -56,7 +56,9 @@ class EntityHandler(flask_restplus.Resource):
     """ Get any entity.
     
     :param id: String
+
     :return: Entity with descendents in a json tree like:
+
       {"content": EntityObj, "children": [JsonObjectNode with Child_1, JsonObjectNode with Child_2]}    
     """
     args = self.get_parser.parse_args()
@@ -66,10 +68,10 @@ class EntityHandler(flask_restplus.Resource):
     if entity == None:
       return "No such entity id", 404
     else:
-      book_node = common_data_containers.JsonObjectNode.from_details(content=entity)
-      book_node.fill_descendents(db_interface=db, depth=args['depth'])
+      node = common_data_containers.JsonObjectNode.from_details(content=entity)
+      node.fill_descendents(db_interface=db, depth=args['depth'])
       # pprint(binfo)
-      return book_node.to_json_map_via_pickle(), 200
+      return node.to_json_map_via_pickle(), 200
 
 
 @api.route('/entities/<string:id>/targetters')
@@ -77,22 +79,26 @@ class EntityTargettersHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('depth', location='args', type=int, default=10,
                           help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
-  get_parser.add_argument('targetter_class', location='args', type=str, default=10,
+  get_parser.add_argument('targetter_class', location='args', type=str,
                           help="Example: vedavaapi_data.schema.books.BookPortion. See py/object.enum values in <a href=\"v1/schemas\"> schema</a> definitions.")
+  get_parser.add_argument('filter_json', location='args', type=str,
+                          help="A brief JSON string with property: value pairs.")
 
-  @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, id):
     """ Get all targetters for this entity.
     
     :param id: 
+
     :return: A list of JsonObjectNode-s with targetters with the following structure.
+
       {"content": Annotation, "children": [JsonObjectNode with targetting Entity]}    
     """
     logging.info("entity id = " + str(id))
     entity = common_data_containers.JsonObject()
     entity._id = str(id)
     args = self.get_parser.parse_args()
+    logging.debug(args["filter_json"])
     targetters = get_db().books.get_targetting_entities(json_obj=entity, entity_type=args["targetter_class"])
     targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                         targetters]
@@ -105,9 +111,20 @@ class EntityTargettersHandler(flask_restplus.Resource):
 class EntityListHandler(flask_restplus.Resource):
   # input_node = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
+  get_parser = api.parser()
+  get_parser.add_argument('filter_json', location='args', type=str,
+                          help="A brief JSON string with property: value pairs.")
+
+  @api.expect(get_parser, validate=True)
+  def get(self, id):
+    """ Get all matching entities."""
+    args = self.get_parser.parse_args()
+    logging.debug(args["filter_json"])
+
+
+
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
-
   # TODO: The below fails. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
   # @api.expect(json_node_model, validate=False)
 
@@ -172,7 +189,7 @@ class EntityListHandler(flask_restplus.Resource):
 
 
 @api.route('/schemas')
-class AnnotationsListHandler(flask_restplus.Resource):
+class SchemaListHandler(flask_restplus.Resource):
   def get(self):
     """Just list the schemas."""
     from vedavaapi_data.schema import common, books, ullekhanam

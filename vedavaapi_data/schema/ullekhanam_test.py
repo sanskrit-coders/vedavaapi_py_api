@@ -69,13 +69,13 @@ class TestDBRoundTrip(unittest.TestCase):
                                           rectangle=ullekhanam.Rectangle.from_details())],
       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"))
 
-    annotations = self.test_db.books
+    db = self.test_db.books
     logging.debug(annotation.to_json_map())
 
-    result = annotations.update_doc(annotation)
+    result = db.update_doc(annotation)
     logging.debug("update result is " + str(result))
 
-    annotation_retrieved = common.JsonObject.make_from_dict(annotations.find(annotation.to_json_map())[0])
+    annotation_retrieved = common.JsonObject.from_id(id=result._id, db_interface=db)
     logging.info(annotation_retrieved.__class__)
 
     logging.info(str(annotation_retrieved.to_json_map()))
@@ -86,10 +86,10 @@ class TestDBRoundTrip(unittest.TestCase):
       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
       content=common.TextContent.from_details(text=u"इदं नभसि म्भीषण"))
 
-    annotations = self.test_db.books
+    db = self.test_db.books
     logging.debug(text_annotation_original.to_json_map())
-    logging.debug(annotations.__class__)
-    text_annotation = text_annotation_original.update_collection(annotations)
+    logging.debug(db.__class__)
+    text_annotation = text_annotation_original.update_collection(db)
     logging.info("annotation_retrieved has text " + text_annotation.content.text)
 
     logging.info(str(text_annotation.to_json_map()))

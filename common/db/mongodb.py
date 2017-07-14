@@ -27,9 +27,6 @@ class Collection(DbInterface):
   def find_by_id(self, id):
     return self.mongo_collection.find_one({"_id": ObjectId(id)})
 
-  def find(self, filter):
-    return self.mongo_collection.find(filter=filter)
-
   def find_one(self, filter):
     return self.mongo_collection.find_one(filter=filter)
 

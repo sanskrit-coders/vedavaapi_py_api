@@ -21,7 +21,7 @@ class TestDBRoundTrip(unittest.TestCase):
     self.test_db = backend_db.textract_db
     CODE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     self.test_db.importAll(os.path.join(CODE_ROOT, "textract/example-repo"))
-    book = JsonObject.find_one(db_interface=self.test_db.books, filter={"path": "english"})
+    book = JsonObject.make_from_dict(self.test_db.books.find_one(filter={"path": "english"}))
     logging.debug(str(book))
     json_node = JsonObjectNode.from_details(content=book)
     json_node.fill_descendents(self.test_db.books)
