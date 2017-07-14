@@ -44,11 +44,11 @@ class BookList(flask_restplus.Resource):
 
 
 @api.route('/entities/<string:id>')
-@api.param('book_id', 'Get one from the JSON object returned by the GET books or another GET book_portions call. ')
+@api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
 class EntityHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('depth', location='args', type=int, default=1,
-                          help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+                          help="Do you want children or grandchildren or great grandchildren etc.. of this entity?")
 
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
