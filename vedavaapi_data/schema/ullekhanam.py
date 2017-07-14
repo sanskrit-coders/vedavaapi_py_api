@@ -20,17 +20,20 @@ class AnnotationSource(JsonObject):
     "type": "object",
     "description": "Source of the annotation which contains this node.",
     common.TYPE_FIELD: {
-      "enum": __name__ + ".AnnotationSource"
+      "enum": [__name__ + ".AnnotationSource"]
     },
     "properties": {
       "type": {
         "type": "string",
-        "enum": ["bot", "human"],
+        "enum": ["system_inferred", "user_supplied"],
         "description": "Does this annotation come from a machine, or a human?",
       },
       "id": {
         "type": "string",
         "description": "Something to identify the particular annotation source.",
+      },
+      "targets": {
+        "minLength": 1,
       }
     },
     "required": ["type"]
@@ -50,7 +53,7 @@ class Annotation(JsonObjectWithTarget):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".Annotation"
+        "enum": [__name__ + ".Annotation"]
       },
       "source": AnnotationSource.schema,
       "targets": {
@@ -77,7 +80,7 @@ class Rectangle(JsonObject):
     "description": "A rectangle within an image.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".Rectangle"
+        "enum": [__name__ + ".Rectangle"]
       },
       "x1": {
         "type": "integer"
@@ -133,7 +136,7 @@ class ImageTarget(Target):
     "description": "The rectangle within the image being targetted.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".ImageTarget"
+        "enum": [__name__ + ".ImageTarget"]
       },
       "rectangle": Rectangle.schema
     },
@@ -156,7 +159,7 @@ class ImageAnnotation(Annotation):
     "description": "A rectangle within an image, picked by a particular annotation source.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".ImageAnnotation"
+        "enum": [__name__ + ".ImageAnnotation"]
       },
       "targets": {
         "type": "array",
@@ -184,7 +187,7 @@ class TextAnnotation(Annotation):
     "description": "Annotation of some (sub)text from within the object (image or another text) being annotated.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".TextAnnotation"
+        "enum": [__name__ + ".TextAnnotation"]
       },
       "content": TextContent.schema,
     },
@@ -220,7 +223,7 @@ class TextOffsetAddress(JsonObject):
     "description": "A way to specify a substring.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".TextOffsetAddress"
+        "enum": [__name__ + ".TextOffsetAddress"]
       },
       "start": {
         "type": "integer"
@@ -245,7 +248,7 @@ class TextTarget(Target):
     "description": "A way to specify a particular substring within a string.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".TextTarget"
+        "enum": [__name__ + ".TextTarget"]
       },
       "shabda_id": {
         "type": "string",
@@ -276,7 +279,7 @@ class PadaAnnotation(Annotation):
     "description": "A grammatical pada - subanta or tiNanta.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".PadaAnnotation"
+        "enum": [__name__ + ".PadaAnnotation"]
       },
       "targets": {
         "type": "array",
@@ -315,7 +318,7 @@ class SubantaAnnotation(PadaAnnotation):
     "description": "Anything ending with a sup affix. Includes avyaya-s.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".SubantaAnnotation"
+        "enum": [__name__ + ".SubantaAnnotation"]
       },
       "linga": {
         "type": "string",
@@ -349,7 +352,7 @@ class TinantaAnnotation(PadaAnnotation):
     "description": "Anything ending with a tiN affix.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".TinantaAnnotation"
+        "enum": [__name__ + ".TinantaAnnotation"]
       },
       "lakAra": {
         "type": "string",
@@ -384,7 +387,7 @@ class TextSambandhaAnnotation(Annotation):
     "description": "Describes connection between two text portions. Such connection is directional (ie it connects words in a source sentence to words in a target sentence.)",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".TextSambandhaAnnotation"
+        "enum": [__name__ + ".TextSambandhaAnnotation"]
       },
       "targets": {
         "description": "A pair of texts being connected. First text is the 'source text', second is the 'target text'",
@@ -408,8 +411,8 @@ class TextSambandhaAnnotation(Annotation):
   
   def validate(self, db_interface=None):
     super(TextSambandhaAnnotation, self).validate(db_interface=db_interface)
-    self.validate_targets(targets=self.source_text_padas, allowed_types=[PadaAnnotation])
-    self.validate_targets(targets=self.target_text_padas, allowed_types=[PadaAnnotation])
+    self.validate_targets(targets=self.source_text_padas, allowed_types=[PadaAnnotation], db_interface=db_interface)
+    self.validate_targets(targets=self.target_text_padas, allowed_types=[PadaAnnotation], db_interface=db_interface)
 
   @classmethod
   def get_allowed_target_classes(cls):
@@ -423,7 +426,7 @@ class SandhiAnnotation(Annotation):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".SandhiAnnotation"
+        "enum": [__name__ + ".SandhiAnnotation"]
       },
       "combined_string": {
         "type": "string"
@@ -455,7 +458,7 @@ class SamaasaAnnotation(Annotation):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": __name__ + ".SamaasaAnnotation"
+        "enum": [__name__ + ".SamaasaAnnotation"]
       },
       "component_padas": {
         "type": "array",
@@ -475,7 +478,7 @@ class SamaasaAnnotation(Annotation):
 
   def validate(self, db_interface=None):
     super(SamaasaAnnotation, self).validate(db_interface=db_interface)
-    self.validate_targets(targets=self.component_padas, allowed_types=[PadaAnnotation])
+    self.validate_targets(targets=self.component_padas, allowed_types=[PadaAnnotation], db_interface=db_interface)
 
   @classmethod
   def from_details(cls, targets, source, combined_string, type="UNK"):

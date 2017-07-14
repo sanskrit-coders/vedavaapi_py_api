@@ -5,11 +5,17 @@ from vedavaapi_data.schema.common import JsonObjectWithTarget, TextContent, TYPE
 
 
 class BookPositionTarget(Target):
-  schema = common.recursively_merge(JsonObject.schema, {
+  schema = common.recursively_merge(Target.schema, {
     "type": "object",
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
-      "position": "number"
+      TYPE_FIELD: {
+        "enum": [__name__ + ".BookPositionTarget"]
+      },
+      "position": {
+        "type": "number",
+        "description": "Any number describing the position of one BookPortion within another."
+      }
     }
     })
 
@@ -20,7 +26,7 @@ class BookPortion(JsonObjectWithTarget):
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
       TYPE_FIELD: {
-        "enum": __name__ + ".BookPortion"
+        "enum": [__name__ + ".BookPortion"]
       },
       "title": {
         "type": "string"
@@ -45,13 +51,12 @@ class BookPortion(JsonObjectWithTarget):
       "curated_content": TextContent.schema,
       "targets": {
         "maxLength": 1,
-        "items": BookPositionTarget,
+        "items": BookPositionTarget.schema,
         "description": "Target for BookPortion of which this BookPortion is a part. It is an array only for consistency. "
                        "For any given BookPortion, one can get the right order of contained BookPortions by seeking all "
                        "BookPortions referring to it in the targets list, and sorting them by their target position values."
       }
     },
-    "required": ["path"]
   }))
 
   @classmethod

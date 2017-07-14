@@ -90,12 +90,12 @@ class EntityAnnotationsHandler(flask_restplus.Resource):
     logging.info("entity id = " + str(id))
     entity = common_data_containers.JsonObject()
     entity._id = str(id)
-    annotations = get_db().annotations.get_targetting_entities(json_obj=entity)
+    annotations = get_db().books.get_targetting_entities(json_obj=entity)
     annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                         annotations]
     args = self.get_parser.parse_args()
     for node in annotation_nodes:
-      node.fill_descendents(db_interface=get_db().annotations, depth=args["depth"])
+      node.fill_descendents(db_interface=get_db().books, depth=args["depth"])
     return common_data_containers.JsonObject.get_json_map_list(annotation_nodes), 200
 
 
@@ -134,7 +134,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     for node in nodes:
       from jsonschema import ValidationError
       try:
-        node.update_collection(db_interface=get_db().annotations)
+        node.update_collection(db_interface=get_db().books)
       except ValidationError as e:
         import traceback
         message = {
@@ -165,7 +165,7 @@ class AnnotationsListHandler(flask_restplus.Resource):
     """
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
-      node.delete_in_collection(db_interface=get_db().annotations)
+      node.delete_in_collection(db_interface=get_db().books)
     return {}, 200
 
 

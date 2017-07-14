@@ -153,11 +153,11 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
     if page == None:
       return "No such book portion id", 404
     else:
-      image_annotations = get_db().annotations.update_image_annotations(page)
+      image_annotations = get_db().books.update_image_annotations(page)
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
-        node.fill_descendents(db_interface=get_db().annotations)
+        node.fill_descendents(db_interface=get_db().books)
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 

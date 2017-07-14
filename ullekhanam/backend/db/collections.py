@@ -14,8 +14,8 @@ logging.basicConfig(
 logging.info("pymongo version is " + pymongo.__version__)
 
 
-# Encapsulates the book_portions collection.
 class BookPortionsInterface(DbInterface):
+  """Operations on BookPortion objects in an Db"""
   def list_books(self, pattern=None):
     iter = self.get_no_target_entities()
     matches = [b for b in iter if not pattern or re.search(pattern, b.path)]
@@ -28,8 +28,8 @@ class BookPortionsInterface(DbInterface):
     return book_node
 
 
-# Encapsulates the annotations collection.
 class AnnotationsInterface(DbInterface):
+  """Operations on Annotation objects in an Db"""
   def update_image_annotations(self, page):
     """return the page annotation with id = anno_id"""
     from os import path

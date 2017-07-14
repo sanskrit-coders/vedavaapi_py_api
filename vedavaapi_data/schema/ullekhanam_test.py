@@ -67,9 +67,9 @@ class TestDBRoundTrip(unittest.TestCase):
     annotation = ullekhanam.ImageAnnotation.from_details(targets=[
       ullekhanam.ImageTarget.from_details(container_id=str(target_page_id),
                                           rectangle=ullekhanam.Rectangle.from_details())],
-      source=ullekhanam.AnnotationSource.from_details("bot", "xyz.py"))
+      source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"))
 
-    annotations = self.test_db.annotations
+    annotations = self.test_db.books
     logging.debug(annotation.to_json_map())
 
     result = annotations.update_doc(annotation)
@@ -82,13 +82,11 @@ class TestDBRoundTrip(unittest.TestCase):
     self.assertTrue(annotation.equals_ignore_id(annotation_retrieved))
 
   def test_TextAnnotation(self):
-    target_image_id = ObjectId()
-    text_annotation_original = ullekhanam.TextAnnotation.from_details(targets=[
-      common.Target.from_details(container_id=str(target_image_id))],
-      source=ullekhanam.AnnotationSource.from_details("bot", "xyz.py"),
+    text_annotation_original = ullekhanam.TextAnnotation.from_details(targets=[],
+      source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
       content=common.TextContent.from_details(text=u"इदं नभसि म्भीषण"))
 
-    annotations = self.test_db.annotations
+    annotations = self.test_db.books
     logging.debug(text_annotation_original.to_json_map())
     logging.debug(annotations.__class__)
     text_annotation = text_annotation_original.update_collection(annotations)
@@ -99,54 +97,58 @@ class TestDBRoundTrip(unittest.TestCase):
 
   def test_FullSentence(self):
     # Add text annotation
+    db = self.test_db.books
+
+    book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
+      title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")
+    book_portion = book_portion.update_collection(db)
+
     target_image_id = ObjectId()
     text_annotation = ullekhanam.TextAnnotation.from_details(targets=[
-      common.Target.from_details(container_id=str(target_image_id))],
-      source=ullekhanam.AnnotationSource.from_details("bot", "xyz.py"),
+      common.Target.from_details(container_id=book_portion._id)],
+      source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
       content=common.TextContent.from_details(text=u"रामो विग्रवान् धर्मः।"))
     logging.debug(text_annotation.to_json_map())
 
-    annotations = self.test_db.annotations
-
-    text_annotation = text_annotation.update_collection(annotations)
+    text_annotation = text_annotation.update_collection(db)
     logging.debug(text_annotation.to_json_map())
 
-    samsAdhanI_source = ullekhanam.AnnotationSource.from_details("bot", "samsAdhanI/xyz.py")
+    samsAdhanI_source = ullekhanam.AnnotationSource.from_details("system_inferred", "samsAdhanI/xyz.py")
 
-    # Add pada annotations
+    # Add pada db
     pada_annotation_rAmaH = ullekhanam.SubantaAnnotation.from_details(targets=[
       ullekhanam.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"रामः", root=u"राम",
       linga=u"pum", vibhakti="1", vachana=1)
-    pada_annotation_rAmaH = pada_annotation_rAmaH.update_collection(annotations)
+    pada_annotation_rAmaH = pada_annotation_rAmaH.update_collection(db)
     logging.debug(pada_annotation_rAmaH.to_json_map())
 
     pada_annotation_vigrahavAn = ullekhanam.SubantaAnnotation.from_details(targets=[
       ullekhanam.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"विग्रहवान्", root=u"विग्रहवत्",
       linga=u"pum", vibhakti="1", vachana=1)
-    pada_annotation_vigrahavAn = pada_annotation_vigrahavAn.update_collection(annotations)
+    pada_annotation_vigrahavAn = pada_annotation_vigrahavAn.update_collection(db)
     logging.debug(pada_annotation_vigrahavAn.to_json_map())
 
     pada_annotation_avigrahavAn = ullekhanam.SubantaAnnotation.from_details(targets=[
       ullekhanam.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"अविग्रहवान्", root=u"अविग्रहवत्",
       linga=u"pum", vibhakti="1", vachana=1)
-    pada_annotation_avigrahavAn = pada_annotation_avigrahavAn.update_collection(annotations)
+    pada_annotation_avigrahavAn = pada_annotation_avigrahavAn.update_collection(db)
     logging.debug(pada_annotation_avigrahavAn.to_json_map())
 
     pada_annotation_dharmaH = ullekhanam.SubantaAnnotation.from_details(targets=[
       ullekhanam.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"धर्मः", root=u"धर्म",
       linga=u"pum", vibhakti="1", vachana=1)
-    pada_annotation_dharmaH = pada_annotation_dharmaH.update_collection(annotations)
+    pada_annotation_dharmaH = pada_annotation_dharmaH.update_collection(db)
     logging.debug(pada_annotation_dharmaH.to_json_map())
 
     pada_annotation_na = ullekhanam.SubantaAnnotation.from_details(targets=[
       ullekhanam.TextTarget.from_details(container_id=str(text_annotation._id))],
       source=samsAdhanI_source, word=u"न", root=u"न",
       linga=u"pum", vibhakti="1", vachana=1)
-    pada_annotation_na = pada_annotation_na.update_collection(annotations)
+    pada_annotation_na = pada_annotation_na.update_collection(db)
     logging.debug(pada_annotation_na.to_json_map())
 
     sandhi_annotation_rAmovigrahavAn = ullekhanam.SandhiAnnotation.from_details(targets=
@@ -156,7 +158,7 @@ class TestDBRoundTrip(unittest.TestCase):
         pada_annotation_vigrahavAn]),
       source=samsAdhanI_source,
       combined_string=u"रामो विग्रहवान्")
-    sandhi_annotation_rAmovigrahavAn = sandhi_annotation_rAmovigrahavAn.update_collection(annotations)
+    sandhi_annotation_rAmovigrahavAn = sandhi_annotation_rAmovigrahavAn.update_collection(db)
     logging.debug(sandhi_annotation_rAmovigrahavAn.to_json_map())
 
     sandhi_annotation_rAmoavigrahavAn = ullekhanam.SandhiAnnotation.from_details(targets=

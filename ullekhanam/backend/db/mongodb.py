@@ -11,7 +11,6 @@ logging.basicConfig(
 )
 
 class BookPortions(Collection, BookPortionsInterface): pass
-class Annotations(Collection, AnnotationsInterface): pass
 
 class MongoDbWrapper(DBWrapper):
   def __init__(self, dbname, client):
@@ -24,7 +23,6 @@ class MongoDbWrapper(DBWrapper):
     if not isinstance(self.db, Database):
       raise TypeError("database must be an instance of Database")
     self.books = BookPortions(self.db['book_portions'])
-    self.annotations = Annotations(self.db['annotations'])
 
   def reset(self):
     logging.info("Clearing IndicDocs database")

@@ -49,7 +49,6 @@ class JsonObject(object):
     "properties": {
       TYPE_FIELD: {
         "type": "string",
-        "enum": __name__ + ".JsonObject"
       },
     },
     "required": [TYPE_FIELD]
@@ -187,7 +186,8 @@ class JsonObject(object):
   def validate(self, db_interface=None):
     """
     
-    :param db_interface: Potentially useful in subclasses to perfrom validations (eg. is the target_id valid)
+    :param db_interface: Potentially useful in subclasses to perfrom validations (eg. is the target_id valid).
+    This value may not be availabe: for example when called from the from_details methods.
     :return: 
     """
     self.validate_schema()
@@ -203,10 +203,11 @@ class JsonObject(object):
     try:
       jsonschema.validate(json_map, self.schema)
     except SchemaError as e:
-      logging.error(self.schema)
+      logging.error(jsonpickle.dumps(self.schema))
       raise e
     except ValidationError as e:
       logging.error(self)
+      logging.error(self.schema)
       logging.error(json_map)
       raise e
 
@@ -245,6 +246,41 @@ class TargetValidationError(Exception):
            "%s" % (self.targetting_obj, self.target_obj, str(self.allowed_types))
 
 
+class Target(JsonObject):
+  schema = recursively_merge(JsonObject.schema, {
+    "type": "object",
+    "properties": {
+      TYPE_FIELD: {
+        "enum": [__name__ + ".Target"]
+      },
+      "container_id": {
+        "type": "string"
+      }
+    },
+    "required": ["container_id"]
+  })
+
+  def get_target_entity(self, db_interface):
+    """Returns null if db_interface doesnt have any such entity."""
+    return JsonObject.from_id(id=self.container_id, db_interface=db_interface)
+
+  @classmethod
+  def from_details(cls, container_id):
+    target = Target()
+    target.container_id = container_id
+    target.validate()
+    return target
+
+  @classmethod
+  def from_ids(cls, container_ids):
+    target = Target()
+    return [Target.from_details(str(container_id)) for container_id in container_ids]
+
+  @classmethod
+  def from_containers(cls, containers):
+    return Target.from_ids(container_ids=[container._id for container in containers])
+
+
 class JsonObjectWithTarget(JsonObject):
   """A JsonObject with a target field."""
 
@@ -252,9 +288,6 @@ class JsonObjectWithTarget(JsonObject):
     "type": "object",
     "description": "A JsonObject with a target field.",
     "properties": {
-      TYPE_FIELD: {
-        "enum": __name__ + ".JsonObjectWithTarget"
-      },
       "targets": {
         "type": "array",
         "items": Target.schema,
@@ -267,16 +300,16 @@ class JsonObjectWithTarget(JsonObject):
   def get_allowed_target_classes(cls):
     return []
 
-  def validate_targets(self, targets, allowed_types):
-    if targets and len(targets) > 0:
+  def validate_targets(self, targets, allowed_types, db_interface):
+    if targets and len(targets) > 0 and db_interface != None:
       for target in targets:
-        target_entity = target.get_target_entity()
+        target_entity = target.get_target_entity(db_interface=db_interface)
         if not check_class(target_entity, allowed_types):
-          raise TargetValidationError(targetting_obj=self, target_obj=target_entity)
+          raise TargetValidationError(allowed_types=allowed_types, targetting_obj=self, target_obj=target_entity)
 
   def validate(self, db_interface=None):
     super(JsonObjectWithTarget, self).validate(db_interface=db_interface)
-    self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes())
+    self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes(), db_interface=db_interface)
 
 
 class JsonObjectNode(JsonObject):
@@ -285,7 +318,7 @@ class JsonObjectNode(JsonObject):
     JsonObject.schema, {
       "properties": {
         TYPE_FIELD: {
-          "enum": __name__ + ".JsonObjectNode"
+          "enum": [__name__ + ".JsonObjectNode"]
         },
         "content": JsonObject.schema,
         "children": {
@@ -300,7 +333,7 @@ class JsonObjectNode(JsonObject):
   def validate(self, db_interface=None):
     super(JsonObjectNode, self).validate(db_interface=None)
     for child in self.children:
-      if not check_class(self.content, child.get_allowed_target_classes()):
+      if not check_class(self.content, child.content.get_allowed_target_classes()):
         raise TargetValidationError(targetting_obj=child, target_obj=self.content)
 
     for child in self.children:
@@ -371,47 +404,12 @@ class User(JsonObject):
         return self.user_id
 
 
-class Target(JsonObject):
-  schema = recursively_merge(JsonObject.schema, {
-    "type": "object",
-    "properties": {
-      TYPE_FIELD: {
-        "enum": __name__ + ".Target"
-      },
-      "container_id": {
-        "type": "string"
-      }
-    },
-    "required": ["container_id"]
-  })
-
-  def get_target_entity(self, db_interface):
-    """Returns null if db_interface doesnt have any such entity."""
-    return JsonObject.from_id(id=self.container_id, db_interface=db_interface)
-
-  @classmethod
-  def from_details(cls, container_id):
-    target = Target()
-    target.container_id = container_id
-    target.validate()
-    return target
-
-  @classmethod
-  def from_ids(cls, container_ids):
-    target = Target()
-    return [Target.from_details(str(container_id)) for container_id in container_ids]
-
-  @classmethod
-  def from_containers(cls, containers):
-    return Target.from_ids(container_ids=[container._id for container in containers])
-
-
 class TextContent(JsonObject):
   schema = recursively_merge(JsonObject.schema, ({
     "type": "object",
     "properties": {
       TYPE_FIELD: {
-        "enum": __name__ + ".TextContent"
+        "enum": [__name__ + ".TextContent"]
       },
       "text": {
         "type": "string",
