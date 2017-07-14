@@ -1,4 +1,3 @@
-import pymongo
 import re
 
 import vedavaapi_data.schema.books
@@ -10,8 +9,6 @@ logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
-
-logging.info("pymongo version is " + pymongo.__version__)
 
 
 class BookPortionsInterface(DbInterface):
