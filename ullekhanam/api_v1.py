@@ -118,7 +118,7 @@ class EntityListHandler(flask_restplus.Resource):
     418: "Target entity class validation error."
   })
   def post(self):
-    """ Add some trees of annotations. (You **cannot** add a DAG graph of nodes in one shot - you'll need multiple calls.)
+    """ Add some trees of entities. (You **cannot** add a DAG graph of nodes in one shot - you'll need multiple calls.)
     
     input json:
 
@@ -155,7 +155,7 @@ class EntityListHandler(flask_restplus.Resource):
 
   @api.expect(post_parser, validate=False)
   def delete(self):
-    """ Delete annotations.
+    """ Delete trees of entities.
     
     input json:
 
