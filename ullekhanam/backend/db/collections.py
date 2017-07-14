@@ -27,9 +27,6 @@ class BookPortionsInterface(DbInterface):
     book_node.fill_descendents(self)
     return book_node
 
-
-class AnnotationsInterface(DbInterface):
-  """Operations on Annotation objects in an Db"""
   def update_image_annotations(self, page):
     """return the page annotation with id = anno_id"""
     from os import path

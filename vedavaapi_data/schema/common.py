@@ -309,7 +309,8 @@ class JsonObjectWithTarget(JsonObject):
 
   def validate(self, db_interface=None):
     super(JsonObjectWithTarget, self).validate(db_interface=db_interface)
-    self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes(), db_interface=db_interface)
+    if hasattr(self, "targets"):
+      self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes(), db_interface=db_interface)
 
 
 class JsonObjectNode(JsonObject):
@@ -357,11 +358,7 @@ class JsonObjectNode(JsonObject):
     self.validate(db_interface=db_interface)
     self.content = self.content.update_collection(db_interface)
     for child in self.children:
-      if child.content.targets == None or len(child.content.targets) == 0:
-        child.content.targets = [Target.from_details(str(self.content._id))]
-      else:
-        assert len(child.content.targets) == 1
-        child.content.targets[0].container_id = self.content._id
+      child.content.targets = [Target.from_details(str(self.content._id))]
       child.update_collection(db_interface)
 
   def delete_in_collection(self, db_interface):
