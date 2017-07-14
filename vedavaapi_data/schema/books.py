@@ -96,3 +96,8 @@ class BookPortion(JsonObjectWithTarget):
       book_portion.portion_class = portion_class
     book_portion.validate()
     return book_portion
+
+  @classmethod
+  def from_path(cls, path, db_interface):
+    book_portion = JsonObject.find_one(filter={"path": path}, db_interface=db_interface)
+    return book_portion
