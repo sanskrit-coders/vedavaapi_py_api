@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 import vedavaapi_data.schema.books
 import vedavaapi_data.schema.common as common_data_containers
 from textract.docimage import DocImage
-from ullekhanam.api_v1 import AnnotationsListHandler, BookList, BookPortionHandler
+from ullekhanam.api_v1 import EntityListHandler, BookList, BookPortionHandler
 from ullekhanam.backend import paths
 from ullekhanam.backend.db import *
 

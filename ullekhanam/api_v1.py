@@ -72,35 +72,37 @@ class BookPortionHandler(flask_restplus.Resource):
       return book_node.to_json_map_via_pickle(), 200
 
 
-@api.route('/annotated_entities/<string:id>/annotations')
-class EntityAnnotationsHandler(flask_restplus.Resource):
+@api.route('/entities/<string:id>/targetters')
+class EntityTargettersHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('depth', location='args', type=int, default=10,
                           help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+  get_parser.add_argument('targetter_class', location='args', type=str, default=10,
+                          help="Example: vedavaapi_data.schema.books.BookPortion. See py/object.enum values in <a href=\"v1/schemas\"> schema</a> definitions.")
 
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, id):
-    """ Get all annotations for this entity.
+    """ Get all targetters for this entity.
     
     :param id: 
-    :return: A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
+    :return: A list of JsonObjectNode-s with targetters with the following structure.
+      {"content": Annotation, "children": [JsonObjectNode with targetting Entity]}    
     """
     logging.info("entity id = " + str(id))
     entity = common_data_containers.JsonObject()
     entity._id = str(id)
-    annotations = get_db().books.get_targetting_entities(json_obj=entity)
-    annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
-                        annotations]
     args = self.get_parser.parse_args()
-    for node in annotation_nodes:
+    targetters = get_db().books.get_targetting_entities(json_obj=entity, entity_type=args["targetter_class"])
+    targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
+                        targetters]
+    for node in targetter_nodes:
       node.fill_descendents(db_interface=get_db().books, depth=args["depth"])
-    return common_data_containers.JsonObject.get_json_map_list(annotation_nodes), 200
+    return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
 
-@api.route('/annotations')
-class AnnotationsListHandler(flask_restplus.Resource):
+@api.route('/entities')
+class EntityListHandler(flask_restplus.Resource):
   # input_node = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
   post_parser = api.parser()
@@ -120,9 +122,9 @@ class AnnotationsListHandler(flask_restplus.Resource):
     
     input json:
 
-      A list of JsonObjectNode-s with annotations with the following structure.
+      A list of JsonObjectNode-s with entities with the following structure.
 
-      {"content": Annotation, "children": [JsonObjectNode with child Annotation]} 
+      {"content": Annotation or BookPortion, "children": [JsonObjectNode with child Annotation or BookPortion]}    
 
     :return: 
 
@@ -157,9 +159,9 @@ class AnnotationsListHandler(flask_restplus.Resource):
     
     input json:
 
-      A list of JsonObjectNode-s with annotations with the following structure.
+      A list of JsonObjectNode-s with entities with the following structure.
 
-      {"content": Annotation, "children": [JsonObjectNode with child Annotation]}    
+      {"content": Annotation or BookPortion, "children": [JsonObjectNode with child Annotation or BookPortion]}    
 
     :return: Empty.
     """

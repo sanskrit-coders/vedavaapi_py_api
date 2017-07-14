@@ -439,6 +439,6 @@ def get_schemas(module_in):
   import inspect
   schemas = {}
   for name, obj in inspect.getmembers(module_in):
-    if inspect.isclass(obj) and obj.schema:
+    if inspect.isclass(obj) and hasattr(obj, "schema"):
       schemas[name] = obj.schema
   return schemas
