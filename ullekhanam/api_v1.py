@@ -43,16 +43,16 @@ class BookList(flask_restplus.Resource):
     return common_data_containers.JsonObject.get_json_map_list(booklist), 200
 
 
-@api.route('/book_portions/<string:book_id>')
+@api.route('/entities/<string:id>')
 @api.param('book_id', 'Get one from the JSON object returned by the GET books or another GET book_portions call. ')
-class BookPortionHandler(flask_restplus.Resource):
+class EntityHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('depth', location='args', type=int, default=1,
                           help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
 
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
-  def get(self, book_id):
+  def get(self, id):
     """ Get a book.
     
     :param book_id: String
@@ -60,14 +60,14 @@ class BookPortionHandler(flask_restplus.Resource):
       {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pt1, JsonObjectNode with BookPortion_Pt2]}    
     """
     args = self.get_parser.parse_args()
-    logging.info("book get by id = " + book_id)
-    book_portions_collection = get_db().books
-    book_portion = common_data_containers.JsonObject.from_id(id=book_id, db_interface=book_portions_collection)
-    if book_portion == None:
-      return "No such book portion id", 404
+    logging.info("book get by id = " + id)
+    db = get_db().books
+    entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
+    if entity == None:
+      return "No such entity id", 404
     else:
-      book_node = common_data_containers.JsonObjectNode.from_details(content=book_portion)
-      book_node.fill_descendents(db_interface=book_portions_collection, depth=args['depth'])
+      book_node = common_data_containers.JsonObjectNode.from_details(content=entity)
+      book_node.fill_descendents(db_interface=db, depth=args['depth'])
       # pprint(binfo)
       return book_node.to_json_map_via_pickle(), 200
 

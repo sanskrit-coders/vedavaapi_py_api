@@ -14,7 +14,7 @@ from werkzeug.utils import secure_filename
 import vedavaapi_data.schema.books
 import vedavaapi_data.schema.common as common_data_containers
 from textract.docimage import DocImage
-from ullekhanam.api_v1 import EntityListHandler, BookList, BookPortionHandler
+from ullekhanam.api_v1 import EntityListHandler, BookList, EntityHandler
 from ullekhanam.backend import paths
 from ullekhanam.backend.db import *
 
@@ -136,7 +136,7 @@ class ImageBookList(BookList):
 
 
 @api.route('/books/<string:book_id>')
-class ImageBookHandler(BookPortionHandler):
+class ImageBookHandler(EntityHandler):
   pass
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
