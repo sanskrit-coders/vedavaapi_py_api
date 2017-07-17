@@ -39,7 +39,7 @@ class BookPortionsInterface(DbInterface):
       # # # Give me all the non-overlapping user-touched segments in this page.
       # for annotation in known_annotations:
       #   target = annotation.targets[0]
-      #   if annotation.source.type == 'human':
+      #   if annotation.source.source_type == 'human':
       #     target['score'] = float(1.0)  # Set the max score for user-identified segments
       #   # Prevent image matcher from changing user-identified segments
       #   known_annotation_targets.insert(target)

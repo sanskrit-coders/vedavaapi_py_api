@@ -23,10 +23,10 @@ class AnnotationSource(JsonObject):
       "enum": [__name__ + ".AnnotationSource"]
     },
     "properties": {
-      "type": {
+      "source_type": {
         "type": "string",
         "enum": ["system_inferred", "user_supplied"],
-        "description": "Does this annotation come from a machine, or a human?",
+        "description": "Does this annotation come from a machine, or a human? source_ prefix avoids keyword conflicts in some languages.",
       },
       "id": {
         "type": "string",
@@ -42,7 +42,7 @@ class AnnotationSource(JsonObject):
   @classmethod
   def from_details(cls, source_type, id):
     source = AnnotationSource()
-    source.type = source_type
+    source.source_type = source_type
     source.id = id
     source.validate_schema()
     return source
@@ -435,7 +435,7 @@ class SandhiAnnotation(Annotation):
       "combined_string": {
         "type": "string"
       },
-      "type": {
+      "sandhi_type": {
         "type": "string"
       }
     },
@@ -451,7 +451,7 @@ class SandhiAnnotation(Annotation):
     annotation = SandhiAnnotation()
     annotation.set_base_details(targets, source)
     annotation.combined_string = combined_string
-    annotation.type = type
+    annotation.sandhi_type = type
     annotation.validate()
     return annotation
 

@@ -159,15 +159,15 @@ Rectangle.prototype = {
 
     // change state of the shape
     getState: function () {
-        return this.annotationNode.content.source.type;
+        return this.annotationNode.content.source.source_type;
     },
 
     // change state of the shape
     changeStateTo: function (newState) {
         this.modified = true;
-        this.annotationNode.content.source.type = newState;
+        this.annotationNode.content.source.source_type = newState;
         if (this.annotationNode.children.length > 0) {
-            this.annotationNode.children[0].content.source.type = newState;
+            this.annotationNode.children[0].content.source.source_type = newState;
         }
     },
 
