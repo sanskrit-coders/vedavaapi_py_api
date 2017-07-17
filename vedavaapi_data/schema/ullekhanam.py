@@ -31,9 +31,6 @@ class AnnotationSource(JsonObject):
       "id": {
         "type": "string",
         "description": "Something to identify the particular annotation source.",
-      },
-      "targets": {
-        "minLength": 1,
       }
     },
     "required": ["source_type"]
@@ -59,6 +56,7 @@ class Annotation(JsonObjectWithTarget):
       "targets": {
         "type": "array",
         "description": "The entity being annotated.",
+        "minLength": 1,
         "items": Target.schema
       }
     },
