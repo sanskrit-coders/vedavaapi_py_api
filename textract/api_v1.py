@@ -135,7 +135,7 @@ class ImageBookList(BookList):
     return book_portion_node.to_json_map_via_pickle(), 200
 
 
-@api.route('/books/<string:book_id>')
+@api.route('/books/<string:id>')
 class ImageBookHandler(EntityHandler):
   pass
 

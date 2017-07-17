@@ -36,7 +36,7 @@ class AnnotationSource(JsonObject):
         "minLength": 1,
       }
     },
-    "required": ["type"]
+    "required": ["source_type"]
   }))
 
   @classmethod

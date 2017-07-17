@@ -99,5 +99,9 @@ class BookPortion(JsonObjectWithTarget):
 
   @classmethod
   def from_path(cls, path, db_interface):
-    book_portion = JsonObject.make_from_dict(db_interface.find_one(filter={"path": path}))
-    return book_portion
+    book_portion_dict = db_interface.find_one(filter={"path": path})
+    if book_portion_dict == None:
+      return None
+    else:
+      book_portion = JsonObject.make_from_dict(book_portion_dict)
+      return book_portion
