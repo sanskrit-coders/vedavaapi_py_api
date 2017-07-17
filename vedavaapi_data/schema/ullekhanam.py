@@ -471,7 +471,6 @@ class SamaasaAnnotation(Annotation):
         "type": "string"
       }
     },
-    "required": ["combined_string"]
   }))
 
   @classmethod
