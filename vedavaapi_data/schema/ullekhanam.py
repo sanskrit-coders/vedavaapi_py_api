@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
-
-import jsonpickle
+import sys
 
 import common
 from vedavaapi_data.schema.books import BookPortion
@@ -12,15 +11,13 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-jsonpickle.set_encoder_options('simplejson', indent=2)
-
 
 class AnnotationSource(JsonObject):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",
     "description": "Source of the annotation which contains this node.",
     common.TYPE_FIELD: {
-      "enum": [__name__ + ".AnnotationSource"]
+      "enum": ["AnnotationSource"]
     },
     "properties": {
       "source_type": {
@@ -50,7 +47,7 @@ class Annotation(JsonObjectWithTarget):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".Annotation"]
+        "enum": ["Annotation"]
       },
       "source": AnnotationSource.schema,
       "targets": {
@@ -78,7 +75,7 @@ class Rectangle(JsonObject):
     "description": "A rectangle within an image.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".Rectangle"]
+        "enum": ["Rectangle"]
       },
       "x1": {
         "type": "integer"
@@ -134,7 +131,7 @@ class ImageTarget(Target):
     "description": "The rectangle within the image being targetted.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".ImageTarget"]
+        "enum": ["ImageTarget"]
       },
       "rectangle": Rectangle.schema
     },
@@ -157,7 +154,7 @@ class ImageAnnotation(Annotation):
     "description": "A rectangle within an image, picked by a particular annotation source.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".ImageAnnotation"]
+        "enum": ["ImageAnnotation"]
       },
       "targets": {
         "type": "array",
@@ -187,7 +184,7 @@ class TextAnnotation(Annotation):
     "description": "Annotation of some (sub)text from within the object (image or another text) being annotated.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".TextAnnotation"]
+        "enum": ["TextAnnotation"]
       },
       "content": TextContent.schema,
     },
@@ -223,7 +220,7 @@ class TextOffsetAddress(JsonObject):
     "description": "A way to specify a substring.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".TextOffsetAddress"]
+        "enum": ["TextOffsetAddress"]
       },
       "start": {
         "type": "integer"
@@ -248,7 +245,7 @@ class TextTarget(Target):
     "description": "A way to specify a particular substring within a string.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".TextTarget"]
+        "enum": ["TextTarget"]
       },
       "shabda_id": {
         "type": "string",
@@ -279,7 +276,7 @@ class PadaAnnotation(Annotation):
     "description": "A grammatical pada - subanta or tiNanta.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".PadaAnnotation"]
+        "enum": ["PadaAnnotation"]
       },
       "targets": {
         "type": "array",
@@ -320,7 +317,7 @@ class SubantaAnnotation(PadaAnnotation):
     "description": "Anything ending with a sup affix. Includes avyaya-s.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".SubantaAnnotation"]
+        "enum": ["SubantaAnnotation"]
       },
       "linga": {
         "type": "string",
@@ -354,7 +351,7 @@ class TinantaAnnotation(PadaAnnotation):
     "description": "Anything ending with a tiN affix.",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".TinantaAnnotation"]
+        "enum": ["TinantaAnnotation"]
       },
       "lakAra": {
         "type": "string",
@@ -389,7 +386,7 @@ class TextSambandhaAnnotation(Annotation):
     "description": "Describes connection between two text portions. Such connection is directional (ie it connects words in a source sentence to words in a target sentence.)",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".TextSambandhaAnnotation"]
+        "enum": ["TextSambandhaAnnotation"]
       },
       "targets": {
         "description": "A pair of texts being connected. First text is the 'source text', second is the 'target text'",
@@ -428,7 +425,7 @@ class SandhiAnnotation(Annotation):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".SandhiAnnotation"]
+        "enum": ["SandhiAnnotation"]
       },
       "combined_string": {
         "type": "string"
@@ -460,7 +457,7 @@ class SamaasaAnnotation(Annotation):
     "type": "object",
     "properties": {
       common.TYPE_FIELD: {
-        "enum": [__name__ + ".SamaasaAnnotation"]
+        "enum": ["SamaasaAnnotation"]
       },
       "component_padas": {
         "type": "array",
@@ -489,3 +486,8 @@ class SamaasaAnnotation(Annotation):
     annotation.type = type
     annotation.validate()
     return annotation
+
+
+# Essential for depickling to work.
+common.update_json_class_index(sys.modules[__name__])
+logging.debug(common.json_class_index)

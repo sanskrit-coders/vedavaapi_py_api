@@ -57,13 +57,13 @@ class Collection(DbInterface):
     else:
       filter = doc.to_json_map()
 
-    updated_doc = self.mongo_collection.find_one_and_update(filter, {"$set": map_to_write}, upsert=True,
-                                                            return_document=ReturnDocument.AFTER)
+    updated_doc = self.mongo_collection.find_one_and_update(filter, {"$set": map_to_write}, upsert=True, return_document=ReturnDocument.AFTER)
     doc.set_type()
     from vedavaapi_data.schema.common import TYPE_FIELD
     updated_doc[TYPE_FIELD] = getattr(doc, TYPE_FIELD)
     from vedavaapi_data.schema.common import JsonObject
-    return JsonObject.make_from_dict(updated_doc)
+    updated_obj = JsonObject.make_from_dict(updated_doc)
+    return updated_obj
 
   def delete_doc(self, doc):
     assert hasattr(doc, "_id"), "_id not present!"

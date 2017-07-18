@@ -5,7 +5,6 @@ import json
 import logging
 import unittest
 
-import jsonpickle
 import os
 from bson import ObjectId
 
@@ -29,13 +28,13 @@ class TestDBRoundTrip(unittest.TestCase):
     book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.Target.from_details(container_id="xyz")])
-    json_str = jsonpickle.encode(book_portion)
+    json_str = str(book_portion)
     logging.info("json_str pickle is " + json_str)
     obj = common.JsonObject.make_from_pickledstring(json_str)
     logging.info(obj.__class__)
     logging.info(obj)
 
-    jsonMap = {u'py/object': u'data_containers.BookPortion', u'title': u'halAyudhakoshaH', u'path': u'myrepo/halAyudha',
+    jsonMap = {u'jsonClass': u'BookPortion', u'title': u'halAyudhakoshaH', u'path': u'myrepo/halAyudha',
                u'targets': [{u'py/object': u'data_containers.Target', u'container_id': u'xyz'}]}
     json_str = json.dumps(jsonMap)
     logging.info("json_str pickle is " + json_str)
@@ -45,6 +44,8 @@ class TestDBRoundTrip(unittest.TestCase):
 
   # We deliberately don't use find_one_and_update below - as a test.
   def test_BookPortion(self):
+    module = self.__module__
+
     book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.Target.from_details(container_id="xyz")])

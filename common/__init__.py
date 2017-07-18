@@ -14,11 +14,7 @@ def get_configuration():
   from vedavaapi_data.schema import common
   server_config = common.JsonObject()
   config_file_name = os.path.join(CODE_ROOT, 'server_config_local.json')
-  with open(config_file_name) as config_file:
-    pickled_config = config_file.read()
-    # logging.info(pickled_config)
-    import jsonpickle
-    server_config = jsonpickle.decode(pickled_config)
+  server_config = common.JsonObject.read_from_file(config_file_name)
   return server_config
 
 

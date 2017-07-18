@@ -1,16 +1,16 @@
 {
-  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+  "jsonClass": "JsonObjectNode",
   "content": {
-    "py/object": "vedavaapi_data.schema.books.BookPortion",
+    "jsonClass": "jsonClassBookPortion",
     "path": "english",
     "base_data": "image",
     "portion_class": "book"
   },
   "children": [
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "jsonClassBookPortion",
         "path": "english/2.jpg",
         "title": "pg_0",
         "base_data": "image",
@@ -21,9 +21,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "jsonClassBookPortion",
         "base_data": "image",
         "portion_class": "page",
         "path": "english/3.png",
@@ -34,9 +34,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "jsonClassBookPortion",
         "base_data": "image",
         "portion_class": "page",
         "path": "english/test1.png",

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import json
 import logging
 from copy import deepcopy
@@ -6,14 +8,23 @@ import jsonpickle
 import jsonschema
 import sys
 
-import common
-
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-TYPE_FIELD = "py/object"
+JSONPICKLE_TYPE_FIELD = "py/object"
+TYPE_FIELD = "jsonClass"
+
+
+json_class_index = {}
+
+def update_json_class_index(module_in):
+  import inspect
+  schemas = {}
+  for name, obj in inspect.getmembers(module_in):
+    if inspect.isclass(obj):
+      json_class_index[name] = obj.__module__
 
 
 def check_class(obj, allowed_types):
@@ -57,11 +68,28 @@ class JsonObject(object):
   def __init__(self):
     self.set_type()
 
+  # Defines *our* canonical way of constructing a JSON object from a dict.
+  # All other deserialization methods should use this.
   @classmethod
   def make_from_dict(cls, input_dict):
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
+
+    def recursively_set_jsonpickle_type(some_dict):
+      wire_type = some_dict.pop(TYPE_FIELD, None)
+      if wire_type:
+        some_dict[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type] + "." +wire_type
+      for key, value in some_dict.iteritems():
+        if isinstance(value, dict):
+          recursively_set_jsonpickle_type(value)
+        elif isinstance(value, list):
+          for item in value:
+            if isinstance(item, dict):
+              recursively_set_jsonpickle_type(item)
+
+    recursively_set_jsonpickle_type(dict_without_id)
+
     # logging.debug(json.dumps(dict_without_id))
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
     # logging.debug(new_obj.__class__)
@@ -76,14 +104,14 @@ class JsonObject(object):
 
   @classmethod
   def make_from_pickledstring(cls, pickle):
-    obj = jsonpickle.decode(pickle)
+    obj = cls.make_from_dict(jsonpickle.decode(pickle))
     return obj
 
   @classmethod
   def read_from_file(cls, filename):
     try:
       with open(filename) as fhandle:
-        obj = jsonpickle.decode(fhandle.read())
+        obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()))
         return obj
     except Exception as e:
       return logging.error("Error reading " + filename + " : ".format(e))
@@ -99,11 +127,15 @@ class JsonObject(object):
 
   @classmethod
   def get_wire_typeid(cls):
+    return cls.__name__
+
+  @classmethod
+  def get_jsonpickle_typeid(cls):
     return cls.__module__ + "." + cls.__name__
 
   @classmethod
   def get_json_map_list(cls, some_list):
-    return [item.to_json_map_via_pickle() for item in some_list]
+    return [item.to_json_map() for item in some_list]
 
   def set_type(self):
     # self.class_type = str(self.__class__.__name__)
@@ -120,8 +152,18 @@ class JsonObject(object):
           if isinstance(item, JsonObject):
             item.set_type_recursively()
 
+  def set_jsonpickle_type_recursively(self):
+    self.set_type()
+    for key, value in self.__dict__.iteritems():
+      if isinstance(value, JsonObject):
+        value.set_type_recursively()
+      elif isinstance(value, list):
+        for item in value:
+          if isinstance(item, JsonObject):
+            item.set_jsonpickle_type_recursively()
+
   def __str__(self):
-    return jsonpickle.encode(self)
+    return json.dumps(self.to_json_map())
 
   def set_from_dict(self, input_dict):
     if input_dict:
@@ -135,9 +177,6 @@ class JsonObject(object):
 
   def set_from_id(self, db_interface, id):
     return self.set_from_dict(db_interface.find_by_id(id=id))
-
-  def to_json_map_via_pickle(self):
-    return json.loads(jsonpickle.encode(self))
 
   def to_json_map(self):
     jsonMap = {}
@@ -159,7 +198,7 @@ class JsonObject(object):
         return {key: to_unicode(value) for key, value in input.iteritems()}
       elif isinstance(input, list):
         return [to_unicode(element) for element in input]
-      elif common.check_class(input, [str, unicode]):
+      elif check_class(input, [str, unicode]):
         return input.encode('utf-8')
       else:
         return input
@@ -197,7 +236,6 @@ class JsonObject(object):
     json_map = self.to_json_map()
     json_map.pop("_id", None)
     # logging.debug(str(self))
-    # logging.debug(jsonpickle.dumps(self.schema))
     from jsonschema import ValidationError
     from jsonschema import SchemaError
     try:
@@ -242,7 +280,7 @@ class Target(JsonObject):
     "type": "object",
     "properties": {
       TYPE_FIELD: {
-        "enum": [__name__ + ".Target"]
+        "enum": ["Target"]
       },
       "container_id": {
         "type": "string"
@@ -274,7 +312,7 @@ class Target(JsonObject):
 class JsonObjectWithTarget(JsonObject):
   """A JsonObject with a target field."""
 
-  schema = common.recursively_merge(JsonObject.schema, ({
+  schema = recursively_merge(JsonObject.schema, ({
     "type": "object",
     "description": "A JsonObject with a target field.",
     "properties": {
@@ -311,7 +349,7 @@ class JsonObjectNode(JsonObject):
     JsonObject.schema, {
       "properties": {
         TYPE_FIELD: {
-          "enum": [__name__ + ".JsonObjectNode"]
+          "enum": ["JsonObjectNode"]
         },
         "content": JsonObject.schema,
         "children": {
@@ -341,7 +379,7 @@ class JsonObjectNode(JsonObject):
     # logging.debug(content)
     # Strangely, without the backend.data_containers, the below test failed on 20170501
     node.content = content
-    # logging.debug(common.check_list_item_types(children, [JsonObjectNode]))
+    # logging.debug(check_list_item_types(children, [JsonObjectNode]))
     node.children = children
     node.validate(db_interface=None)
     return node
@@ -401,7 +439,7 @@ class TextContent(JsonObject):
     "type": "object",
     "properties": {
       TYPE_FIELD: {
-        "enum": [__name__ + ".TextContent"]
+        "enum": ["TextContent"]
       },
       "text": {
         "type": "string",
@@ -433,3 +471,8 @@ def get_schemas(module_in):
     if inspect.isclass(obj) and hasattr(obj, "schema"):
       schemas[name] = obj.schema
   return schemas
+
+
+# Essential for depickling to work.
+update_json_class_index(sys.modules[__name__])
+logging.debug(json_class_index)

@@ -132,7 +132,7 @@ class ImageBookList(BookList):
       traceback.print_exc()
       return format(e), 500
 
-    return book_portion_node.to_json_map_via_pickle(), 200
+    return book_portion_node.to_json_map(), 200
 
 
 @api.route('/books/<string:id>')

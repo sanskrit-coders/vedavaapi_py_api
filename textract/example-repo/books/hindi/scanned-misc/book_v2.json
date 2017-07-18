@@ -1,16 +1,16 @@
 {
-  "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+  "jsonClass": "JsonObjectNode",
   "content": {
-    "py/object": "vedavaapi_data.schema.books.BookPortion",
+    "jsonClass": "BookPortion",
     "path": "hindi/scanned-misc",
     "base_data": "image",
     "portion_class": "book"
   },
   "children": [
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/abhyAsEkChandaPuLa.jpg",
         "title": "pg_0",
         "targets": [],
@@ -21,9 +21,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/aksharunicodetext.jpg",
         "title": "pg_1",
         "base_data": "image",
@@ -34,9 +34,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/durga.jpg",
         "title": "pg_2",
         "base_data": "image",
@@ -47,9 +47,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/hi.png",
         "title": "pg_3",
         "base_data": "image",
@@ -60,9 +60,9 @@
       "children": []
     },
     {
-      "py/object": "vedavaapi_data.schema.common.JsonObjectNode",
+      "jsonClass": "JsonObjectNode",
       "content": {
-        "py/object": "vedavaapi_data.schema.books.BookPortion",
+        "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/vishnu-chalisa.jpg",
         "title": "pg_4",
         "base_data": "image",

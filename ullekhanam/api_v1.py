@@ -71,7 +71,7 @@ class EntityHandler(flask_restplus.Resource):
       node = common_data_containers.JsonObjectNode.from_details(content=entity)
       node.fill_descendents(db_interface=db, depth=args['depth'])
       # pprint(binfo)
-      return node.to_json_map_via_pickle(), 200
+      return node.to_json_map(), 200
 
 
 @api.route('/entities/<string:id>/targetters')
@@ -149,7 +149,6 @@ class EntityListHandler(flask_restplus.Resource):
     """
     logging.info(str(request.json))
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
-    # logging.info(jsonpickle.dumps(nodes))
     for node in nodes:
       from jsonschema import ValidationError
       try:

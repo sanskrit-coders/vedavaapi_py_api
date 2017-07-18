@@ -1,5 +1,7 @@
 import logging
 
+import sys
+
 from vedavaapi_data.schema import common
 from vedavaapi_data.schema.common import JsonObjectWithTarget, TextContent, TYPE_FIELD, JsonObject, Target
 
@@ -10,7 +12,7 @@ class BookPositionTarget(Target):
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
       TYPE_FIELD: {
-        "enum": [__name__ + ".BookPositionTarget"]
+        "enum": ["BookPositionTarget"]
       },
       "position": {
         "type": "number",
@@ -35,7 +37,7 @@ class BookPortion(JsonObjectWithTarget):
     "description": "A BookPortion could represent a Book or a chapter or a verse or a half-verse or a sentence or any such unit.",
     "properties": {
       TYPE_FIELD: {
-        "enum": [__name__ + ".BookPortion"]
+        "enum": ["BookPortion"]
       },
       "title": {
         "type": "string"
@@ -105,3 +107,7 @@ class BookPortion(JsonObjectWithTarget):
     else:
       book_portion = JsonObject.make_from_dict(book_portion_dict)
       return book_portion
+
+# Essential for depickling to work.
+common.update_json_class_index(sys.modules[__name__])
+logging.debug(common.json_class_index)
