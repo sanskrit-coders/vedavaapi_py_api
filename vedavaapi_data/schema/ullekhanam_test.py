@@ -35,7 +35,7 @@ class TestDBRoundTrip(unittest.TestCase):
     logging.info(obj)
 
     jsonMap = {u'jsonClass': u'BookPortion', u'title': u'halAyudhakoshaH', u'path': u'myrepo/halAyudha',
-               u'targets': [{u'py/object': u'data_containers.Target', u'container_id': u'xyz'}]}
+               u'targets': [{u'jsonClass': u'data_containers.Target', u'container_id': u'xyz'}]}
     json_str = json.dumps(jsonMap)
     logging.info("json_str pickle is " + json_str)
     obj = common.JsonObject.make_from_pickledstring(json_str)

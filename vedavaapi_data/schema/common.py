@@ -90,7 +90,7 @@ class JsonObject(object):
 
     recursively_set_jsonpickle_type(dict_without_id)
 
-    # logging.debug(json.dumps(dict_without_id))
+    logging.debug(json.dumps(dict_without_id))
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
     # logging.debug(new_obj.__class__)
     if _id:
@@ -114,8 +114,8 @@ class JsonObject(object):
         obj = cls.make_from_dict(jsonpickle.decode(fhandle.read()))
         return obj
     except Exception as e:
-      return logging.error("Error reading " + filename + " : ".format(e))
       raise e
+      return logging.error("Error reading " + filename + " : ".format(e))
 
   def dump_to_file(self, filename):
     try:

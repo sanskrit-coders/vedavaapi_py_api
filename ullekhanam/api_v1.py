@@ -80,7 +80,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
   get_parser.add_argument('depth', location='args', type=int, default=10,
                           help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
   get_parser.add_argument('targetter_class', location='args', type=str,
-                          help="Example: vedavaapi_data.schema.books.BookPortion. See py/object.enum values in <a href=\"v1/schemas\"> schema</a> definitions.")
+                          help="Example: BookPortion. See jsonClass.enum values in <a href=\"v1/schemas\"> schema</a> definitions.")
   get_parser.add_argument('filter_json', location='args', type=str,
                           help="A brief JSON string with property: value pairs. Currently unimplemented.")
 

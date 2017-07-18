@@ -1,7 +1,7 @@
 {
   "jsonClass": "JsonObjectNode",
   "content": {
-    "jsonClass": "jsonClassBookPortion",
+    "jsonClass": "BookPortion",
     "path": "english",
     "base_data": "image",
     "portion_class": "book"
@@ -10,7 +10,7 @@
     {
       "jsonClass": "JsonObjectNode",
       "content": {
-        "jsonClass": "jsonClassBookPortion",
+        "jsonClass": "BookPortion",
         "path": "english/2.jpg",
         "title": "pg_0",
         "base_data": "image",
@@ -23,7 +23,7 @@
     {
       "jsonClass": "JsonObjectNode",
       "content": {
-        "jsonClass": "jsonClassBookPortion",
+        "jsonClass": "BookPortion",
         "base_data": "image",
         "portion_class": "page",
         "path": "english/3.png",
@@ -36,7 +36,7 @@
     {
       "jsonClass": "JsonObjectNode",
       "content": {
-        "jsonClass": "jsonClassBookPortion",
+        "jsonClass": "BookPortion",
         "base_data": "image",
         "portion_class": "page",
         "path": "english/test1.png",
