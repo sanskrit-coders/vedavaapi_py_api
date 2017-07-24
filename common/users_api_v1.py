@@ -40,7 +40,7 @@ def authorized(provider):
     return redirect(next_url)
 
   session['oauth_token'] = oauth.get_session_data(response)
-  session['user'] = oauth.get_user()
+  session['user'] = oauth.get_user().to_json_map()
   return redirect(next_url)
 
 
