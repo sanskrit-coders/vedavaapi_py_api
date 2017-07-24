@@ -29,14 +29,17 @@ from common.flask_helper import app
 
 def setup_app():
   import common
-  server_config = common.get_configuration()
+  common.set_configuration()
+  server_config = common.server_config
   from common.db import mongodb
-  from common.db.user_db import user_db
-  user_db.initialize(client = mongodb.get_mongo_client(host=server_config["mongo_host"]), user_db_name=server_config["user_db_name"])
+  from common.db import users_db
+  users_db.initialize_mongodb(client = mongodb.get_mongo_client(host=server_config["mongo_host"]), users_db_name=server_config["users_db_name"])
   textract.setup_app(params, mongodb.get_mongo_client(host=server_config["mongo_host"]))
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
   import ullekhanam.api_v1
+  from common import users_api_v1
+  app.register_blueprint(users_api_v1.api_blueprint, url_prefix="/oauth")
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.register_blueprint(ullekhanam.api_v1.api_blueprint, url_prefix="/ullekhanam")
 
@@ -73,7 +76,8 @@ def main(argv):
   logging.info("Available on the following URLs:")
   import common
   for line in common.file_helper.run_command(["/sbin/ifconfig"]).split("\n"):
-    m = oauth.re.match('\s*inet addr:(.*?) .*', line)
+    import re
+    m = re.match('\s*inet addr:(.*?) .*', line)
     if m:
       logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
   app.run(

@@ -2,42 +2,17 @@ import logging
 from base64 import b64encode
 
 import flask
-import flask_restplus
 import jsonpickle
 import os
 from flask import url_for
-from flask_login import LoginManager
 
 # Pass the root module name - sets root directory.
 app = flask.Flask("run")
-lm = LoginManager(app)
-
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
-app.config['OAUTH_CREDENTIALS'] = {
-  'facebook': {
-    'id': '1706950096293019',
-    'secret': '1b2523ac7d0f4b7a73c410b2ec82586c'
-  },
-  'twitter': {
-    'id': 'jSd7EMZFTQlxjLFG4WLmAe2OX',
-    'secret': 'gvkh9fbbnKQXXbnqxfs8C0tCEqgNKKzoYJAWQQwtMG07UOPKAj'
-  }
-}
-
-lm.login_view = 'index'
 
 
 @app.route('/')
 def index():
-  flask.session['logstatus'] = 1
-  return flask.render_template('textract/listBooks.html', title='Home')
-
-
-@app.route('/guestlogin', methods=['GET', 'POST'])
-def guestlogin():
-  logging.info("Login using Guest....\n")
-  email = flask.request.args.get('usermail')
-  logging.info("email=" + str(email))
   flask.session['logstatus'] = 1
   return flask.render_template('textract/listBooks.html', title='Home')
 
@@ -57,13 +32,6 @@ def fill_template(filepath):
       return flask.redirect('/')
   else:
     return flask.redirect('/')
-
-
-@app.route('/users')
-class UserListHandler(flask_restplus.Resource):
-  def get(self):
-    """Just list the users."""
-    return "NOT IMPLEMENTED", 200
 
 
 @app.route('/static/<path:filepath>')

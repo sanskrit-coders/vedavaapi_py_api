@@ -1,6 +1,11 @@
 {
-  "scl_path" : "/home/samskritam/scl-dev/build",
-  "user_db_name" : "vedavaapi_users",
+  "users_db_name" : "vedavaapi_users",
   "mongo_host" : "mongodb://someUser:somePw@localhost/",
-  "couchdb_host" : "http://username:password@host:port/"
+  "couchdb_host" : "http://username:password@host:port/",
+  "oauth": {
+    "google": {
+      "client_id": "",
+      "client_secret": ""
+    }
+  }
 }

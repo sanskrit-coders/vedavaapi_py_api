@@ -8,7 +8,7 @@ logging.basicConfig(
 
 from vedavaapi_data.schema.common import User
 
-class OAuthSignIn():
+class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.
   
   Important private members:
@@ -21,8 +21,8 @@ class OAuthSignIn():
   def __init__(self, provider_name):
     self.provider_name = provider_name
 
-  # User-agent is directed to the oauth provider website, with a standard callback url.
   def authorize(self):
+    """User-agent is directed to the oauth provider website, with a standard callback url."""
     callback_url = url_for('.authorized', provider=self.provider_name,
             _external=True)
     return self.service.authorize(callback_url)
@@ -31,16 +31,24 @@ class OAuthSignIn():
     return self.service.authorized_response()
 
   @classmethod
-  def get_provider(self, provider_name):
-    if self.providers is None:
-      self.providers = {}
-      for provider_class in self.__subclasses__():
-        provider = provider_class()
-        self.providers[provider.provider_name] = provider
-    return self.providers[provider_name]
+  def get_provider(cls, provider_name, ):
+    """Get the appropriate subclass to handle login.
+    
+    Ensures that we use singletons.
+    """
+    import common
+    oauth_config = common.server_config["oauth"]
+    if cls.providers is None:
+      cls.providers = {}
+      for provider_class in cls.__subclasses__():
+        provider = provider_class(client_id=oauth_config[provider_name]["client_id"], client_secret=oauth_config[provider_name]["client_secret"])
+        cls.providers[provider.provider_name] = provider
+    return cls.providers[provider_name]
 
   @staticmethod
   def get_token(token=None):
+    """This method is passed as an argument to the oauth.remote_app object.
+    """
     return session.get('oauth_token')
 
   def get_session_data(self, data):
@@ -49,6 +57,10 @@ class OAuthSignIn():
   # Use oauth token in session to get userdata from the oauth service
   def get_user_data(self):
     return None
+
+  # Construct or look up a User object using data obtained from get_user_data().
+  def get_user(self):
+    pass
 
 
 class GoogleSignIn(OAuthSignIn):
@@ -87,14 +99,10 @@ class GoogleSignIn(OAuthSignIn):
 
   def get_user(self):
     data = self.get_user_data()
-    from common.db.user_db import user_db
-    user_db = user_db.get_db()
-    user = user_db.find_one(filter={"user_id": data['email'], "auth_provider": self.provider_name})
+    from common.db.users_db import users_db
+    user = users_db.find_one(filter={"auth_user_id": data['email'], "auth_provider": self.provider_name})
     logging.debug(user)
     if user is None:
-      user = User.from_details(nickname=data['name'], user_id=data['email'], auth_provider=self.provider_name)
-      logging.debug(user)
-
-    from flask_login import login_user
-    login_user(user)
-    return url_for('/')
+      user = User.from_details(nickname=data['name'], auth_user_id=data['email'], auth_provider=self.provider_name)
+    logging.debug(user)
+    return user

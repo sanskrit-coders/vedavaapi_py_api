@@ -7,7 +7,6 @@ from os.path import join
 import cv2
 import flask_restplus
 from flask import Blueprint, session, request
-from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
@@ -70,12 +69,6 @@ class ImageBookList(BookList):
       logging.error(str(e))
       return "Couldn't create upload directory: %s , %s" % (format(abspath), str(e)), 500
 
-    if current_user is None:
-      user_id = None
-    else:
-      user_id = current_user.get_id()
-
-    logging.info("User Id: " + str(user_id))
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
     book = (vedavaapi_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or

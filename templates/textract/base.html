@@ -28,17 +28,6 @@
     {% else %}
     <h4 style="text-align:center; font-weight:bold">IndicLibrary: Visual Manuscript Decoder</h4>
     {% endif %}
-        <div id="oauthlogin" class="loginconsole">
-            {% if current_user.is_authenticated %}
-            <h5><span class="label label-sucess">Hi, {{ current_user.nickname }}!</span>
-            <span class="label label-info"><a href="{{ url_for('logout') }}"> Logout</a></span></h5>
-            {% endif %}
-            {% if session.user=='Guest' %}
-            <h5><span class="label label-sucess">You are logged in as: {{ session.user }}!</span>
-            <span class="label label-info"><a href="{{ url_for('logout') }}"> Logout</a></span></h5>
-            {% endif %}
-
-        </div>
         <div id="console" title="Status Messages">
             Messages: 
         </div>

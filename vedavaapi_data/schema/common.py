@@ -460,12 +460,13 @@ class User(JsonObject):
   )
 
   @classmethod
-  def from_details(cls, nickname, auth_user_id, auth_provider, permissions):
+  def from_details(cls, nickname, auth_user_id, auth_provider, permissions=None):
     obj = User()
     obj.nickname = nickname
     obj.auth_user_id = auth_user_id
     obj.auth_provider = auth_provider
-    obj.permissions = permissions
+    if permissions:
+      obj.permissions = permissions
 
 
 class TextContent(JsonObject):
