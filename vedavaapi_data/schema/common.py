@@ -415,6 +415,9 @@ class UserPermission(JsonObject):
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
+        TYPE_FIELD: {
+          "enum": ["UserPermission"]
+        },
         "service": {
           "type": "string",
           "enum": ["ullekhanam"]
@@ -442,6 +445,9 @@ class User(JsonObject):
   schema = recursively_merge(
     JsonObject.schema, {
       "properties": {
+        TYPE_FIELD: {
+          "enum": ["User"]
+        },
         "auth_user_id": {
           "type": "string"
         },
