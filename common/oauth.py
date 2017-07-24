@@ -99,6 +99,7 @@ class GoogleSignIn(OAuthSignIn):
 
   def get_user(self):
     data = self.get_user_data()
+    logging.debug(data)
     from common.db.users_db import users_db
     user = users_db.find_one(filter={"auth_user_id": data['email'], "auth_provider": self.provider_name})
     logging.debug(user)

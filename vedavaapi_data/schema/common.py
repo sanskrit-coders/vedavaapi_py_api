@@ -467,6 +467,7 @@ class User(JsonObject):
     obj.auth_provider = auth_provider
     if permissions:
       obj.permissions = permissions
+    return obj
 
 
 class TextContent(JsonObject):
