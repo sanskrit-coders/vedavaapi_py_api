@@ -16,8 +16,8 @@ logging.basicConfig(
 JSONPICKLE_TYPE_FIELD = "py/object"
 TYPE_FIELD = "jsonClass"
 
-
 json_class_index = {}
+
 
 def update_json_class_index(module_in):
   import inspect
@@ -79,7 +79,7 @@ class JsonObject(object):
     def recursively_set_jsonpickle_type(some_dict):
       wire_type = some_dict.pop(TYPE_FIELD, None)
       if wire_type:
-        some_dict[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type] + "." +wire_type
+        some_dict[JSONPICKLE_TYPE_FIELD] = json_class_index[wire_type] + "." + wire_type
       for key, value in some_dict.iteritems():
         if isinstance(value, dict):
           recursively_set_jsonpickle_type(value)
@@ -340,7 +340,8 @@ class JsonObjectWithTarget(JsonObject):
   def validate(self, db_interface=None):
     super(JsonObjectWithTarget, self).validate(db_interface=db_interface)
     if hasattr(self, "targets"):
-      self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes(), db_interface=db_interface)
+      self.validate_targets(targets=self.targets, allowed_types=self.get_allowed_target_classes(),
+                            db_interface=db_interface)
 
 
 class JsonObjectNode(JsonObject):
@@ -369,7 +370,6 @@ class JsonObjectNode(JsonObject):
 
     for child in self.children:
       child.validate(db_interface=None)
-
 
   @classmethod
   def from_details(cls, content, children=None):
@@ -407,31 +407,65 @@ class JsonObjectNode(JsonObject):
     if depth > 0:
       for targetting_obj in targetting_objs:
         child = JsonObjectNode.from_details(content=targetting_obj)
-        child.fill_descendents(db_interface=db_interface, depth=depth-1)
+        child.fill_descendents(db_interface=db_interface, depth=depth - 1)
         self.children.append(child)
 
 
+class UserPermission(JsonObject):
+  schema = recursively_merge(
+    JsonObject.schema, {
+      "properties": {
+        "service": {
+          "type": "string",
+          "enum": ["ullekhanam"]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["read", "write", "admin"],
+          },
+          "description": "Should be an enum in the future."
+        },
+      },
+    }
+  )
+
+  @classmethod
+  def from_details(cls, nickname, auth_user_id, auth_provider):
+    obj = UserPermission()
+    obj.nickname = nickname
+    obj.auth_user_id = auth_user_id
+
 class User(JsonObject):
-    def __init__(self, user_id, nickname="Guest", email=None, confirmed_on=False):
-        self.user_id = user_id
-        self.nickname = nickname
-        self.email = email
-        self.confirmed_on = confirmed_on
+  """Represents a user of our service."""
+  schema = recursively_merge(
+    JsonObject.schema, {
+      "properties": {
+        "auth_user_id": {
+          "type": "string"
+        },
+        "auth_provider": {
+          "type": "string"
+        },
+        "nickname": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "array",
+          "items": UserPermission.schema,
+        },
+      },
+    }
+  )
 
-    def is_authenticated(self):
-        if self.nickname == 'Guest' and self.confirmed_on == True:
-            logging.info("Confirmed=" + str( self.confirmed_on))
-            return True
-
-    def is_active(self):
-        if self.confirmed_on == True:
-            return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        return self.user_id
+  @classmethod
+  def from_details(cls, nickname, auth_user_id, auth_provider, permissions):
+    obj = User()
+    obj.nickname = nickname
+    obj.auth_user_id = auth_user_id
+    obj.auth_provider = auth_provider
+    obj.permissions = permissions
 
 
 class TextContent(JsonObject):

@@ -31,6 +31,7 @@ class BookPositionTarget(Target):
     target.validate(db_interface=None)
     return target
 
+
 class BookPortion(JsonObjectWithTarget):
   schema = common.recursively_merge(JsonObject.schema, ({
     "type": "object",

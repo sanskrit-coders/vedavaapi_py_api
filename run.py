@@ -7,8 +7,8 @@ import getopt
 import logging
 import sys
 
-import oauth
 import textract.api_v1
+from common import oauth
 from vedavaapi_data.schema import common
 
 logging.basicConfig(
@@ -31,12 +31,15 @@ def setup_app():
   import common
   server_config = common.get_configuration()
   from common.db import mongodb
+  from common.db.user_db import user_db
+  user_db.initialize(client = mongodb.get_mongo_client(host=server_config["mongo_host"]), user_db_name=server_config["user_db_name"])
   textract.setup_app(params, mongodb.get_mongo_client(host=server_config["mongo_host"]))
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
   import ullekhanam.api_v1
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.register_blueprint(ullekhanam.api_v1.api_blueprint, url_prefix="/ullekhanam")
+
 
 def main(argv):
   def usage():

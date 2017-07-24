@@ -2,6 +2,7 @@ import logging
 from base64 import b64encode
 
 import flask
+import flask_restplus
 import jsonpickle
 import os
 from flask import url_for
@@ -56,6 +57,13 @@ def fill_template(filepath):
       return flask.redirect('/')
   else:
     return flask.redirect('/')
+
+
+@app.route('/users')
+class UserListHandler(flask_restplus.Resource):
+  def get(self):
+    """Just list the users."""
+    return "NOT IMPLEMENTED", 200
 
 
 @app.route('/static/<path:filepath>')

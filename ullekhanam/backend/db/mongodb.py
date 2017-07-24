@@ -28,5 +28,3 @@ class MongoDbWrapper(DBWrapper):
     logging.info("Clearing IndicDocs database")
     self.client.drop_database(self.dbname)
     self.initialize()
-
-
