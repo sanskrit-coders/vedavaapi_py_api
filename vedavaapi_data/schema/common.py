@@ -74,7 +74,6 @@ class JsonObject(object):
   def make_from_dict(cls, input_dict):
     if input_dict == None:
       return None
-    logging.debug(json.dumps(input_dict))
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = deepcopy(input_dict)
     _id = dict_without_id.pop("_id", None)

@@ -40,7 +40,7 @@ Python based Web API's for the <vedavaapi.org> project.
   db.createUser( { user: "vedavaapiUser", pwd: "xyz", roles: [ { role: "dbAdminAnyDatabase", db: "admin" } , { role: "readWriteAnyDatabase", db: "admin" }] } )
   ```  
   * Create a server_config_local.json file based on the template provided.
-
+* For further details of setting this app up in the context of the vedavaapi server, see [vedavaapi_misc](https://github.com/vedavaapi/vedavaapi-misc) .
 
 ## Running
 * Launch server: run.py

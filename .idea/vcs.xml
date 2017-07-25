@@ -5,5 +5,6 @@
     <mapping directory="$USER_HOME$/grammar" vcs="Git" />
     <mapping directory="$USER_HOME$/indic_transliteration" vcs="Git" />
     <mapping directory="$USER_HOME$/scl-dev" vcs="Git" />
+    <mapping directory="$USER_HOME$/vedavaapi-misc" vcs="Git" />
   </component>
 </project>
