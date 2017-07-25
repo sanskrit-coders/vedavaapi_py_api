@@ -55,6 +55,9 @@ class AuthenticationInfo(JsonObject):
         },
         "auth_provider": {
           "type": "string"
+        },
+        "auth_secret_hashed": {
+          "type": "string"
         }
       }
     }
@@ -64,10 +67,12 @@ class AuthenticationInfo(JsonObject):
     return self.auth_provider + "____" + self.auth_user_id
 
   @classmethod
-  def from_details(cls, auth_user_id, auth_provider):
+  def from_details(cls, auth_user_id, auth_provider, auth_secret_hashed = None):
     obj = AuthenticationInfo()
     obj.auth_user_id = auth_user_id
     obj.auth_provider = auth_provider
+    if auth_secret_hashed:
+      obj.auth_secret_hashed = auth_secret_hashed
     return obj
 
 class User(JsonObject):
@@ -91,9 +96,9 @@ class User(JsonObject):
   )
 
   @classmethod
-  def from_details(cls, nickname, auth_user_id, auth_provider, permissions=None):
+  def from_details(cls, nickname, auth_user_id, auth_provider, auth_secret_hashed=None, permissions=None):
     obj = User()
-    obj.authentication_infos = [AuthenticationInfo.from_details(auth_provider=auth_provider, auth_user_id=auth_user_id)]
+    obj.authentication_infos = [AuthenticationInfo.from_details(auth_provider=auth_provider, auth_user_id=auth_user_id, auth_secret_hashed=auth_secret_hashed)]
     obj.nickname = nickname
     if permissions:
       obj.permissions = permissions

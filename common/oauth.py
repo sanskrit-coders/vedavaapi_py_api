@@ -8,7 +8,6 @@ logging.basicConfig(
 
 from vedavaapi_data.schema.users import User, UserPermission
 
-
 class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.
 
@@ -103,7 +102,7 @@ class GoogleSignIn(OAuthSignIn):
     data = self.get_user_data()
     logging.debug(data)
     from common.db.users_db import users_db
-    user = users_db.find_one(filter={"auth_user_id": data['email'], "auth_provider": self.provider_name})
+    user = users_db.find_one(filter={"authentication_infos.auth_user_id": data['email'], "authentication_infos.auth_provider": self.provider_name})
     logging.debug(user)
     if user is None:
       user = User.from_details(nickname=data['name'], auth_user_id=data['email'], auth_provider=self.provider_name)
