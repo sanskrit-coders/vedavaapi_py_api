@@ -54,17 +54,30 @@ class AuthenticationInfo(JsonObject):
           "type": "string"
         },
         "auth_provider": {
-          "type": "string"
+          "type": "string",
+          "enum": ["google", "vedavaapi"]
         },
-        "auth_secret_hashed": {
+        "auth_secret_bcrypt": {
           "type": "string"
         }
       }
     }
   )
 
+  VEDAVAAPI_AUTH = "vedavaapi"
+
   def get_user_id(self):
     return self.auth_provider + "____" + self.auth_user_id
+
+  def check_password(self, plain_password):
+    # Check hased password. Useing bcrypt, the salt is saved into the hash itself
+    import bcrypt
+    return bcrypt.checkpw(plain_password, self.auth_secret_bcrypt)
+
+  def set_password(self, plain_password):
+    import bcrypt
+    #   (Using bcrypt, the salt is saved into the hash itself)
+    return bcrypt.hashpw(plain_password, bcrypt.gensalt())
 
   @classmethod
   def from_details(cls, auth_user_id, auth_provider, auth_secret_hashed = None):
@@ -83,6 +96,10 @@ class User(JsonObject):
         TYPE_FIELD: {
           "enum": ["User"]
         },
+        "user_type": {
+          "type": "string",
+          "enum": ["human", "bot"]
+        },
         "authentication_infos": {
           "type": "array",
           "items": AuthenticationInfo.schema,
@@ -96,10 +113,11 @@ class User(JsonObject):
   )
 
   @classmethod
-  def from_details(cls, nickname, auth_user_id, auth_provider, auth_secret_hashed=None, permissions=None):
+  def from_details(cls, nickname, auth_user_id, auth_provider, user_type, auth_secret_hashed=None, permissions=None):
     obj = User()
     obj.authentication_infos = [AuthenticationInfo.from_details(auth_provider=auth_provider, auth_user_id=auth_user_id, auth_secret_hashed=auth_secret_hashed)]
     obj.nickname = nickname
+    obj.user_type = user_type
     if permissions:
       obj.permissions = permissions
     return obj

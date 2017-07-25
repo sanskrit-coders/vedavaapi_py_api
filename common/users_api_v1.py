@@ -37,24 +37,6 @@ def login(provider):
   oauth = OAuthSignIn.get_provider(provider)
   return oauth.authorize()
 
-@api_blueprint.route('/password_login')
-def password_login():
-  client_id = request.form.get('client_id')
-  client_secret = request.form.get('client_secret')
-  client_secret_hashed = bcrypt.hashpw(client_secret, bcrypt.gensalt( 12 ))
-
-  from common.db.users_db import users_db
-  user = users_db.find_one(filter={"authentication_infos.auth_user_id": client_id,
-                                   "authentication_infos.auth_provider": "vedavaapi",
-                                   "authentication_infos.auth_secret_hashed": client_secret_hashed,
-                                   })
-  logging.debug(user)
-  if user is None:
-    return {"message": "Don't recognize you"}, 403
-  else:
-    session['user'] = user
-    return {"message": "Welcome " + client_id}, 302
-
 @api_blueprint.route('/authorized/<provider>')
 def authorized(provider):
   oauth = OAuthSignIn.get_provider(provider)
@@ -67,6 +49,25 @@ def authorized(provider):
   session['oauth_token'] = oauth.get_session_data(response)
   session['user'] = oauth.get_user().to_json_map()
   return redirect(next_url)
+
+
+# Passwords are convenient for authenticating bots.
+@api_blueprint.route('/password_login')
+def password_login():
+  client_id = request.form.get('client_id')
+  client_secret = request.form.get('client_secret')
+  from common.db.users_db import users_db
+  user = users_db.find_one(filter={"authentication_infos.auth_user_id": client_id,
+                                   "authentication_infos.auth_provider": "vedavaapi",
+                                   })
+  logging.debug(user)
+  if user is None:
+    return {"message": "No such client_id"}, 403
+  authentication_matches = filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(client_secret), user.authentication_infos)
+  if not authentication_matches or len(authentication_matches) == 0:
+    return {"message": "Bad pw"}, 403
+  session['user'] = user
+  return {"message": "Welcome " + client_id}, 302
 
 
 @api_blueprint.route("/logout")
