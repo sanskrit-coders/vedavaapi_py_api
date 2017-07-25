@@ -60,6 +60,9 @@ class AuthenticationInfo(JsonObject):
     }
   )
 
+  def get_user_id(self):
+    return self.auth_provider + "____" + self.auth_user_id
+
   @classmethod
   def from_details(cls, auth_user_id, auth_provider):
     obj = AuthenticationInfo()
@@ -108,6 +111,10 @@ class User(JsonObject):
           if fullmatch(pattern=permitted_action, string=action):
             return True
     return False
+
+  def get_user_ids(self):
+    return [auth_info.get_user_id() for auth_info in self.authentication_infos]
+
 
 # Essential for depickling to work.
 update_json_class_index(sys.modules[__name__])

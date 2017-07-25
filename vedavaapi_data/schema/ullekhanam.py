@@ -60,6 +60,13 @@ class Annotation(JsonObjectWithTarget):
     "required": ["targets", "source"]
   }))
 
+  def validate(self, db_interface=None):
+    if "user" in self.source.source_type:
+      from flask import session
+      user = JsonObject.make_from_dict(session.get('user', None))
+      self.source.id = user.get_user_ids()[0]
+    super(Annotation, self).validate(db_interface=db_interface)
+
   @classmethod
   def get_allowed_target_classes(cls):
     return [BookPortion, Annotation]
