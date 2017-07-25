@@ -2,11 +2,11 @@ from __future__ import absolute_import
 
 import json
 import logging
+import sys
 from copy import deepcopy
 
 import jsonpickle
 import jsonschema
-import sys
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -72,6 +72,8 @@ class JsonObject(object):
   # All other deserialization methods should use this.
   @classmethod
   def make_from_dict(cls, input_dict):
+    if input_dict == None:
+      return None
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
     dict_without_id = input_dict
     _id = dict_without_id.pop("_id", None)
@@ -409,71 +411,6 @@ class JsonObjectNode(JsonObject):
         child = JsonObjectNode.from_details(content=targetting_obj)
         child.fill_descendents(db_interface=db_interface, depth=depth - 1)
         self.children.append(child)
-
-
-class UserPermission(JsonObject):
-  schema = recursively_merge(
-    JsonObject.schema, {
-      "properties": {
-        TYPE_FIELD: {
-          "enum": ["UserPermission"]
-        },
-        "service": {
-          "type": "string",
-          "enum": ["ullekhanam"]
-        },
-        "actions": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "enum": ["read", "write", "admin"],
-          },
-          "description": "Should be an enum in the future."
-        },
-      },
-    }
-  )
-
-  @classmethod
-  def from_details(cls, nickname, auth_user_id, auth_provider):
-    obj = UserPermission()
-    obj.nickname = nickname
-    obj.auth_user_id = auth_user_id
-
-class User(JsonObject):
-  """Represents a user of our service."""
-  schema = recursively_merge(
-    JsonObject.schema, {
-      "properties": {
-        TYPE_FIELD: {
-          "enum": ["User"]
-        },
-        "auth_user_id": {
-          "type": "string"
-        },
-        "auth_provider": {
-          "type": "string"
-        },
-        "nickname": {
-          "type": "string"
-        },
-        "permissions": {
-          "type": "array",
-          "items": UserPermission.schema,
-        },
-      },
-    }
-  )
-
-  @classmethod
-  def from_details(cls, nickname, auth_user_id, auth_provider, permissions=None):
-    obj = User()
-    obj.nickname = nickname
-    obj.auth_user_id = auth_user_id
-    obj.auth_provider = auth_provider
-    if permissions:
-      obj.permissions = permissions
-    return obj
 
 
 class TextContent(JsonObject):

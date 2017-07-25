@@ -6,7 +6,8 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-from vedavaapi_data.schema.common import User
+from vedavaapi_data.schema.users import User, UserPermission
+
 
 class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.
@@ -105,5 +106,7 @@ class GoogleSignIn(OAuthSignIn):
     logging.debug(user)
     if user is None:
       user = User.from_details(nickname=data['name'], auth_user_id=data['email'], auth_provider=self.provider_name)
+    if data['email'].replace("@", "___") == "vishvas.vasuki___gmail.com":
+      user.permissions = [UserPermission.from_details(service=".*", actions=["read", "write", "admin"])]
     logging.debug(user)
     return user

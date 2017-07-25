@@ -48,4 +48,4 @@ def authorized(provider):
 def logout():
   session.pop('oauth_token', None)
   session.pop('user', None)
-  return redirect(url_for('home'))
+  return redirect(url_for('index'))

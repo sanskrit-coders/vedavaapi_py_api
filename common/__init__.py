@@ -18,14 +18,3 @@ def set_configuration():
   config_file_name = os.path.join(CODE_ROOT, 'server_config_local.json')
   with open(config_file_name) as fhandle:
     server_config = json.loads(fhandle.read())
-
-
-def urlize(pathsuffix, text=None, newtab=True):
-  tabclause = ""
-  if newtab:
-    tabclause = 'target="_blank"'
-  if not text:
-    text = pathsuffix
-  return '<a href="/workloads/taillog/15/' + pathsuffix + '" ' + tabclause + '>' + text + '</a>'
-
-

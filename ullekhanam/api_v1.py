@@ -7,6 +7,7 @@ import vedavaapi_data
 import vedavaapi_data.schema.common as common_data_containers
 import vedavaapi_data.schema.ullekhanam as backend_data_containers
 from ullekhanam.backend.db import get_db
+from vedavaapi_data.schema.common import JsonObject
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -21,6 +22,17 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.  ',
                          default_label=api_blueprint.name,
                          prefix=URL_PREFIX, doc='/docs')
+
+
+def check_permission():
+  from flask import session
+  user = JsonObject.make_from_dict(session.get('user', None))
+  logging.debug(session.get('user', None))
+  logging.debug(user)
+  if user == None or not user.check_permission(service="ullekhanam", action="write"):
+    return False
+  else:
+    return True
 
 
 @api.route('/books')
@@ -131,6 +143,7 @@ class EntityListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc(responses={
     200: 'Update success.',
+    401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
     418: "Target entity class validation error."
   })
@@ -148,6 +161,8 @@ class EntityListHandler(flask_restplus.Resource):
       Same as the input trees, with id-s.
     """
     logging.info(str(request.json))
+    if not check_permission():
+      return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
       from jsonschema import ValidationError
@@ -170,6 +185,10 @@ class EntityListHandler(flask_restplus.Resource):
     return common_data_containers.JsonObject.get_json_map_list(nodes), 200
 
   @api.expect(post_parser, validate=False)
+  @api.doc(responses={
+    200: 'Update success.',
+    401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  })
   def delete(self):
     """ Delete trees of entities.
     
@@ -181,6 +200,8 @@ class EntityListHandler(flask_restplus.Resource):
 
     :return: Empty.
     """
+    if not check_permission():
+      return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
       node.delete_in_collection(db_interface=get_db().books)
