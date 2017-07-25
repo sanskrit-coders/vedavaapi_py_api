@@ -37,6 +37,11 @@ json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectN
 
 
 @api.route('/books')
+@api.doc(responses={
+  200: 'Update success.',
+  401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  417: 'JSON schema validation error.',
+})
 class ImageBookList(BookList):
   @classmethod
   def allowed_file(cls, filename):
