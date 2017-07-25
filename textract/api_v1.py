@@ -56,6 +56,9 @@ class ImageBookList(BookList):
     :return: Book details in a json tree like:
       {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pg1, JsonObjectNode with BookPortion_Pg2]}    
     """
+    import ullekhanam
+    if not ullekhanam.api_v1.check_permission():
+      return "", 401
     form = request.form
     logging.info("uploading " + str(form))
     bookpath = (form.get('uploadpath')).replace(" ", "_")
