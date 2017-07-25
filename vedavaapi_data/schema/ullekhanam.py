@@ -63,7 +63,9 @@ class Annotation(JsonObjectWithTarget):
   def validate(self, db_interface=None):
     if "user" in self.source.source_type:
       from flask import session
+      # logging.debug(session.get('user', None))
       user = JsonObject.make_from_dict(session.get('user', None))
+      # logging.debug(user)
       self.source.id = user.get_user_ids()[0]
     super(Annotation, self).validate(db_interface=db_interface)
 

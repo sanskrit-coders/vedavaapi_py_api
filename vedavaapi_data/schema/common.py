@@ -74,8 +74,9 @@ class JsonObject(object):
   def make_from_dict(cls, input_dict):
     if input_dict == None:
       return None
+    logging.debug(json.dumps(input_dict))
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)
-    dict_without_id = input_dict
+    dict_without_id = deepcopy(input_dict)
     _id = dict_without_id.pop("_id", None)
 
     def recursively_set_jsonpickle_type(some_dict):
@@ -92,7 +93,6 @@ class JsonObject(object):
 
     recursively_set_jsonpickle_type(dict_without_id)
 
-    logging.debug(json.dumps(dict_without_id))
     new_obj = jsonpickle.decode(json.dumps(dict_without_id))
     # logging.debug(new_obj.__class__)
     if _id:
@@ -181,6 +181,12 @@ class JsonObject(object):
     return self.set_from_dict(db_interface.find_by_id(id=id))
 
   def to_json_map(self):
+    """One convenient way of 'serializing' the object.
+    
+    So, the type must be properly set.
+    Many functions accept such json maps, just as they accept strings.
+    """
+    self.set_type_recursively()
     jsonMap = {}
     for key, value in self.__dict__.iteritems():
       # logging.debug("%s %s", key, value)
@@ -190,7 +196,6 @@ class JsonObject(object):
         jsonMap[key] = [item.to_json_map() if isinstance(item, JsonObject) else item for item in value]
       else:
         jsonMap[key] = value
-    jsonMap[TYPE_FIELD] = self.__class__.get_wire_typeid()
     return jsonMap
 
   def equals_ignore_id(self, other):

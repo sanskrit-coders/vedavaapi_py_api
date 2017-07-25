@@ -143,7 +143,7 @@ class EntityListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized. Use ../oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
     418: "Target entity class validation error."
   })
