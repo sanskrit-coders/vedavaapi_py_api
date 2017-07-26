@@ -27,6 +27,7 @@ class Collection(DbInterface):
   def find_by_id(self, id):
     return self.mongo_collection.find_one({"_id": ObjectId(id)})
 
+  # TODO: Update implementation to correspond to the interface.
   def find_one(self, filter):
     return self.mongo_collection.find_one(filter=filter)
 
@@ -46,10 +47,7 @@ class Collection(DbInterface):
 
   def update_doc(self, doc):
     from pymongo import ReturnDocument
-
-    # TODO: Move the following block to parent class.
-    doc.set_type_recursively()
-
+    super(Collection, self).update_doc(doc=doc)
     map_to_write = doc.to_json_map()
     if hasattr(doc, "_id"):
       filter = {"_id": ObjectId(doc._id)}
@@ -67,7 +65,7 @@ class Collection(DbInterface):
 
   def delete_doc(self, doc):
     assert hasattr(doc, "_id"), "_id not present!"
-    return self.mongo_collection.delete_one({"_id": ObjectId(doc._id)})
+    self.mongo_collection.delete_one({"_id": ObjectId(doc._id)})
 
   def get_no_target_entities(self):
     iter = self.mongo_collection.find(

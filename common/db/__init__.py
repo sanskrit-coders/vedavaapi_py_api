@@ -2,21 +2,62 @@
 class DbInterface(object):
 
   def update_doc(self, doc):
+    """ Update or insert a JsonObject.
+    
+    :param doc: JsonObject. _id parameter determines the key. One will be created if it does not exist.
+    :return: updated JsonObject with _id set. 
+    """
+    doc.set_type_recursively()
     pass
 
   def delete_doc(self, doc):
+    """
+    
+    :param doc: 
+    :return: Not used.
+    """
     pass
 
-  # Returns None if nothing is found.
+  def find_by_indexed_key(self, index_name, key):
+    pass
+
+  #
   def find_by_id(self, id):
+    """
+    
+    :param id: 
+    :return: Returns None if nothing is found. Else a python dict representing a JSON object.
+    """
     pass
 
-  # filter: A dict mapping field names to expected values.
-  # Returns None if nothing is found.
-  def find_one(self, filter):
+  def find(self, filter_fn):
+    """ Fine matching objects from the database.
+    
+    Should be a generator and return an iterator: ie it should use the yield keyword.
+    :param filter: A javascript boolean valued function.
+    :return: Returns None if nothing is found. Else a python dict representing a JSON object.
+    """
     pass
+
+  def find_one(self, filter):
+    """ Fine one matching object from the database.
+    
+    :param filter: A javascript boolean valued function.
+    :return: Returns None if nothing is found. Else a python dict representing a JSON object.
+    """
+    iterator = self.find(filter_fn=filter)
+    try:
+      return iterator.next()
+    except StopIteration:
+      return None
 
   def get_targetting_entities(self, json_obj, entity_type=None):
+    """ Find entities targeting a JsonObjectWithTarget (Refer to vedavaapi_data package.)
+    
+    :param json_obj: JsonObject
+    :param entity_type: 
+    :return: A list of JsonObjectWithTarget objects. 
+    """
     pass
 
   def get_no_target_entities(self):

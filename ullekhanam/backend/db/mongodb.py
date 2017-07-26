@@ -12,7 +12,7 @@ logging.basicConfig(
 
 class BookPortions(Collection, BookPortionsInterface): pass
 
-class MongoDbWrapper(DBWrapper):
+class UllekhanamMongoDb(DBWrapper):
   def __init__(self, dbname, client):
     self.dbname = dbname
     self.client = client
