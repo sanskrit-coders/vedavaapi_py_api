@@ -21,7 +21,6 @@ class DbInterface(object):
   def find_by_indexed_key(self, index_name, key):
     pass
 
-  #
   def find_by_id(self, id):
     """
     

@@ -16,6 +16,7 @@ logging.basicConfig(
 JSONPICKLE_TYPE_FIELD = "py/object"
 TYPE_FIELD = "jsonClass"
 
+# Updated using update_json_class_index() calls at the end of each submodule file (such as this one) in the parent module.
 json_class_index = {}
 
 
@@ -68,10 +69,16 @@ class JsonObject(object):
   def __init__(self):
     self.set_type()
 
-  # Defines *our* canonical way of constructing a JSON object from a dict.
-  # All other deserialization methods should use this.
   @classmethod
   def make_from_dict(cls, input_dict):
+    """Defines *our* canonical way of constructing a JSON object from a dict.
+    
+    All other deserialization methods should use this.
+    Note that this assumes that json_class_index is populated properly!
+    from vedavaapi_data.schema import * before using this should take care of it.
+    :param input_dict: 
+    :return: 
+    """
     if input_dict == None:
       return None
     assert input_dict.has_key(TYPE_FIELD), "no type field: " + str(input_dict)

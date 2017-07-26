@@ -3,9 +3,7 @@ import logging
 import flask_restplus
 from flask import Blueprint, request
 
-import vedavaapi_data
 import vedavaapi_data.schema.common as common_data_containers
-import vedavaapi_data.schema.ullekhanam as backend_data_containers
 from ullekhanam.backend.db import get_db
 from vedavaapi_data.schema.common import JsonObject
 

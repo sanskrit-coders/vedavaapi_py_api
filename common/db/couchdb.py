@@ -11,7 +11,7 @@ logging.basicConfig(
 
 class Database(DbInterface):
   def __init__(self, db):
-    logging.info("Initializing collection :" + str(db))
+    logging.info("Initializing db :" + str(db))
     self.db = db
 
   def update_doc(self, doc):
@@ -28,6 +28,9 @@ class Database(DbInterface):
     assert hasattr(doc, "_id")
     map_to_delete = doc.to_json_map()
     self.db.delete(map_to_delete)
+
+  def find_by_id(self, id):
+    raise Exception("not implemented")
 
   def find_by_indexed_key(self, index_name, key):
     raise Exception("not implemented")
