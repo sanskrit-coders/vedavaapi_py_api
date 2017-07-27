@@ -20,8 +20,9 @@ class Database(DbInterface):
       from uuid import uuid4
       doc._id = uuid4().hex
     map_to_write = doc.to_json_map()
-    saved_id = self.db.save(map_to_write)
-    assert saved_id == doc._id
+    logging.debug(map_to_write)
+    result_tuple = self.db.save(map_to_write)
+    assert result_tuple[0] == doc._id, logging.error(str(result_tuple[0]) + " vs " + doc._id)
     return doc
 
   def delete_doc(self, doc):

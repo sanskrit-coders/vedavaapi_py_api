@@ -16,20 +16,27 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-common.set_configuration()
-server = Server(url=common.server_config["couchdb_host"])
-server.delete('vedavaapi_test')
-test_db_base = server.create('vedavaapi_test')
-test_db = Database(db=test_db_base)
-
-
 class TestDBRoundTrip(unittest.TestCase):
+  TEST_DB_NAME = 'vedavaapi_test'
+  def setUp(self):
+    common.set_configuration()
+    self.server = Server(url=common.server_config["couchdb_host"])
+    self.test_db_base = None
+    try:
+      self.test_db_base = self.server[self.TEST_DB_NAME]
+    except:
+      self.test_db_base = self.server.create(self.TEST_DB_NAME)
+    self.test_db = Database(db=self.test_db_base)
+
+  def tearDown(self):
+    pass
+    # self.server.delete(self.TEST_DB_NAME)
+
   def test_update_doc(self):
     doc = JsonObject()
-    updated_doc = test_db.update_doc(doc)
+    updated_doc = self.test_db.update_doc(doc)
     logging.debug(updated_doc)
     pass
-
 
 if __name__ == '__main__':
   unittest.main()
