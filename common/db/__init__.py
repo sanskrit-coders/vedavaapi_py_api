@@ -29,11 +29,11 @@ class DbInterface(object):
     """
     pass
 
-  def find(self, filter_fn):
+  def find(self, filter):
     """ Fine matching objects from the database.
     
     Should be a generator and return an iterator: ie it should use the yield keyword.
-    :param filter: A javascript boolean valued function.
+    :param filter: A mango or mongo query.
     :return: Returns None if nothing is found. Else a python dict representing a JSON object.
     """
     pass
@@ -41,10 +41,10 @@ class DbInterface(object):
   def find_one(self, filter):
     """ Fine one matching object from the database.
     
-    :param filter: A javascript boolean valued function.
+    :param filter: A mango or mongo query.
     :return: Returns None if nothing is found. Else a python dict representing a JSON object.
     """
-    iterator = self.find(filter_fn=filter)
+    iterator = self.find(filter=filter)
     try:
       return iterator.next()
     except StopIteration:
