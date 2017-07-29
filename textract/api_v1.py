@@ -10,8 +10,8 @@ from flask import Blueprint, session, request
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-import vedavaapi_data.schema.books
-import vedavaapi_data.schema.common as common_data_containers
+import sanskrit_data.schema.books
+import sanskrit_data.schema.common as common_data_containers
 from textract.docimage import DocImage
 from ullekhanam.api_v1 import EntityListHandler, BookList, EntityHandler
 from ullekhanam.backend import paths
@@ -79,8 +79,8 @@ class ImageBookList(BookList):
 
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (vedavaapi_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
-            vedavaapi_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"), base_data="image", portion_class="book"))
+    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
+            sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"), base_data="image", portion_class="book"))
 
     if (not book.authors): book.authors = [form.get("author")]
 
@@ -113,9 +113,9 @@ class ImageBookList(BookList):
       out.close()
 
       page = common_data_containers.JsonObjectNode.from_details(
-        content=vedavaapi_data.schema.books.BookPortion.from_details(
+        content=sanskrit_data.schema.books.BookPortion.from_details(
           title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName), base_data="image", portion_class="page",
-          targets=[vedavaapi_data.BookPositionTarget.from_details(position=page_index)]
+          targets=[sanskrit_data.BookPositionTarget.from_details(position=page_index)]
         ))
       pages.append(page)
 

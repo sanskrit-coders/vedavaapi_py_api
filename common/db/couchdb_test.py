@@ -9,7 +9,7 @@ from couchdb import Server
 
 import common
 from common.db.couchdb import Database
-from vedavaapi_data.schema.common import JsonObject, JsonObjectNode
+from sanskrit_data.schema.common import JsonObject, JsonObjectNode
 
 logging.basicConfig(
   level=logging.DEBUG,

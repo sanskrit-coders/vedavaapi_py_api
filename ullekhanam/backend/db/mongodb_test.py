@@ -5,7 +5,7 @@ import unittest
 
 import os
 
-from vedavaapi_data.schema.common import JsonObject, JsonObjectNode
+from sanskrit_data.schema.common import JsonObject, JsonObjectNode
 
 logging.basicConfig(
   level=logging.DEBUG,

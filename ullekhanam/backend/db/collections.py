@@ -1,7 +1,7 @@
 import re
 
-import vedavaapi_data.schema.books
-import vedavaapi_data.schema.common
+import sanskrit_data.schema.books
+import sanskrit_data.schema.common
 from common.db import DbInterface
 from textract.docimage import *
 
@@ -19,8 +19,8 @@ class BookPortionsInterface(DbInterface):
     return matches
 
   def get(self, path):
-    book = vedavaapi_data.schema.books.BookPortion.from_path(path=path, db_interface=self)
-    book_node = vedavaapi_data.schema.common.JsonObjectNode.from_details(content=book)
+    book = sanskrit_data.schema.books.BookPortion.from_path(path=path, db_interface=self)
+    book_node = sanskrit_data.schema.common.JsonObjectNode.from_details(content=book)
     book_node.fill_descendents(self)
     return book_node
 

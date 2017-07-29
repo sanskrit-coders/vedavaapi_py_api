@@ -108,7 +108,7 @@ A general API to access and annotate a text corpus.
     - Some Annotations (eg. SandhiAnnotation, TextAnnotation) can have multiple "targets" (ie. other objects being annotated).
     - Rather than a simple tree, we end up with a Directed Acyclic Graph (DAG) of Annotation objects.
 - JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) (Updated as needed).
-- The data containers are in a separate vedavaapi_data module - so that it can be extracted and used outside this server.
+- The data containers are in a separate sanskrit_data module - so that it can be extracted and used outside this server.
     * [data_containers.py]() defines
       * various objects such as BookPortion, Annotation, SandhiAnnotation.
       * json helper methods to (de)serialize them to json while writing to the database.

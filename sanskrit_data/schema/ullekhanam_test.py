@@ -8,10 +8,10 @@ import unittest
 import os
 from bson import ObjectId
 
-import vedavaapi_data.schema.books
+import sanskrit_data.schema.books
 from common.db import mongodb
 from ullekhanam.backend import db
-from vedavaapi_data.schema import ullekhanam, common
+from sanskrit_data.schema import ullekhanam, common
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -25,7 +25,7 @@ class TestDBRoundTrip(unittest.TestCase):
   test_db = db.textract_db
 
   def test_PickleDepickle(self):
-    book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
+    book_portion = sanskrit_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.Target.from_details(container_id="xyz")])
     json_str = str(book_portion)
@@ -46,7 +46,7 @@ class TestDBRoundTrip(unittest.TestCase):
   def test_BookPortion(self):
     module = self.__module__
 
-    book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
+    book_portion = sanskrit_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.Target.from_details(container_id="xyz")])
 
@@ -57,7 +57,7 @@ class TestDBRoundTrip(unittest.TestCase):
     result = book_portions.update_doc(book_portion)
     logging.debug("update result is " + str(result))
 
-    book_portion_retrieved = vedavaapi_data.schema.books.BookPortion.from_path(path="myrepo/halAyudha", db_interface=book_portions)
+    book_portion_retrieved = sanskrit_data.schema.books.BookPortion.from_path(path="myrepo/halAyudha", db_interface=book_portions)
     logging.info(book_portion_retrieved.__class__)
     logging.info(str(book_portion_retrieved.to_json_map()))
     logging.info(book_portion.to_json_map())
@@ -100,7 +100,7 @@ class TestDBRoundTrip(unittest.TestCase):
     # Add text annotation
     db = self.test_db.books
 
-    book_portion = vedavaapi_data.schema.books.BookPortion.from_details(
+    book_portion = sanskrit_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")
     book_portion = book_portion.update_collection(db)
 

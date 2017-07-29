@@ -2,8 +2,8 @@ import logging
 
 import sys
 
-from vedavaapi_data.schema import common
-from vedavaapi_data.schema.common import JsonObject, recursively_merge, TYPE_FIELD, update_json_class_index
+from sanskrit_data.schema import common
+from sanskrit_data.schema.common import JsonObject, recursively_merge, TYPE_FIELD, update_json_class_index
 
 logging.basicConfig(
   level=logging.DEBUG,

@@ -2,7 +2,7 @@
 import logging
 
 # Essential for depickling to work.
-from vedavaapi_data.schema import *  # pylint: disable=unused-import.
+from sanskrit_data.schema import *  # pylint: disable=unused-import.
 
 logging.basicConfig(
   level=logging.DEBUG,

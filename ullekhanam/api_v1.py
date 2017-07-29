@@ -3,9 +3,9 @@ import logging
 import flask_restplus
 from flask import Blueprint, request
 
-import vedavaapi_data.schema.common as common_data_containers
+import sanskrit_data.schema.common as common_data_containers
 from ullekhanam.backend.db import get_db
-from vedavaapi_data.schema.common import JsonObject
+from sanskrit_data.schema.common import JsonObject
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -211,7 +211,7 @@ class EntityListHandler(flask_restplus.Resource):
 class SchemaListHandler(flask_restplus.Resource):
   def get(self):
     """Just list the schemas."""
-    from vedavaapi_data.schema import common, books, ullekhanam
+    from sanskrit_data.schema import common, books, ullekhanam
     logging.debug(common.get_schemas(common))
     schemas = common.get_schemas(common)
     schemas.update(common.get_schemas(books))

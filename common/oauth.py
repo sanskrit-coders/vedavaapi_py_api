@@ -6,7 +6,7 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-from vedavaapi_data.schema.users import User, UserPermission
+from sanskrit_data.schema.users import User, UserPermission
 
 class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.

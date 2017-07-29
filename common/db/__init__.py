@@ -51,7 +51,7 @@ class DbInterface(object):
       return None
 
   def get_targetting_entities(self, json_obj, entity_type=None):
-    """ Find entities targeting a JsonObjectWithTarget (Refer to vedavaapi_data package.)
+    """ Find entities targeting a JsonObjectWithTarget (Refer to sanskrit_data package.)
     
     :param json_obj: JsonObject
     :param entity_type: 

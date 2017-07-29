@@ -1,6 +1,8 @@
 import logging
 import sys
 
+import jsonpickle
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
@@ -10,7 +12,7 @@ logging.info("hello")
 
 
 def main(argv):
-    from vedavaapi_data.schema.ullekhanam import *
+    from sanskrit_data.schema.ullekhanam import *
     logging.info(jsonpickle.dumps(ImageAnnotation.schema))
     pass
 

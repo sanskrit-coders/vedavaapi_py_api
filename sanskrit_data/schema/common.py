@@ -75,7 +75,7 @@ class JsonObject(object):
     
     All other deserialization methods should use this.
     Note that this assumes that json_class_index is populated properly!
-    from vedavaapi_data.schema import * before using this should take care of it.
+    from sanskrit_data.schema import * before using this should take care of it.
     :param input_dict: 
     :return: 
     """

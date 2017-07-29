@@ -9,7 +9,7 @@ import sys
 
 import textract.api_v1
 from common import oauth
-from vedavaapi_data.schema import common
+from sanskrit_data.schema import common
 
 logging.basicConfig(
   level=logging.DEBUG,

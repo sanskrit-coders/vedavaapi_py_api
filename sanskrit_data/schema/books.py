@@ -2,8 +2,8 @@ import logging
 
 import sys
 
-from vedavaapi_data.schema import common
-from vedavaapi_data.schema.common import JsonObjectWithTarget, TextContent, TYPE_FIELD, JsonObject, Target
+from sanskrit_data.schema import common
+from sanskrit_data.schema.common import JsonObjectWithTarget, TextContent, TYPE_FIELD, JsonObject, Target
 
 
 class BookPositionTarget(Target):

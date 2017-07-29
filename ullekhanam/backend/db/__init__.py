@@ -3,8 +3,8 @@ import re
 
 import os
 
-import vedavaapi_data
-import vedavaapi_data.schema.books
+import sanskrit_data
+import sanskrit_data.schema.books
 
 # Encapsulates the main database.
 
@@ -42,11 +42,11 @@ class DBWrapper(object):
       logging.info("    " + bpath)
       if pattern and not re.search(pattern, bpath, re.IGNORECASE):
         continue
-      book = vedavaapi_data.schema.books.BookPortion.from_path(path=bpath, db_interface=self.books)
+      book = sanskrit_data.schema.books.BookPortion.from_path(path=bpath, db_interface=self.books)
       if book:
         logging.info("Book already present %s" % bpath)
       else:
-        book_portion_node = vedavaapi_data.schema.common.JsonObject.read_from_file(f)
+        book_portion_node = sanskrit_data.schema.common.JsonObject.read_from_file(f)
         logging.info("Importing afresh! %s " % book_portion_node)
         from jsonschema import ValidationError
         try:

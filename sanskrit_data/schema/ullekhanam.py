@@ -3,8 +3,8 @@ import logging
 import sys
 
 import common
-from vedavaapi_data.schema.books import BookPortion
-from vedavaapi_data.schema.common import JsonObject, JsonObjectWithTarget, Target, TextContent
+from sanskrit_data.schema.books import BookPortion
+from sanskrit_data.schema.common import JsonObject, JsonObjectWithTarget, Target, TextContent
 
 logging.basicConfig(
   level=logging.DEBUG,
