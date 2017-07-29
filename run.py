@@ -7,9 +7,9 @@ import getopt
 import logging
 import sys
 
-import textract.api_v1
-from common import oauth
 from sanskrit_data.schema import common
+
+import textract.api_v1
 
 logging.basicConfig(
   level=logging.DEBUG,

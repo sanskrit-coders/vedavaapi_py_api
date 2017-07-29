@@ -1,11 +1,11 @@
 import logging
 
 import flask_restplus
-from flask import Blueprint, request
-
 import sanskrit_data.schema.common as common_data_containers
-from ullekhanam.backend.db import get_db
+from flask import Blueprint, request
 from sanskrit_data.schema.common import JsonObject
+
+from ullekhanam.backend.db import get_db
 
 logging.basicConfig(
   level=logging.DEBUG,

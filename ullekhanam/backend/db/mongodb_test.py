@@ -1,9 +1,8 @@
 from __future__ import absolute_import
 
 import logging
-import unittest
-
 import os
+import unittest
 
 from sanskrit_data.schema.common import JsonObject, JsonObjectNode
 
@@ -17,7 +16,10 @@ class TestDBRoundTrip(unittest.TestCase):
   def test_JsonObjectNode(self):
     from ullekhanam.backend import db as backend_db
     from common.db.mongodb import get_mongo_client
-    backend_db.initdb(dbname="test_db", client=get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
+    import common
+    common.set_configuration()
+    server_config = common.server_config
+    backend_db.initdb(dbname="test_db", client=get_mongo_client(server_config["mongo_host"]))
     self.test_db = backend_db.textract_db
     CODE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
     self.test_db.importAll(os.path.join(CODE_ROOT, "textract/example-repo"))

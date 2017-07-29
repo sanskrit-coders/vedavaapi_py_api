@@ -1,6 +1,8 @@
+import logging
+
 from flask import url_for, session
 from flask_oauthlib.client import OAuth
-import logging
+
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "

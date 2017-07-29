@@ -1,7 +1,6 @@
 import logging
-import re
-
 import os
+import re
 
 import sanskrit_data
 import sanskrit_data.schema.books

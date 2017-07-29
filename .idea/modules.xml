@@ -6,6 +6,7 @@
       <module fileurl="file://$USER_HOME$/html-2-rest/html-2-rest.iml" filepath="$USER_HOME$/html-2-rest/html-2-rest.iml" />
       <module fileurl="file://$USER_HOME$/indic_transliteration/indic_transliteration.iml" filepath="$USER_HOME$/indic_transliteration/indic_transliteration.iml" />
       <module fileurl="file://$USER_HOME$/sanskrit-lttoolbox/sanskrit-lttoolbox.iml" filepath="$USER_HOME$/sanskrit-lttoolbox/sanskrit-lttoolbox.iml" />
+      <module fileurl="file://$USER_HOME$/sanskrit_data/sanskrit_data.iml" filepath="$USER_HOME$/sanskrit_data/sanskrit_data.iml" />
       <module fileurl="file://$USER_HOME$/scl-dev/scl-dev.iml" filepath="$USER_HOME$/scl-dev/scl-dev.iml" />
       <module fileurl="file://$USER_HOME$/vedavaapi-misc/vedavaapi-misc.iml" filepath="$USER_HOME$/vedavaapi-misc/vedavaapi-misc.iml" />
       <module fileurl="file://$PROJECT_DIR$/vedavaapi_py_api.iml" filepath="$PROJECT_DIR$/vedavaapi_py_api.iml" />

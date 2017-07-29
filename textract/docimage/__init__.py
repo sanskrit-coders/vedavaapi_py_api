@@ -1,16 +1,16 @@
-import cv2
 import json
 import logging
 import numpy as np
+import os
 import sys
 from pprint import pprint
 
-import os
+import cv2
 from PIL import Image
+from sanskrit_data.schema import ullekhanam
 
 import preprocessing
 from ullekhanam.backend import paths
-from sanskrit_data.schema import ullekhanam
 
 logging.basicConfig(
     level=logging.DEBUG,

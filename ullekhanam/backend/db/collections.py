@@ -2,6 +2,7 @@ import re
 
 import sanskrit_data.schema.books
 import sanskrit_data.schema.common
+
 from common.db import DbInterface
 from textract.docimage import *
 

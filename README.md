@@ -29,7 +29,7 @@ Python based Web API's for the <vedavaapi.org> project.
 * We're currently using Python 2.7.
   * The installation procedure for the cv2 module with Python3.5 is fairly elaborate as of 20170423.
 * Install various necessary python modules.
-  * `sudo pip2 install flask flask-restplus bcrypt cv2 couchdb pymongo` [Incomplete.]
+  * `sudo pip2 install flask flask-restplus bcrypt cv2 couchdb pymongo sanskrit_data` [Incomplete.]
 * Grant the account running run.py authority to write in /opt/scan2text/.
   * sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text
   * ln -s ~/vedavaapi_py_api/textract/example-repo/books /opt/scan2text/data/
@@ -69,14 +69,11 @@ Python based Web API's for the <vedavaapi.org> project.
 * While designing **REST API**:
   * Read up and follow the best practices. When in doubt, discuss.
   * Currently we use flask restplus, and set the API docs to appear under the /doc/ path as described in the usage section.
-* While designing the **data-model**:
-  * Type-hint in JSON should be jsonClass (a language-independent name we've picked).
-  * Try to avoid field-names which conflict with programming language keywords. (Eg. Prefer "source_type" to "type").
-  * In general, use camelCase or underscore_case for field names - both are fine.
 * Be aware of **security**.
   * Don't leave the database open to all writes (even through API-s).
   * Do as much validation as possible when storing data.
 * Plan **data backups**.
+* **Data modeling** : See separate guidelines [here](https://github.com/sanskrit-coders/sanskrit_data).
 
 ## Understanding the code
 * Can generate call graphs:
@@ -109,9 +106,6 @@ A general API to access and annotate a text corpus.
     - Rather than a simple tree, we end up with a Directed Acyclic Graph (DAG) of Annotation objects.
 - JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) (Updated as needed).
 - The data containers are in a separate sanskrit_data module - so that it can be extracted and used outside this server.
-    * [data_containers.py]() defines
-      * various objects such as BookPortion, Annotation, SandhiAnnotation.
-      * json helper methods to (de)serialize them to json while writing to the database.
 
 ### Root module
 * [__init__.py]():

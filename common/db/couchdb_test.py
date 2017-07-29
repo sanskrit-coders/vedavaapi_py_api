@@ -3,13 +3,11 @@ from __future__ import absolute_import
 import logging
 import unittest
 
-import couchdb
-import os
 from couchdb import Server
+from sanskrit_data.schema.common import JsonObject
 
 import common
 from common.db.couchdb import Database
-from sanskrit_data.schema.common import JsonObject, JsonObjectNode
 
 logging.basicConfig(
   level=logging.DEBUG,

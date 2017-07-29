@@ -1,9 +1,7 @@
 import logging
-
 from bson import ObjectId
 
 from common.db import DbInterface
-import sanskrit_data
 
 logging.basicConfig(
   level=logging.DEBUG,

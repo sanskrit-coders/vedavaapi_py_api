@@ -3,14 +3,14 @@ from __future__ import absolute_import
 
 import json
 import logging
-import unittest
-
 import os
+import unittest
 from bson import ObjectId
 
-import sanskrit_data.schema.books
 from common.db import mongodb
 from ullekhanam.backend import db
+
+import sanskrit_data.schema.books
 from sanskrit_data.schema import ullekhanam, common
 
 logging.basicConfig(
@@ -20,8 +20,11 @@ logging.basicConfig(
 user_paths = os.environ['PYTHONPATH'].split(os.pathsep)
 
 class TestDBRoundTrip(unittest.TestCase):
+  import common
+  common.set_configuration()
+  server_config = common.server_config
   db.initdb(dbname="test_db",
-            client=mongodb.get_mongo_client("mongodb://vedavaapiUser:vedavaapiAdmin@localhost/"))
+            client=mongodb.get_mongo_client(server_config["mongo_host"]))
   test_db = db.textract_db
 
   def test_PickleDepickle(self):
@@ -84,8 +87,8 @@ class TestDBRoundTrip(unittest.TestCase):
 
   def test_TextAnnotation(self):
     text_annotation_original = ullekhanam.TextAnnotation.from_details(targets=[],
-      source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
-      content=common.TextContent.from_details(text=u"इदं नभसि म्भीषण"))
+                                                                      source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
+                                                                      content=common.TextContent.from_details(text=u"इदं नभसि म्भीषण"))
 
     db = self.test_db.books
     logging.debug(text_annotation_original.to_json_map())

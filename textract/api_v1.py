@@ -1,17 +1,17 @@
 import copy
 import json
 import traceback
-from PIL import Image
 from os.path import join
 
 import cv2
 import flask_restplus
-from flask import Blueprint, session, request
+import sanskrit_data.schema.books
+import sanskrit_data.schema.common as common_data_containers
+from PIL import Image
+from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-import sanskrit_data.schema.books
-import sanskrit_data.schema.common as common_data_containers
 from textract.docimage import DocImage
 from ullekhanam.api_v1 import EntityListHandler, BookList, EntityHandler
 from ullekhanam.backend import paths
