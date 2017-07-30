@@ -1,9 +1,9 @@
-import bcrypt as bcrypt
-import flask_restplus
 import logging
 
-from .oauth import OAuthSignIn
+import flask_restplus
 from flask import redirect, url_for, request, flash, Blueprint, session
+
+from .oauth import OAuthSignIn
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -56,7 +56,7 @@ def authorized(provider):
 def password_login():
   client_id = request.form.get('client_id')
   client_secret = request.form.get('client_secret')
-  from common.db.users_db import users_db
+  from common.users_db import users_db
   user = users_db.find_one(filter={"authentication_infos.auth_user_id": client_id,
                                    "authentication_infos.auth_provider": "vedavaapi",
                                    })

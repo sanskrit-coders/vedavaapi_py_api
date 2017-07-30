@@ -31,8 +31,8 @@ def setup_app():
   import common
   common.set_configuration()
   server_config = common.server_config
-  from common.db import mongodb
-  from common.db import users_db
+  from sanskrit_data.db import mongodb
+  from common import users_db
   users_db.initialize_mongodb(client = mongodb.get_mongo_client(host=server_config["mongo_host"]), users_db_name=server_config["users_db_name"])
   textract.setup_app(params, mongodb.get_mongo_client(host=server_config["mongo_host"]))
   logging.info("Root path: " + app.root_path)

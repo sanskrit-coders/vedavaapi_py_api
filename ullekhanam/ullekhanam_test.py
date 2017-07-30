@@ -7,11 +7,11 @@ import os
 import unittest
 from bson import ObjectId
 
-from common.db import mongodb
-from ullekhanam.backend import db
-
 import sanskrit_data.schema.books
+from sanskrit_data.db import mongodb
 from sanskrit_data.schema import ullekhanam, common
+
+from ullekhanam.backend import db
 
 logging.basicConfig(
   level=logging.DEBUG,

@@ -2,8 +2,8 @@ import re
 
 import sanskrit_data.schema.books
 import sanskrit_data.schema.common
+from sanskrit_data.db import DbInterface
 
-from common.db import DbInterface
 from textract.docimage import *
 
 logging.basicConfig(

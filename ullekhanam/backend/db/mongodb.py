@@ -1,7 +1,8 @@
 import logging
 from pymongo.database import Database
 
-from common.db.mongodb import Collection
+from sanskrit_data.db.mongodb import Collection
+
 from ullekhanam.backend.db import DBWrapper
 from ullekhanam.backend.db.collections import BookPortionsInterface
 

@@ -1,5 +1,7 @@
-from common.db.mongodb import Collection
 import logging
+
+from sanskrit_data.db.mongodb import Collection
+
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
