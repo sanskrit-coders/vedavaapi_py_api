@@ -2,31 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="489fcecf-49f9-4a85-a36e-8a73ed92a5ed" name="Default" comment="Move common database routines out to sanskrit_data.">
-      <change type="NEW" beforePath="" afterPath="$USER_HOME$/sanskrit_data/sanskrit_data/db/__init__.py" />
-      <change type="NEW" beforePath="" afterPath="$USER_HOME$/sanskrit_data/sanskrit_data/db/couchdb.py" />
-      <change type="NEW" beforePath="" afterPath="$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py" />
-      <change type="NEW" beforePath="" afterPath="$USER_HOME$/sanskrit_data/tests/couchdb_test.py" />
-      <change type="NEW" beforePath="" afterPath="$USER_HOME$/sanskrit_data/tests/server_config_template.json" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/common/db/__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/common/db/couchdb.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/common/db/couchdb_test.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/common/db/mongodb.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/common/db/users_db.py" afterPath="$PROJECT_DIR$/common/users_db.py" />
       <change type="MODIFICATION" beforePath="$USER_HOME$/db-interface/db-interface.iml" afterPath="$USER_HOME$/db-interface/db-interface.iml" />
-      <change type="MODIFICATION" beforePath="$USER_HOME$/sanskrit_data/.gitignore" afterPath="$USER_HOME$/sanskrit_data/.gitignore" />
       <change type="MODIFICATION" beforePath="$USER_HOME$/sanskrit_data/README.md" afterPath="$USER_HOME$/sanskrit_data/README.md" />
-      <change type="MODIFICATION" beforePath="$USER_HOME$/sanskrit_data/sanskrit_data/schema/common.py" afterPath="$USER_HOME$/sanskrit_data/sanskrit_data/schema/common.py" />
       <change type="MODIFICATION" beforePath="$USER_HOME$/sanskrit_data/setup.py" afterPath="$USER_HOME$/sanskrit_data/setup.py" />
-      <change type="MODIFICATION" beforePath="$USER_HOME$/sanskrit_data/tox.ini" afterPath="$USER_HOME$/sanskrit_data/tox.ini" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/oauth.py" afterPath="$PROJECT_DIR$/common/oauth.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/users_api_v1.py" afterPath="$PROJECT_DIR$/common/users_api_v1.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run.py" afterPath="$PROJECT_DIR$/run.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" afterPath="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -37,7 +17,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/vedavaapi_py_api$run.coverage" NAME="run Coverage Results" MODIFIED="1501360900808" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/vedavaapi_py_api$run.coverage" NAME="run Coverage Results" MODIFIED="1501374270622" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -62,13 +42,71 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="run.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="run.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
-              <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+            <state relative-caret-position="181">
+              <caret line="33" column="35" lean-forward="false" selection-start-line="33" selection-start-column="35" selection-end-line="33" selection-end-column="35" />
+              <folding>
+                <element signature="e#87#100#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="mongodb.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="18">
+              <caret line="1" column="9" lean-forward="false" selection-start-line="1" selection-start-column="5" selection-end-line="1" selection-end-column="9" />
               <folding />
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/sanskrit_data/setup.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="277">
+              <caret line="94" column="42" lean-forward="false" selection-start-line="94" selection-start-column="42" selection-end-line="94" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+        <entry file="file://$USER_HOME$/sanskrit_data/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="18">
+                <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+                <folding />
+              </first_editor>
+              <second_editor>
+                <js_state />
+              </second_editor>
+            </state>
+          </provider>
+          <provider editor-type-id="Gfm">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="288">
+                <caret line="74" column="40" lean-forward="false" selection-start-line="74" selection-start-column="40" selection-end-line="74" selection-end-column="40" />
+                <folding />
+              </first_editor>
+              <second_editor>
+                <js_state />
+              </second_editor>
+            </state>
+          </provider>
+          <provider editor-type-id="Gfm">
+            <state />
           </provider>
         </entry>
       </file>
@@ -84,7 +122,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>BookPortionsInterface</find>
       <find>MongoDbWrapper</find>
       <find>DeleteResult</find>
       <find>N</find>
@@ -114,6 +151,7 @@
       <find>set_configuration</find>
       <find>common.</find>
       <find>get_mongo_client</find>
+      <find>pymongo</find>
     </findStrings>
     <replaceStrings>
       <replace>common.data_containers.JsonObject</replace>
@@ -158,7 +196,7 @@
   </component>
   <component name="Git.Settings">
     <option name="ROOT_SYNC" value="DONT_SYNC" />
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$USER_HOME$/sanskrit_data" />
     <option name="PUSH_TAGS">
       <GitPushTagMode />
     </option>
@@ -171,7 +209,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/vedavaapi_data/schema/ullekhanam.py" />
         <option value="$PROJECT_DIR$/server_config_template.json" />
         <option value="$PROJECT_DIR$/vedavaapi_data/schema/users.py" />
         <option value="$PROJECT_DIR$/server_config_local.json" />
@@ -205,16 +242,13 @@
         <option value="$PROJECT_DIR$/ullekhanam/backend/db/__init__.py" />
         <option value="$PROJECT_DIR$/test.py" />
         <option value="$USER_HOME$/sanskrit_data/tests/ullekhanam_test.py" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$USER_HOME$/sanskrit_data/tox.ini" />
         <option value="$USER_HOME$/sanskrit_data/sanskrit_data/schema/common.py" />
-        <option value="$USER_HOME$/sanskrit_data/README.md" />
         <option value="$USER_HOME$/sanskrit_data/sanskrit_data/db/couchdb.py" />
         <option value="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" />
         <option value="$PROJECT_DIR$/ullekhanam/backend/db/mongodb.py" />
         <option value="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" />
         <option value="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" />
-        <option value="$USER_HOME$/sanskrit_data/setup.py" />
         <option value="$USER_HOME$/sanskrit_data/.gitignore" />
         <option value="$USER_HOME$/sanskrit_data/tests/server_config_local.json" />
         <option value="$PROJECT_DIR$/common/oauth.py" />
@@ -222,6 +256,10 @@
         <option value="$USER_HOME$/sanskrit_data/tests/server_config_template.json" />
         <option value="$USER_HOME$/sanskrit_data/tests/couchdb_test.py" />
         <option value="$PROJECT_DIR$/run.py" />
+        <option value="$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py" />
+        <option value="$USER_HOME$/sanskrit_data/setup.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$USER_HOME$/sanskrit_data/README.md" />
       </list>
     </option>
   </component>
@@ -364,7 +402,8 @@
             <path>
               <item name="vedavaapi_py_api" type="b2602c69:ProjectViewProjectNode" />
               <item name="sanskrit_data" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
+              <item name="sanskrit_data" type="462c0819:PsiDirectoryNode" />
+              <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="vedavaapi_py_api" type="b2602c69:ProjectViewProjectNode" />
@@ -1243,21 +1282,7 @@
       <workItem from="1500583930703" duration="40000" />
       <workItem from="1500832821294" duration="83801000" />
       <workItem from="1501189807565" duration="1220000" />
-      <workItem from="1501191296584" duration="13202000" />
-    </task>
-    <task id="LOCAL-00168" summary="Fixed bugs, everything except image book upload tested">
-      <created>1499995674565</created>
-      <option name="number" value="00168" />
-      <option name="presentableId" value="LOCAL-00168" />
-      <option name="project" value="LOCAL" />
-      <updated>1499995674565</updated>
-    </task>
-    <task id="LOCAL-00169" summary="Non-upload tests pass. Smarter target object creation.">
-      <created>1499996809257</created>
-      <option name="number" value="00169" />
-      <option name="presentableId" value="LOCAL-00169" />
-      <option name="project" value="LOCAL" />
-      <updated>1499996809257</updated>
+      <workItem from="1501191296584" duration="14286000" />
     </task>
     <task id="LOCAL-00170" summary="Theoretically upload should work.">
       <created>1499997249353</created>
@@ -1588,7 +1613,21 @@
       <option name="project" value="LOCAL" />
       <updated>1501370736616</updated>
     </task>
-    <option name="localTasksCounter" value="217" />
+    <task id="LOCAL-00217" summary="Move common database routines out to sanskrit_data.">
+      <created>1501373571019</created>
+      <option name="number" value="00217" />
+      <option name="presentableId" value="LOCAL-00217" />
+      <option name="project" value="LOCAL" />
+      <updated>1501373571019</updated>
+    </task>
+    <task id="LOCAL-00218" summary="Disable couchdb dependency as we're using an unreleased version">
+      <created>1501373655482</created>
+      <option name="number" value="00218" />
+      <option name="presentableId" value="LOCAL-00218" />
+      <option name="project" value="LOCAL" />
+      <updated>1501373655482</updated>
+    </task>
+    <option name="localTasksCounter" value="219" />
     <servers />
   </component>
   <component name="TestHistory">
@@ -1624,7 +1663,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="586408000" />
+    <option name="totallyTimeSpent" value="587492000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1640,7 +1679,7 @@
     <layout>
       <window_info id="GfmBrowser" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32795697" sideWeight="0.5085683" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33333334" sideWeight="0.53067994" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Mongo Explorer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18206973" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -1654,14 +1693,14 @@
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32946378" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3277405" sideWeight="0.4886678" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="SBT Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.49806523" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32795697" sideWeight="0.49143174" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32795697" sideWeight="0.49143174" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3268817" sideWeight="0.48369265" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35591397" sideWeight="0.47484797" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33333334" sideWeight="0.47153124" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20674406" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35591397" sideWeight="0.47263682" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33333334" sideWeight="0.46932006" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20674406" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32795697" sideWeight="0.4936429" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
@@ -1693,7 +1732,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Add doc." />
     <MESSAGE value="Validate source user_ids while validating annotations." />
     <MESSAGE value="Update docs." />
     <MESSAGE value="Add password login (untested). Update README" />
@@ -1718,7 +1756,8 @@
     <MESSAGE value="Rename vedavaapi_data to sanskrit_data" />
     <MESSAGE value="Rename vedavaapi_data to sanskrit_data, separate it out into a separate project." />
     <MESSAGE value="Move common database routines out to sanskrit_data." />
-    <option name="LAST_COMMIT_MESSAGE" value="Move common database routines out to sanskrit_data." />
+    <MESSAGE value="Disable couchdb dependency as we're using an unreleased version" />
+    <option name="LAST_COMMIT_MESSAGE" value="Disable couchdb dependency as we're using an unreleased version" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1743,14 +1782,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/_Deparsed_XSubs.pm">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2268">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1921,22 +1952,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="305">
-            <caret line="31" column="80" lean-forward="false" selection-start-line="31" selection-start-column="80" selection-end-line="31" selection-end-column="80" />
-            <folding />
-          </first_editor>
-          <second_editor>
-            <js_state />
-          </second_editor>
-        </state>
-      </provider>
-      <provider editor-type-id="Gfm">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/schema/books.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -2023,22 +2038,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="-493">
-            <caret line="34" column="10" lean-forward="true" selection-start-line="34" selection-start-column="10" selection-end-line="34" selection-end-column="10" />
-            <folding />
-          </first_editor>
-          <second_editor>
-            <js_state />
-          </second_editor>
-        </state>
-      </provider>
-      <provider editor-type-id="Gfm">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/collections.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="72">
@@ -2087,14 +2086,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/setup.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="486">
-          <caret line="30" column="16" lean-forward="false" selection-start-line="30" selection-start-column="16" selection-end-line="30" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/sanskrit_data/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
@@ -2123,14 +2114,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="325">
           <caret line="105" column="9" lean-forward="false" selection-start-line="105" selection-start-column="9" selection-end-line="105" selection-end-column="9" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python2.7/dist-packages/bson/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -2177,10 +2160,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
+    <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/db/mongodb.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="18">
-          <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="22" selection-end-line="1" selection-end-column="22" />
+          <caret line="1" column="9" lean-forward="true" selection-start-line="1" selection-start-column="9" selection-end-line="1" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/dist-packages/bson/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-806">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -2195,12 +2186,62 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/run.py">
+    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="33" column="31" lean-forward="false" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+        <state relative-caret-position="18">
+          <caret line="1" column="9" lean-forward="false" selection-start-line="1" selection-start-column="5" selection-end-line="1" selection-end-column="9" />
           <folding />
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="33" column="35" lean-forward="false" selection-start-line="33" selection-start-column="35" selection-end-line="33" selection-end-column="35" />
+          <folding>
+            <element signature="e#87#100#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/sanskrit_data/setup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="277">
+          <caret line="94" column="42" lean-forward="false" selection-start-line="94" selection-start-column="42" selection-end-line="94" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="288">
+            <caret line="74" column="40" lean-forward="false" selection-start-line="74" selection-start-column="40" selection-end-line="74" selection-end-column="40" />
+            <folding />
+          </first_editor>
+          <second_editor>
+            <js_state />
+          </second_editor>
+        </state>
+      </provider>
+      <provider editor-type-id="Gfm">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/sanskrit_data/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="18">
+            <caret line="55" column="0" lean-forward="false" selection-start-line="55" selection-start-column="0" selection-end-line="55" selection-end-column="0" />
+            <folding />
+          </first_editor>
+          <second_editor>
+            <js_state />
+          </second_editor>
+        </state>
+      </provider>
+      <provider editor-type-id="Gfm">
+        <state />
       </provider>
     </entry>
   </component>

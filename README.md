@@ -63,7 +63,6 @@ Python based Web API's for the <vedavaapi.org> project.
 * **Separate client and server** logic.
   * Avoid setting variables using flask templates. The js code should get data by making AJAX calls to the server.
   * In fact, one should be able to write (totally separate) pure html/ js code which will communicate with the server only using AJAX calls.
-* **Separate Database-specific elements through an interface**. We should be able to easily switch to a different database.
 * Respect the **code structure**.
   * JS, python, html template code for different apps are in different directories.
 * While designing **REST API**:
@@ -73,7 +72,7 @@ Python based Web API's for the <vedavaapi.org> project.
   * Don't leave the database open to all writes (even through API-s).
   * Do as much validation as possible when storing data.
 * Plan **data backups**.
-* **Data modeling** : See separate guidelines [here](https://github.com/sanskrit-coders/sanskrit_data).
+* **Data modeling and database interface** : See separate guidelines [here](https://github.com/sanskrit-coders/sanskrit_data).
 
 ## Understanding the code
 * Can generate call graphs:
@@ -98,15 +97,6 @@ A general API to access and annotate a text corpus.
 - API docs [here](http://api.vedavaapi.org/py/ullekhanam/docs) .
 
 ## Development
-### Data model
-- Basic principles
-  - Books are stored as a hierarchy of BookPortion objects - book containing many chapters containing many lines etc..
-  - Annotations are stored in a similar hierarchy, for example - a TextAnnotation having PadaAnnotations having SamaasaAnnotations.
-    - Some Annotations (eg. SandhiAnnotation, TextAnnotation) can have multiple "targets" (ie. other objects being annotated).
-    - Rather than a simple tree, we end up with a Directed Acyclic Graph (DAG) of Annotation objects.
-- JSON schema mindmap [here](https://drive.mindmup.com/map?state=%7B%22ids%22:%5B%220B1_QBT-hoqqVbHc4QTV3Q2hjdTQ%22%5D,%22action%22:%22open%22,%22userId%22:%22109000762913288837175%22%7D) (Updated as needed).
-- The data containers are in a separate sanskrit_data module - so that it can be extracted and used outside this server.
-
 ### Root module
 * [__init__.py]():
   * creates local temporary and data directories
