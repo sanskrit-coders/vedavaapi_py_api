@@ -15,7 +15,7 @@ logging.basicConfig(
 class BookPortionsInterface(DbInterface):
   """Operations on BookPortion objects in an Db"""
   def list_books(self, pattern=None):
-    iter = self.get_no_target_entities()
+    iter = self.find(filter={"portion_class": "book"})
     matches = [b for b in iter if not pattern or re.search(pattern, b.path)]
     return matches
 

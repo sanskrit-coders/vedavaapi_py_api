@@ -57,7 +57,7 @@ class TestDBRoundTrip(unittest.TestCase):
     logging.debug(book_portion.to_json_map())
     book_portion.validate_schema()
 
-    result = book_portions.update_doc(book_portion)
+    result = book_portions.update_doc(book_portion.to_json_map())
     logging.debug("update result is " + str(result))
 
     book_portion_retrieved = sanskrit_data.schema.books.BookPortion.from_path(path="myrepo/halAyudha", db_interface=book_portions)
@@ -76,7 +76,7 @@ class TestDBRoundTrip(unittest.TestCase):
     db = self.test_db.books
     logging.debug(annotation.to_json_map())
 
-    result = db.update_doc(annotation)
+    result = db.update_doc(annotation.to_json_map())
     logging.debug("update result is " + str(result))
 
     annotation_retrieved = common.JsonObject.from_id(id=result._id, db_interface=db)
