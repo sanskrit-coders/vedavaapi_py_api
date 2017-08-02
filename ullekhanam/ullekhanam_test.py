@@ -11,8 +11,6 @@ import sanskrit_data.schema.books
 from sanskrit_data.db import mongodb
 from sanskrit_data.schema import ullekhanam, common
 
-from ullekhanam.backend import db
-
 logging.basicConfig(
   level=logging.DEBUG,
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
@@ -23,9 +21,14 @@ class TestDBRoundTrip(unittest.TestCase):
   import common
   common.set_configuration()
   server_config = common.server_config
-  db.initdb(dbname="test_db",
-            client=mongodb.get_mongo_client(server_config["mongo_host"]))
-  test_db = db.textract_db
+
+
+  from ullekhanam.backend import db as backend_db
+  from sanskrit_data.db import mongodb
+  mongo_client = mongodb.Client(url=server_config["mongo_host"])
+  ullekhanam_db = mongo_client.get_database(db_name = "test_db")
+  backend_db.initdb(db=ullekhanam_db)
+  test_db = backend_db.ullekhanam_db
 
   def test_PickleDepickle(self):
     book_portion = sanskrit_data.schema.books.BookPortion.from_details(
@@ -38,7 +41,7 @@ class TestDBRoundTrip(unittest.TestCase):
     logging.info(obj)
 
     jsonMap = {u'jsonClass': u'BookPortion', u'title': u'halAyudhakoshaH', u'path': u'myrepo/halAyudha',
-               u'targets': [{u'jsonClass': u'data_containers.Target', u'container_id': u'xyz'}]}
+               u'targets': [{u'jsonClass': u'Target', u'container_id': u'xyz'}]}
     json_str = json.dumps(jsonMap)
     logging.info("json_str pickle is " + json_str)
     obj = common.JsonObject.make_from_pickledstring(json_str)
@@ -53,7 +56,7 @@ class TestDBRoundTrip(unittest.TestCase):
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha",
       targets=[common.Target.from_details(container_id="xyz")])
 
-    book_portions = self.test_db.books
+    book_portions = self.test_db
     logging.debug(book_portion.to_json_map())
     book_portion.validate_schema()
 
@@ -73,7 +76,7 @@ class TestDBRoundTrip(unittest.TestCase):
                                           rectangle=ullekhanam.Rectangle.from_details())],
       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"))
 
-    db = self.test_db.books
+    db = self.test_db
     logging.debug(annotation.to_json_map())
 
     result = db.update_doc(annotation.to_json_map())
@@ -90,7 +93,7 @@ class TestDBRoundTrip(unittest.TestCase):
                                                                       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),
                                                                       content=common.TextContent.from_details(text=u"इदं नभसि म्भीषण"))
 
-    db = self.test_db.books
+    db = self.test_db
     logging.debug(text_annotation_original.to_json_map())
     logging.debug(db.__class__)
     text_annotation = text_annotation_original.update_collection(db)
@@ -101,7 +104,7 @@ class TestDBRoundTrip(unittest.TestCase):
 
   def test_FullSentence(self):
     # Add text annotation
-    db = self.test_db.books
+    db = self.test_db
 
     book_portion = sanskrit_data.schema.books.BookPortion.from_details(
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")

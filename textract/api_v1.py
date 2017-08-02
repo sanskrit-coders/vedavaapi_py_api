@@ -79,7 +79,7 @@ class ImageBookList(BookList):
 
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db().books) or
+    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db()) or
             sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"), base_data="image", portion_class="book"))
 
     if (not book.authors): book.authors = [form.get("author")]
@@ -127,7 +127,7 @@ class ImageBookList(BookList):
     book_portion_node_minus_id.dump_to_file(book_mfile)
 
     try:
-      book_portion_node.update_collection(get_db().books)
+      book_portion_node.update_collection(get_db())
     except Exception as e:
       logging.error(format(e))
       traceback.print_exc()
@@ -151,16 +151,16 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}    
     """
     logging.info("page get by id = " + str(page_id))
-    book_portions_collection = get_db().books
+    book_portions_collection = get_db()
     page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=book_portions_collection)
     if page == None:
       return "No such book portion id", 404
     else:
-      image_annotations = get_db().books.update_image_annotations(page)
+      image_annotations = get_db().update_image_annotations(page)
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
-        node.fill_descendents(db_interface=get_db().books)
+        node.fill_descendents(db_interface=get_db())
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 

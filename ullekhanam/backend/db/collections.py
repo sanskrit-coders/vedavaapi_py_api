@@ -58,3 +58,6 @@ class BookPortionsInterface(DbInterface):
       annotation = annotation.update_collection(self)
       new_annotations.append(annotation)
     return new_annotations
+
+from sanskrit_data.db.mongodb import Collection
+class BookPortionsMongodb(Collection, BookPortionsInterface): pass

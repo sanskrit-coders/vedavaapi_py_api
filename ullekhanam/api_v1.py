@@ -49,7 +49,7 @@ class BookList(flask_restplus.Resource):
     """
     pattern = request.args.get('pattern')
     logging.info("books list filter = " + str(pattern))
-    booklist = get_db().books.list_books(pattern)
+    booklist = get_db().list_books(pattern)
     logging.debug(booklist)
     return common_data_containers.JsonObject.get_json_map_list(booklist), 200
 
@@ -74,7 +74,7 @@ class EntityHandler(flask_restplus.Resource):
     """
     args = self.get_parser.parse_args()
     logging.info("book get by id = " + id)
-    db = get_db().books
+    db = get_db()
     entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
     if entity == None:
       return "No such entity id", 404
@@ -110,11 +110,11 @@ class EntityTargettersHandler(flask_restplus.Resource):
     entity._id = str(id)
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
-    targetters = entity.get_targetting_entities(db_interface=get_db().books, entity_type=args["targetter_class"])
+    targetters = entity.get_targetting_entities(db_interface=get_db(), entity_type=args["targetter_class"])
     targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                         targetters]
     for node in targetter_nodes:
-      node.fill_descendents(db_interface=get_db().books, depth=args["depth"])
+      node.fill_descendents(db_interface=get_db(), depth=args["depth"])
     return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
 
@@ -166,7 +166,7 @@ class EntityListHandler(flask_restplus.Resource):
     for node in nodes:
       from jsonschema import ValidationError
       try:
-        node.update_collection(db_interface=get_db().books)
+        node.update_collection(db_interface=get_db())
       except ValidationError as e:
         import traceback
         message = {
@@ -203,7 +203,7 @@ class EntityListHandler(flask_restplus.Resource):
       return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
     for node in nodes:
-      node.delete_in_collection(db_interface=get_db().books)
+      node.delete_in_collection(db_interface=get_db())
     return {}, 200
 
 

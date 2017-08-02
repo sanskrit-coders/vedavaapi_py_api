@@ -6,10 +6,9 @@ import sanskrit_data
 import sanskrit_data.schema.books
 
 # Encapsulates the main database.
+from sanskrit_data.db import DbInterface
 
-
-textract_db = None
-
+ullekhanam_db = None
 
 class DBWrapper(object):
   def initialize(self):
@@ -58,12 +57,12 @@ class DBWrapper(object):
         nbooks = nbooks + 1
     return nbooks
 
-def initdb(dbname, client):
+def initdb(db):
   logging.info("Initializing database")
-  global textract_db
-  from ullekhanam.backend.db.mongodb import UllekhanamMongoDb
-  textract_db = UllekhanamMongoDb(dbname, client)
+  global ullekhanam_db
+  from ullekhanam.backend.db.collections import BookPortionsMongodb
+  ullekhanam_db =  BookPortionsMongodb(db)
 
 
 def get_db():
-  return textract_db
+  return ullekhanam_db
