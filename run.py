@@ -35,8 +35,8 @@ def setup_app():
   from sanskrit_data.db import mongodb
   from common import users_db
   mongo_client = mongodb.Client(url=server_config["mongo_host"])
-  common.users_db = mongodb.Collection(some_collection=mongo_client.get_database(db_name = server_config["users_db_name"]))
-  ullekhanam_db = mongo_client.get_database(db_name = server_config["vedavaapi_textract_db"])
+  common.users_db.users_db = mongodb.Collection(some_collection=mongo_client.get_database(db_name = server_config["users_db_name"]))
+  ullekhanam_db = mongo_client.get_database(db_name = server_config["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 
   logging.info("Root path: " + app.root_path)

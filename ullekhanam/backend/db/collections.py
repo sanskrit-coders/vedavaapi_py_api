@@ -55,11 +55,12 @@ class BookPortionsInterface(DbInterface):
         nbooks = nbooks + 1
     return nbooks
 
+  def list_books(self):
+    """ List book objects (not chapters or pages).
 
-  def list_books(self, pattern=None):
-    iter = self.find(filter={"portion_class": "book"})
-    matches = [b for b in iter if not pattern or re.search(pattern, b.path)]
-    return matches
+    :return:
+    """
+    return self.find(filter={"portion_class": "book"})
 
   def get(self, path):
     book = sanskrit_data.schema.books.BookPortion.from_path(path=path, db_interface=self)

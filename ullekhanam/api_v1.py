@@ -47,11 +47,9 @@ class BookList(flask_restplus.Resource):
     
     :return: a list of JsonObjectNode json-s.
     """
-    pattern = request.args.get('pattern')
-    logging.info("books list filter = " + str(pattern))
-    booklist = get_db().list_books(pattern)
+    booklist = [book for book in get_db().list_books()]
     logging.debug(booklist)
-    return common_data_containers.JsonObject.get_json_map_list(booklist), 200
+    return booklist, 200
 
 
 @api.route('/entities/<string:id>')
