@@ -26,12 +26,13 @@ class TestDBRoundTrip(unittest.TestCase):
     backend_db.initdb(db=ullekhanam_db)
 
     self.test_db = backend_db.ullekhanam_db
-    CODE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    CODE_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     self.test_db.importAll(os.path.join(CODE_ROOT, "textract/example-repo"))
     book = JsonObject.make_from_dict(self.test_db.find_one(filter={"path": "english"}))
     logging.debug(str(book))
     json_node = JsonObjectNode.from_details(content=book)
-    json_node.fill_descendents(self.test_db)
+    json_node.fill_descendents(db_interface=self.test_db)
     logging.debug(str(json_node))
     self.assertEquals(json_node.children.__len__(), 3)
 

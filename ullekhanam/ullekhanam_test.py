@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import unittest
-from bson import ObjectId
 
 import sanskrit_data.schema.books
 from sanskrit_data.db import mongodb
@@ -70,23 +69,21 @@ class TestDBRoundTrip(unittest.TestCase):
     self.assertTrue(book_portion.equals_ignore_id(book_portion_retrieved))
 
   def test_ImageAnnotation(self):
-    target_page_id = ObjectId()
+    db = self.test_db
+    book_portion = sanskrit_data.schema.books.BookPortion.from_details(
+      title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")
+    updated_book = book_portion.update_collection(db)
+    target_page_id = updated_book._id
     annotation = ullekhanam.ImageAnnotation.from_details(targets=[
       ullekhanam.ImageTarget.from_details(container_id=str(target_page_id),
                                           rectangle=ullekhanam.Rectangle.from_details())],
       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"))
 
-    db = self.test_db
     logging.debug(annotation.to_json_map())
 
-    result = db.update_doc(annotation.to_json_map())
-    logging.debug("update result is " + str(result))
-
-    annotation_retrieved = common.JsonObject.from_id(id=result._id, db_interface=db)
-    logging.info(annotation_retrieved.__class__)
-
-    logging.info(str(annotation_retrieved.to_json_map()))
-    self.assertTrue(annotation.equals_ignore_id(annotation_retrieved))
+    updated_annotation = annotation.update_collection(db_interface=db)
+    logging.debug("update result is " + str(updated_annotation))
+    self.assertTrue(updated_annotation.equals_ignore_id(annotation))
 
   def test_TextAnnotation(self):
     text_annotation_original = ullekhanam.TextAnnotation.from_details(targets=[],
@@ -110,7 +107,7 @@ class TestDBRoundTrip(unittest.TestCase):
       title="halAyudhakoshaH", authors=["halAyudhaH"], path="myrepo/halAyudha")
     book_portion = book_portion.update_collection(db)
 
-    target_image_id = ObjectId()
+    target_image_id = book_portion._id
     text_annotation = ullekhanam.TextAnnotation.from_details(targets=[
       common.Target.from_details(container_id=book_portion._id)],
       source=ullekhanam.AnnotationSource.from_details("system_inferred", "xyz.py"),

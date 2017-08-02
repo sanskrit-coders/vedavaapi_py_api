@@ -2,21 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="489fcecf-49f9-4a85-a36e-8a73ed92a5ed" name="Default" comment="Move common database routines out to sanskrit_data.">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$USER_HOME$/db-interface/db-interface.iml" afterPath="$USER_HOME$/db-interface/db-interface.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/perl5local.xml" afterPath="$PROJECT_DIR$/.idea/perl5local.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/common/users_db.py" afterPath="$PROJECT_DIR$/common/users_db.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/run.py" afterPath="$PROJECT_DIR$/run.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server_config_template.json" afterPath="$PROJECT_DIR$/server_config_template.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/textract/__init__.py" afterPath="$PROJECT_DIR$/textract/__init__.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/textract/api_v1.py" afterPath="$PROJECT_DIR$/textract/api_v1.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/api_v1.py" afterPath="$PROJECT_DIR$/ullekhanam/api_v1.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/__init__.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/__init__.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/backend/paths.py" afterPath="$PROJECT_DIR$/ullekhanam/backend/paths.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" afterPath="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
@@ -28,8 +18,9 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/vedavaapi_py_api$Unittests_for_ullekhanam_test_TestDBRoundTrip.coverage" NAME="Unittests for ullekhanam_test.TestDBRoundTrip Coverage Results" MODIFIED="1501690248052" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ullekhanam" />
+    <SUITE FILE_PATH="coverage/vedavaapi_py_api$Unittests_for_ullekhanam_test_TestDBRoundTrip.coverage" NAME="Unittests for ullekhanam_test.TestDBRoundTrip Coverage Results" MODIFIED="1501691137755" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ullekhanam" />
     <SUITE FILE_PATH="coverage/vedavaapi_py_api$Unittests_in_ullekhanam_test_py.coverage" NAME="Unittests in ullekhanam_test.py Coverage Results" MODIFIED="1501689231866" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/vedavaapi_py_api$Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode.coverage" NAME="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode Coverage Results" MODIFIED="1501691649954" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/ullekhanam/backend/db" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -52,11 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ullekhanam_test.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ullekhanam_test.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ullekhanam/ullekhanam_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+            <state relative-caret-position="181">
+              <caret line="85" column="20" lean-forward="false" selection-start-line="85" selection-start-column="20" selection-end-line="85" selection-end-column="20" />
               <folding>
                 <element signature="e#24#62#0" expanded="true" />
               </folding>
@@ -64,21 +55,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="common.py" pinned="false" current-in-tab="false">
-        <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/schema/common.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="270" column="6" lean-forward="false" selection-start-line="270" selection-start-column="6" selection-end-line="270" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/__init__.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="63" column="41" lean-forward="false" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="41" />
+            <state relative-caret-position="90">
+              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -96,16 +77,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="collections.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/collections.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="56" column="68" lean-forward="false" selection-start-line="56" selection-start-column="68" selection-end-line="56" selection-end-column="68" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="api_v1.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/textract/api_v1.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -118,23 +89,31 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mongodb.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
+      <file leaf-file-name="mongodb_test.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="343">
-              <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#14#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="310">
+              <caret line="34" column="25" lean-forward="false" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mongodb_test.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py">
+      <file leaf-file-name="collections.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/collections.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="303">
-              <caret line="24" column="2" lean-forward="false" selection-start-line="24" selection-start-column="2" selection-end-line="24" selection-end-column="2" />
+            <state relative-caret-position="454">
+              <caret line="106" column="42" lean-forward="false" selection-start-line="106" selection-start-column="42" selection-end-line="106" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="common.py" pinned="false" current-in-tab="false">
+        <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/schema/common.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="181">
+              <caret line="430" column="6" lean-forward="false" selection-start-line="430" selection-start-column="6" selection-end-line="430" selection-end-column="6" />
               <folding />
             </state>
           </provider>
@@ -279,17 +258,17 @@
         <option value="$PROJECT_DIR$/common/users_db.py" />
         <option value="$USER_HOME$/sanskrit_data/setup.py" />
         <option value="$PROJECT_DIR$/ullekhanam/backend/db/mongodb.py" />
-        <option value="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" />
         <option value="$PROJECT_DIR$/server_config_template.json" />
         <option value="$PROJECT_DIR$/server_config_local.json" />
         <option value="$PROJECT_DIR$/ullekhanam/backend/paths.py" />
         <option value="$PROJECT_DIR$/textract/__init__.py" />
-        <option value="$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py" />
         <option value="$PROJECT_DIR$/textract/api_v1.py" />
-        <option value="$PROJECT_DIR$/ullekhanam/backend/db/__init__.py" />
         <option value="$PROJECT_DIR$/run.py" />
-        <option value="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" />
+        <option value="$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py" />
         <option value="$PROJECT_DIR$/ullekhanam/ullekhanam_test.py" />
+        <option value="$PROJECT_DIR$/ullekhanam/backend/db/__init__.py" />
+        <option value="$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py" />
+        <option value="$PROJECT_DIR$/ullekhanam/backend/db/collections.py" />
       </list>
     </option>
   </component>
@@ -433,20 +412,12 @@
             <path>
               <item name="vedavaapi_py_api" type="b2602c69:ProjectViewProjectNode" />
               <item name="vedavaapi_py_api" type="462c0819:PsiDirectoryNode" />
-              <item name="ullekhanam" type="462c0819:PsiDirectoryNode" />
+              <item name="textract" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="vedavaapi_py_api" type="b2602c69:ProjectViewProjectNode" />
               <item name="vedavaapi_py_api" type="462c0819:PsiDirectoryNode" />
               <item name="ullekhanam" type="462c0819:PsiDirectoryNode" />
-              <item name="backend" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="vedavaapi_py_api" type="b2602c69:ProjectViewProjectNode" />
-              <item name="vedavaapi_py_api" type="462c0819:PsiDirectoryNode" />
-              <item name="ullekhanam" type="462c0819:PsiDirectoryNode" />
-              <item name="backend" type="462c0819:PsiDirectoryNode" />
-              <item name="db" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -499,7 +470,22 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python tests.Unittests for ullekhanam_test.TestDBRoundTrip">
+  <component name="RunManager" selected="Python tests.Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode">
+    <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ullekhanam/backend/db" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="vedavaapi_py_api" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;mongodb_test.TestDBRoundTrip.test_JsonObjectNode&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+    </configuration>
     <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -514,22 +500,6 @@
       <option name="_new_additionalArguments" value="&quot;&quot;" />
       <option name="_new_target" value="&quot;ullekhanam_test.TestDBRoundTrip&quot;" />
       <option name="_new_targetType" value="&quot;PYTHON&quot;" />
-    </configuration>
-    <configuration name="Unittests in couchdb_test.py" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="/usr/bin/python2.7" />
-      <option name="WORKING_DIRECTORY" value="$USER_HOME$/sanskrit_data/" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="vedavaapi_py_api" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
-      <option name="_new_pattern" value="&quot;&quot;" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$USER_HOME$/sanskrit_data/tests/couchdb_test.py&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
     </configuration>
     <configuration name="Unittests in mongodb_test.py" type="tests" factoryName="Unittests" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -1209,17 +1179,18 @@
     <list size="7">
       <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests in mongodb_test.py" />
       <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests in ullekhanam_test.py" />
-      <item index="2" class="java.lang.String" itemvalue="Python tests.Unittests in couchdb_test.py" />
-      <item index="3" class="java.lang.String" itemvalue="Python.run" />
-      <item index="4" class="java.lang.String" itemvalue="Perl.gen_noun.pl" />
-      <item index="5" class="java.lang.String" itemvalue="Perl.gen_verb.pl" />
-      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for ullekhanam_test.TestDBRoundTrip" />
+      <item index="2" class="java.lang.String" itemvalue="Python.run" />
+      <item index="3" class="java.lang.String" itemvalue="Perl.gen_noun.pl" />
+      <item index="4" class="java.lang.String" itemvalue="Perl.gen_verb.pl" />
+      <item index="5" class="java.lang.String" itemvalue="Python tests.Unittests for ullekhanam_test.TestDBRoundTrip" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests for ullekhanam_test.TestDBRoundTrip" />
-        <item index="1" class="java.lang.String" itemvalue="Perl.gen_verb.pl" />
-        <item index="2" class="java.lang.String" itemvalue="Perl.gen_noun.pl" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Unittests for ullekhanam_test.TestDBRoundTrip" />
+        <item index="2" class="java.lang.String" itemvalue="Perl.gen_verb.pl" />
+        <item index="3" class="java.lang.String" itemvalue="Perl.gen_noun.pl" />
       </list>
     </recent_temporary>
   </component>
@@ -1297,21 +1268,7 @@
       <workItem from="1501189807565" duration="1220000" />
       <workItem from="1501191296584" duration="37495000" />
       <workItem from="1501615284170" duration="455000" />
-      <workItem from="1501615801733" duration="19015000" />
-    </task>
-    <task id="LOCAL-00198" summary="More user fields, better authentication.">
-      <created>1501018256733</created>
-      <option name="number" value="00198" />
-      <option name="presentableId" value="LOCAL-00198" />
-      <option name="project" value="LOCAL" />
-      <updated>1501018256733</updated>
-    </task>
-    <task id="LOCAL-00199" summary="Update README. Fix bug.">
-      <created>1501026734700</created>
-      <option name="number" value="00199" />
-      <option name="presentableId" value="LOCAL-00199" />
-      <option name="project" value="LOCAL" />
-      <updated>1501026734700</updated>
+      <workItem from="1501615801733" duration="20589000" />
     </task>
     <task id="LOCAL-00200" summary="Add configs, update README">
       <created>1501028058585</created>
@@ -1642,43 +1599,57 @@
       <option name="project" value="LOCAL" />
       <updated>1501689691575</updated>
     </task>
-    <option name="localTasksCounter" value="247" />
+    <task id="LOCAL-00247" summary="Better DB interfacing.">
+      <created>1501690340584</created>
+      <option name="number" value="00247" />
+      <option name="presentableId" value="LOCAL-00247" />
+      <option name="project" value="LOCAL" />
+      <updated>1501690340585</updated>
+    </task>
+    <task id="LOCAL-00248" summary="Save id better.">
+      <created>1501690679262</created>
+      <option name="number" value="00248" />
+      <option name="presentableId" value="LOCAL-00248" />
+      <option name="project" value="LOCAL" />
+      <updated>1501690679263</updated>
+    </task>
+    <option name="localTasksCounter" value="249" />
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 08h 54m 16s.xml">
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 25m 54s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 27m 46s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 29m 43s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 30m 04s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 30m 19s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 31m 43s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_mongodb_test_TestDBRoundTrip_test_JsonObjectNode - 2017.08.02 at 09h 34m 10s.xml">
+      <configuration name="Unittests for mongodb_test.TestDBRoundTrip.test_JsonObjectNode" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 20m 36s.xml">
       <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 08h 56m 00s.xml">
+    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 22m 47s.xml">
       <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
     </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 08h 58m 43s.xml">
+    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 25m 38s.xml">
       <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 02m 13s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 06m 24s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 08m 33s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 09m 11s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 09m 52s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_for_ullekhanam_test_TestDBRoundTrip - 2017.08.02 at 09h 10m 48s.xml">
-      <configuration name="Unittests for ullekhanam_test.TestDBRoundTrip" configurationId="tests" />
-    </history-entry>
-    <history-entry file="Unittests_in_ullekhanam_test_py - 2017.08.02 at 08h 53m 53s.xml">
-      <configuration name="Unittests in ullekhanam_test.py" configurationId="tests" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="630171000" />
+    <option name="totallyTimeSpent" value="631745000" />
   </component>
   <component name="TodoView" selected-index="4">
     <todo-panel id="selected-file">
@@ -1714,7 +1685,7 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3268817" sideWeight="0.48369265" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.35591397" sideWeight="0.47042564" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3967742" sideWeight="0.46932006" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20674406" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20674406" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32795697" sideWeight="0.4936429" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
@@ -1747,8 +1718,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Rename vedavaapi_data to sanskrit_data, separate it out into a separate project." />
-    <MESSAGE value="Disable couchdb dependency as we're using an unreleased version" />
     <MESSAGE value="Add client interface, cloudant api database interface." />
     <MESSAGE value="Fix url parsing." />
     <MESSAGE value="Change db update and delete signatures." />
@@ -1772,7 +1741,9 @@
     <MESSAGE value="Fix constructor" />
     <MESSAGE value="Fix mongo db name parsing." />
     <MESSAGE value="Fix bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix bug" />
+    <MESSAGE value="Better DB interfacing." />
+    <MESSAGE value="Save id better." />
+    <option name="LAST_COMMIT_MESSAGE" value="Save id better." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1797,34 +1768,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file:///usr/lib/python2.7/urlparse.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-531">
-          <caret line="89" column="20" lean-forward="false" selection-start-line="89" selection-start-column="12" selection-end-line="89" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/tests/couchdb_test.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="53" column="59" lean-forward="false" selection-start-line="53" selection-start-column="59" selection-end-line="53" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/build/lib.linux-x86_64-2.7/sanskrit_data/schema/common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="276" column="24" lean-forward="false" selection-start-line="276" selection-start-column="24" selection-end-line="276" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/schema/common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="107">
-          <caret line="431" column="35" lean-forward="false" selection-start-line="431" selection-start-column="35" selection-end-line="431" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/sanskrit_data/docs/index.html" />
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
@@ -2000,7 +1943,7 @@
         <state relative-caret-position="126">
           <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
           <folding>
-            <element signature="e#420#434#0" expanded="true" />
+            <element signature="e#420#434#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -2133,13 +2076,35 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
+    <entry file="file://$USER_HOME$/sanskrit_data/build/lib.linux-x86_64-2.7/sanskrit_data/db/mongodb.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="51" column="0" lean-forward="false" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#14#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="245">
+          <caret line="33" column="16" lean-forward="false" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python2.7/dist-packages/pymongo/collection.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-189">
+          <caret line="2326" column="8" lean-forward="false" selection-start-line="2326" selection-start-column="8" selection-end-line="2326" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/sanskrit_data/build/lib.linux-x86_64-2.7/sanskrit_data/schema/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="233" column="31" lean-forward="false" selection-start-line="233" selection-start-column="31" selection-end-line="233" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/schema/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="86" column="7" lean-forward="false" selection-start-line="86" selection-start-column="4" selection-end-line="86" selection-end-column="7" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2148,6 +2113,16 @@
         <state relative-caret-position="198">
           <caret line="181" column="42" lean-forward="false" selection-start-line="181" selection-start-column="42" selection-end-line="181" selection-end-column="42" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/sanskrit_data/sanskrit_data/db/mongodb.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="65" column="8" lean-forward="false" selection-start-line="65" selection-start-column="8" selection-end-line="65" selection-end-column="8" />
+          <folding>
+            <element signature="e#0#14#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2161,28 +2136,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python2.7/dist-packages/pymongo/collection.py">
+    <entry file="file://$PROJECT_DIR$/ullekhanam/ullekhanam_test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="2326" column="8" lean-forward="false" selection-start-line="2326" selection-start-column="8" selection-end-line="2326" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/db/mongodb.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="461">
-          <caret line="71" column="18" lean-forward="true" selection-start-line="71" selection-start-column="18" selection-end-line="71" selection-end-column="18" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="63" column="41" lean-forward="false" selection-start-line="63" selection-start-column="39" selection-end-line="63" selection-end-column="41" />
+        <state relative-caret-position="181">
+          <caret line="85" column="20" lean-forward="false" selection-start-line="85" selection-start-column="20" selection-end-line="85" selection-end-column="20" />
           <folding>
-            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#24#62#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2195,37 +2154,53 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py">
+    <entry file="file://$USER_HOME$/.IntelliJIdea2017.2/system/python_stubs/-1247972723/__builtin__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="303">
-          <caret line="24" column="2" lean-forward="false" selection-start-line="24" selection-start-column="2" selection-end-line="24" selection-end-column="2" />
+        <state relative-caret-position="297">
+          <caret line="4339" column="8" lean-forward="false" selection-start-line="4339" selection-start-column="8" selection-end-line="4339" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/schema/common.py">
+    <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/db/mongodb.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="189">
-          <caret line="270" column="6" lean-forward="false" selection-start-line="270" selection-start-column="6" selection-end-line="270" selection-end-column="6" />
+          <caret line="52" column="6" lean-forward="false" selection-start-line="52" selection-start-column="6" selection-end-line="52" selection-end-column="6" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/collections.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="56" column="68" lean-forward="false" selection-start-line="56" selection-start-column="68" selection-end-line="56" selection-end-column="68" />
+        <state relative-caret-position="454">
+          <caret line="106" column="42" lean-forward="false" selection-start-line="106" selection-start-column="42" selection-end-line="106" selection-end-column="42" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ullekhanam/ullekhanam_test.py">
+    <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="343">
-          <caret line="84" column="0" lean-forward="false" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+        <state relative-caret-position="90">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding>
-            <element signature="e#24#62#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/dist-packages/sanskrit_data/schema/common.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="181">
+          <caret line="430" column="6" lean-forward="false" selection-start-line="430" selection-start-column="6" selection-end-line="430" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ullekhanam/backend/db/mongodb_test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="310">
+          <caret line="34" column="25" lean-forward="false" selection-start-line="34" selection-start-column="25" selection-end-line="34" selection-end-column="25" />
+          <folding />
         </state>
       </provider>
     </entry>
