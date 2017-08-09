@@ -1,7 +1,7 @@
 {
   "users_db_name" : "vedavaapi_users",
   "ullekhanam_db_name" : "vedavaapi_textract_db",
-  "mongo_host" : "mongodb://someUser:somePw@localhost/",
+  "mongo_host_deprecated" : "mongodb://someUser:somePw@localhost/",
   "couchdb_host" : "http://username:password@host:port/",
   "oauth": {
     "google": {

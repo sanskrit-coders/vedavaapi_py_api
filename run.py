@@ -32,11 +32,11 @@ def setup_app():
   common.set_configuration()
   server_config = common.server_config
 
-  from sanskrit_data.db import mongodb
+  from sanskrit_data.db import couchdb
   from common import users_db
-  mongo_client = mongodb.Client(url=server_config["mongo_host"])
-  common.users_db.users_db = mongodb.Collection(some_collection=mongo_client.get_database(db_name = server_config["users_db_name"]))
-  ullekhanam_db = mongo_client.get_database(db_name = server_config["ullekhanam_db_name"])
+  client = couchdb.CloudantApiClient(url=server_config["couchdb_host"])
+  common.users_db.users_db = client.get_database_interface(db_name = server_config["users_db_name"])
+  ullekhanam_db = client.get_database(db_name = server_config["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 
   logging.info("Root path: " + app.root_path)

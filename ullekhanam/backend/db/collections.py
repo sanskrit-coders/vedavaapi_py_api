@@ -106,3 +106,8 @@ from sanskrit_data.db.mongodb import Collection
 class BookPortionsMongodb(Collection, BookPortionsInterface):
   def __init__(self, some_collection):
     super(BookPortionsMongodb, self).__init__(some_collection=some_collection)
+
+from sanskrit_data.db.couchdb import CloudantApiDatabase
+class BookPortionsCouchdb(CloudantApiDatabase, BookPortionsInterface):
+  def __init__(self, some_collection):
+    super(BookPortionsCouchdb, self).__init__(db=some_collection)

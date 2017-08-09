@@ -13,8 +13,8 @@ ullekhanam_db = None
 def initdb(db):
   logging.info("Initializing database")
   global ullekhanam_db
-  from ullekhanam.backend.db.collections import BookPortionsMongodb
-  ullekhanam_db =  BookPortionsMongodb(db)
+  from ullekhanam.backend.db.collections import BookPortionsCouchdb
+  ullekhanam_db =  BookPortionsCouchdb(db)
 
 
 def get_db():
