@@ -52,6 +52,7 @@ def authorized(provider):
 
 
 # Passwords are convenient for authenticating bots.
+# For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
 @api_blueprint.route('/password_login')
 def password_login():
   client_id = request.form.get('client_id')

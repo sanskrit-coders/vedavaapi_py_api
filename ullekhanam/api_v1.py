@@ -71,7 +71,7 @@ class EntityHandler(flask_restplus.Resource):
       {"content": EntityObj, "children": [JsonObjectNode with Child_1, JsonObjectNode with Child_2]}    
     """
     args = self.get_parser.parse_args()
-    logging.info("book get by id = " + id)
+    logging.info("entity get by id = " + id)
     db = get_db()
     entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
     if entity == None:
