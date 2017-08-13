@@ -41,6 +41,14 @@ Python based Web API's for the <vedavaapi.org> project.
   ```  
   * Create a server_config_local.json file based on the template provided.
 * For further details of setting this app up in the context of the vedavaapi server, see [vedavaapi_misc](https://github.com/vedavaapi/vedavaapi-misc) .
+* Special couchdb setup
+  - We need to create these indices (perhaps using the fauxton UI):
+  ```
+  "fields": {
+     targets.container_id: "asc"
+  }
+  ```
+    - TODO This must be automated.
 
 ## Running
 * Launch server: run.py
@@ -125,4 +133,3 @@ See general notes from the ullekhanam module apply.
   * creates local temporary and data directories
 * [api_v1.py]():
   * Handles calls to /textract/*
-
