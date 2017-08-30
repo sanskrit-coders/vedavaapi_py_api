@@ -21,4 +21,4 @@
     opacity: 0.4;
     filter: alpha(opacity=40); /* for IE8 and earlier */
     z-index: 9999;
-    background: url("/vedavaapi_py_api/staticapi_py_api/static/images/loading.gif") center no-repeat #fff;}
+    background: url("/static/images/loading.gif") center no-repeat #fff;}
