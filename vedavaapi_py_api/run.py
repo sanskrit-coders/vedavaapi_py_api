@@ -6,8 +6,12 @@ import getopt
 # from flask.ext.cors import CORS
 import logging
 import sys
-
+import os.path
 from sanskrit_data.schema.common import JsonObject
+
+# Add parent directory to PYTHONPATH, so that vedavaapi_py_api module can be found.
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+print(sys.path)
 
 from vedavaapi_py_api import common, textract, ullekhanam
 from vedavaapi_py_api.common import users_api_v1, file_helper
