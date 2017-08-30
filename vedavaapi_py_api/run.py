@@ -1,4 +1,4 @@
-#!/usr/bin/python -u
+#!/usr/bin/python3 -u
 
 # This web app may be run in two modes. See bottom of the file.
 

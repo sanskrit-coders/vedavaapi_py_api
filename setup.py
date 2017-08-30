@@ -89,6 +89,8 @@ setup(
     'docimage', 'jsonpickle', 'jinja2', 'opencv-python', 'Pillow', 'werkzeug', 'jsonschema',
 
   ],
+  # For manual installation, the same list:
+  # flask flask-restplus flask-oauthlib  cloudant sanskrit_data docimage jsonpickle jinja2 opencv-python Pillow werkzeug jsonschema
 
   # List additional groups of dependencies here (e.g. development
   # dependencies). You can install these using the following syntax,
