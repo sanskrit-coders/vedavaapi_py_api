@@ -29,10 +29,10 @@ Python based Web API's for the <vedavaapi.org> project.
 * We're currently using Python 2.7.
   * The installation procedure for the cv2 module with Python3.5 is fairly elaborate as of 20170423.
 * Install various necessary python modules.
-  * `sudo pip2 install flask flask-restplus bcrypt cv2 couchdb pymongo sanskrit_data` [Incomplete.]
+  * Refer to list in setup.py [Incomplete.]
 * Grant the account running run.py authority to write in /opt/scan2text/.
   * sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text
-  * ln -s ~/vedavaapi_py_api/textract/example-repo/books /opt/scan2text/data/
+  * ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/
 * Install and setup mongo.
   * Add a user by running:
   ```

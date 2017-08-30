@@ -6,7 +6,7 @@ Type=simple
 User=samskritam
 StandardOutput=journal+console
 StandardError=journal+console
-ExecStart=/home/samskritam/vedavaapi_py_api/run.py
+ExecStart=/home/samskritam/vedavaapi_py_api/vedavaapi_py_api/run.py
 
 [Install]
 WantedBy=multi-user.target

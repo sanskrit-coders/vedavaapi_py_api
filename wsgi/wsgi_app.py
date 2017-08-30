@@ -1,5 +1,7 @@
-import sys, os
 import logging
+import os
+import sys
+
 from werkzeug.debug import DebuggedApplication
 
 logging.basicConfig(
@@ -13,5 +15,6 @@ os.chdir(app_path)
 logging.info("My path is " + app_path)
 sys.path.insert (0, app_path)
 sys.stdout = sys.stderr
-import run
+from vedavaapi_py_api import run
+
 application = DebuggedApplication(run.app, True)
