@@ -167,7 +167,7 @@ function makeImageAnnotation(rectangle) {
         "jsonClass": "ImageAnnotation",
         "source": {
             "jsonClass": "AnnotationSource",
-            "type": "user_supplied",
+            "source_type": "user_supplied",
             "id": "UNK"
         },
         "targets": [
@@ -199,7 +199,7 @@ function makeTextAnnotation(text) {
         "jsonClass": "TextAnnotation",
         "source": {
             "jsonClass": "AnnotationSource",
-            "type": "user_supplied",
+            "source_type": "user_supplied",
             "id": "UNK"
         },
         "content": {
