@@ -111,7 +111,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
     targetters = entity.get_targetting_entities(db_interface=get_db(), entity_type=args["targetter_class"])
     targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                         targetters]
-    for node in targetter_nodes and args["depth"] > 1:
+    for node in targetter_nodes:
       node.fill_descendents(db_interface=get_db(), depth=args["depth"]-1, entity_type=args["targetter_class"])
     return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
