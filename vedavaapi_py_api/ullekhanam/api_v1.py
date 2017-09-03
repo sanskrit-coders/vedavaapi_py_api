@@ -87,7 +87,7 @@ class EntityHandler(flask_restplus.Resource):
 class EntityTargettersHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('depth', location='args', type=int, default=10,
-                          help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..?")
+                          help="Do you want sub-portions or sub-sub-portions or sub-sub-sub-portions etc..? Minimum 1.")
   get_parser.add_argument('targetter_class', location='args', type=str,
                           help="Example: BookPortion. See jsonClass.enum values in <a href=\"v1/schemas\"> schema</a> definitions.")
   get_parser.add_argument('filter_json', location='args', type=str,
@@ -111,8 +111,8 @@ class EntityTargettersHandler(flask_restplus.Resource):
     targetters = entity.get_targetting_entities(db_interface=get_db(), entity_type=args["targetter_class"])
     targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                         targetters]
-    for node in targetter_nodes:
-      node.fill_descendents(db_interface=get_db(), depth=args["depth"])
+    for node in targetter_nodes and args["depth"] > 1:
+      node.fill_descendents(db_interface=get_db(), depth=args["depth"]-1, entity_type=args["targetter_class"])
     return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
 

@@ -39,7 +39,7 @@ def setup_app():
   client = couchdb.CloudantApiClient(url=server_config["couchdb_host"])
   from vedavaapi_py_api.common import users_db
   users_db.users_db = client.get_database_interface(db_name = server_config["users_db_name"])
-  ullekhanam_db = client.get_database(db_name = server_config["ullekhanam_db_name"])
+  ullekhanam_db = client.get_database(db_name=server_config["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 
   logging.info("Root path: " + app.root_path)
