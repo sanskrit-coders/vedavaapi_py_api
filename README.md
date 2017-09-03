@@ -30,7 +30,7 @@ Python based Web API's for the <vedavaapi.org> project.
   * Refer to list in setup.py.
   * Possibly easy way (untested): `sudo pip3 install --target=/home/samskritam/ git+https://github.com/vedavaapi/vedavaapi_py_api@master`
   * To get the latest development snapshot, you may need to install the modules `sanskrit_data` and `docimage` directly from the git repositories. Example:
-    ~ `sudo pip3 install git+https://github.com/sanskrit-coders/sanskrit_data@master -U`
+    ~ `sudo pip3 install git+https://github.com/vedavaapi/sanskrit_data@master -U`
 * Data setup: Grant the account running run.py authority to write in /opt/scan2text/.
   * `sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text`
   * `ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/`
@@ -70,7 +70,7 @@ Python based Web API's for the <vedavaapi.org> project.
   * Don't leave the database open to all writes (even through API-s).
   * Do as much validation as possible when storing data.
 * Plan **data backups**.
-* **Data modeling and database interface** : See separate guidelines [here](https://github.com/sanskrit-coders/sanskrit_data).
+* **Data modeling and database interface** : See separate guidelines [here](https://github.com/vedavaapi/sanskrit_data).
 
 ## Understanding the code
 * Can generate call graphs:
