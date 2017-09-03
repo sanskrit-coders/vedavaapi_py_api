@@ -26,29 +26,19 @@ Python based Web API's for the <vedavaapi.org> project.
 
 # Usage
 ## Setup
-* We're currently using Python 2.7.
-  * The installation procedure for the cv2 module with Python3.5 is fairly elaborate as of 20170423.
-* Install various necessary python modules.
-  * Refer to list in setup.py [Incomplete.]
-* Grant the account running run.py authority to write in /opt/scan2text/.
-  * sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text
-  * ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/
-* Install and setup mongo.
-  * Add a user by running:
-  ```
-  use admin
-  db.createUser( { user: "vedavaapiUser", pwd: "xyz", roles: [ { role: "dbAdminAnyDatabase", db: "admin" } , { role: "readWriteAnyDatabase", db: "admin" }] } )
-  ```  
-  * Create a server_config_local.json file based on the template provided.
+* Get the code and install various necessary python 3 modules.
+  * Refer to list in setup.py.
+  * Possibly easy way (untested): `sudo pip3 install --target=/home/samskritam/ git+https://github.com/vedavaapi/vedavaapi_py_api@master`
+  * To get the latest development snapshot, you may need to install the modules `sanskrit_data` and `docimage` directly from the git repositories. Example:
+    ~ `sudo pip3 install git+https://github.com/sanskrit-coders/sanskrit_data@master -U`
+* Data setup: Grant the account running run.py authority to write in /opt/scan2text/.
+  * `sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text`
+  * `ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/`
+* Install and set up couchdb:
+  * Consider using [our cookbook](https://github.com/vedavaapi/vedavaapi-chef) with chef for easily installing couchdb with full text indexing enabled.
+  * Alter the local.ini file to provide write permissions to the admin.
+* Set up the `vedavaapi_py_api/server_config_local.config` file based on  `vedavaapi_py_api/server_config_template.config`. The database details should match your database setup!
 * For further details of setting this app up in the context of the vedavaapi server, see [vedavaapi_misc](https://github.com/vedavaapi/vedavaapi-misc) .
-* Special couchdb setup
-  - We need to create these indices (perhaps using the fauxton UI):
-  ```
-  "fields": {
-     targets.container_id: "asc"
-  }
-  ```
-    - TODO This must be automated.
 
 ## Running
 * Launch server: run.py
