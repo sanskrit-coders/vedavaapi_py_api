@@ -14,6 +14,6 @@ def setup_app(db):
 
   # Import all book metadata into the IndicDocs database
   paths.init_data_dir()
-  get_db().importAll(paths.DATADIR)
+  get_db().import_all(rootdir=paths.DATADIR)
 
 

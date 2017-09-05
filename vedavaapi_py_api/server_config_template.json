@@ -1,8 +1,12 @@
 {
-  "users_db_name" : "vedavaapi_users",
-  "ullekhanam_db_name" : "vedavaapi_ullekhanam_db",
-  "mongo_host_deprecated" : "mongodb://someUser:somePw@localhost/",
-  "couchdb_host" : "http://username:password@host:port/",
+  "db": {
+    "users_db_name" : "vedavaapi_users",
+    "ullekhanam_db_name" : "vedavaapi_ullekhanam_db",
+    "db_type": "Choices: mongo, couchdb",
+    "comment": "We currently use mongo",
+    "mongo_host" : "mongodb://someUser:somePw@localhost/",
+    "couchdb_host" : "http://username:password@host:port/"
+  },
   "oauth": {
     "google": {
       "client_id": "",

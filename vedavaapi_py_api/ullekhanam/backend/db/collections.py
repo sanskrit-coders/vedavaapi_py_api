@@ -10,15 +10,10 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-
-# noinspection PyProtectedMember
 class BookPortionsInterface(DbInterface):
   """Operations on BookPortion objects in an Db"""
 
-  #        if not database.write_concern.acknowledged:
-  #            raise ConfigurationError('database must use '
-  #                                     'acknowledged write_concern')
-  def importAll(self, rootdir, pattern=None):
+  def import_all(self, rootdir, pattern=None):
     logging.info("Importing books into database from " + rootdir)
     cmd = "find " + rootdir + " \( \( -path '*/.??*' \) -prune \) , \( -path '*book_v2.json' \) -follow -print; true"
     logging.info(cmd)

@@ -35,11 +35,17 @@ def setup_app():
   common.set_configuration()
   server_config = common.server_config
 
-  from sanskrit_data.db import couchdb
-  client = couchdb.CloudantApiClient(url=server_config["couchdb_host"])
+  client = None
+  if server_config["db"]["db_type"] == "couchdb":
+    from sanskrit_data.db import couchdb
+    client = couchdb.CloudantApiClient(url=server_config["db"]["couchdb_host"])
+  elif server_config["db"]["db_type"] == "mongo":
+    from sanskrit_data.db import mongodb
+    client = mongodb.Client(url=server_config["db"]["mongo_host"])
+
   from vedavaapi_py_api.common import users_db
-  users_db.users_db = client.get_database_interface(db_name = server_config["users_db_name"])
-  ullekhanam_db = client.get_database(db_name=server_config["ullekhanam_db_name"])
+  users_db.users_db = client.get_database_interface(db_name = server_config["db"]["users_db_name"])
+  ullekhanam_db = client.get_database(db_name=server_config["db"]["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 
   logging.info("Root path: " + app.root_path)
