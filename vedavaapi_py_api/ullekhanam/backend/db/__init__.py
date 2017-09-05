@@ -19,6 +19,9 @@ def initdb(db):
   elif isinstance(db, Collection):
     from vedavaapi_py_api.ullekhanam.backend.db.collections import BookPortionsMongodb
     ullekhanam_db =  BookPortionsMongodb(db)
+  ullekhanam_db.add_index(keys_dict={
+    "targets.container_id" : 1
+  }, index_name="targets_container_id")
 
 
 

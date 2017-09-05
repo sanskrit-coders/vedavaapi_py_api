@@ -85,9 +85,8 @@ setup(
   # https://packaging.python.org/en/latest/requirements.html
   install_requires=[
     'flask', 'flask-restplus', 'flask-oauthlib',
-    'cloudant', 'sanskrit_data',
+    'pymongo', 'cloudant', 'sanskrit_data',
     'docimage', 'jsonpickle', 'jinja2', 'opencv-python', 'Pillow', 'werkzeug', 'jsonschema',
-
   ],
   # For manual installation, the same list:
   # flask flask-restplus flask-oauthlib  cloudant sanskrit_data docimage jsonpickle jinja2 opencv-python Pillow werkzeug jsonschema
