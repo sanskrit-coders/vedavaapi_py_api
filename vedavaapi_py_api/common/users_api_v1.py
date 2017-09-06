@@ -2,6 +2,7 @@ import logging
 
 import flask_restplus
 from flask import redirect, url_for, request, flash, Blueprint, session
+from sanskrit_data.schema.common import JsonObject
 
 from .oauth import OAuthSignIn
 
@@ -23,6 +24,17 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.',
                          default_label=api_blueprint.name,
                          prefix=URL_PREFIX, doc='/docs')
+
+
+def check_user_admin():
+  from flask import session
+  user = JsonObject.make_from_dict(session.get('user', None))
+  logging.debug(session.get('user', None))
+  logging.debug(user)
+  if user == None or not user.check_permission(service="users", action="admin"):
+    return False
+  else:
+    return True
 
 
 @api.route('/users')

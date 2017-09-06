@@ -50,7 +50,7 @@ class OAuthSignIn(object):
     return cls.providers[provider_name]
 
   @staticmethod
-  def get_token(token=None):
+  def _get_token(token=None):
     """This method is passed as an argument to the oauth.remote_app object.
     """
     return session.get('oauth_token')
@@ -58,12 +58,12 @@ class OAuthSignIn(object):
   def get_session_data(self, data):
     pass
 
-  # Use oauth token in session to get userdata from the oauth service
   def get_user_data(self):
+    """Use oauth token in session to get userdata from the oauth service."""
     return None
 
-  # Construct or look up a User object using data obtained from get_user_data().
   def get_user(self):
+    """Construct or look up a User object using data obtained from get_user_data()."""
     pass
 
 
@@ -84,7 +84,7 @@ class GoogleSignIn(OAuthSignIn):
       access_token_url='https://accounts.google.com/o/oauth2/token',
       authorize_url='https://accounts.google.com/o/oauth2/auth',
     )
-    self.service.tokengetter(GoogleSignIn.get_token)
+    self.service.tokengetter(GoogleSignIn._get_token)
 
   def get_session_data(self, data):
     return (
