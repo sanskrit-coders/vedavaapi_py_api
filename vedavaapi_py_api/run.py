@@ -33,7 +33,7 @@ params.set_from_dict({
 })
 
 def setup_app():
-  common.set_configuration()
+  common.set_configuration(config_file_name=os.path.join(os.path.dirname(__file__), 'server_config_local.json'))
   server_config = common.server_config
 
   client = None
