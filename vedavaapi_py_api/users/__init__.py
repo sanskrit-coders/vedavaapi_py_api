@@ -9,4 +9,9 @@ logging.basicConfig(
 
 users_db = None
 
+def setup(db):
+  global users_db
+  users_db = db
+
+
 class Users(Collection): pass

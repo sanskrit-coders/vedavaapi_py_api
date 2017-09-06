@@ -13,6 +13,7 @@ app = flask.Flask("run")
 CORS(app)
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
 
+
 @app.route('/')
 def index():
   flask.session['logstatus'] = 1

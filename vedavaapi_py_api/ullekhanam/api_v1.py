@@ -28,7 +28,7 @@ def check_permission():
   user = JsonObject.make_from_dict(session.get('user', None))
   logging.debug(session.get('user', None))
   logging.debug(user)
-  if user == None or not user.check_permission(service="ullekhanam", action="write"):
+  if user is None or not user.check_permission(service="ullekhanam", action="write"):
     return False
   else:
     return True
@@ -74,7 +74,7 @@ class EntityHandler(flask_restplus.Resource):
     logging.info("entity get by id = " + id)
     db = get_db()
     entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
-    if entity == None:
+    if entity is None:
       return "No such entity id", 404
     else:
       node = common_data_containers.JsonObjectNode.from_details(content=entity)

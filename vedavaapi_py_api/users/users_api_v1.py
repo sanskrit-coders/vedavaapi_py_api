@@ -4,7 +4,7 @@ import flask_restplus
 from flask import redirect, url_for, request, flash, Blueprint, session
 from sanskrit_data.schema.common import JsonObject
 
-from .oauth import OAuthSignIn
+from vedavaapi_py_api.users.oauth import OAuthSignIn
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -26,12 +26,12 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
                          prefix=URL_PREFIX, doc='/docs')
 
 
-def check_user_admin():
+def is_user_admin():
   from flask import session
   user = JsonObject.make_from_dict(session.get('user', None))
   logging.debug(session.get('user', None))
   logging.debug(user)
-  if user == None or not user.check_permission(service="users", action="admin"):
+  if user is None or not user.check_permission(service="users", action="admin"):
     return False
   else:
     return True
@@ -49,6 +49,7 @@ class UserListHandler(flask_restplus.Resource):
 def login(provider):
   oauth = OAuthSignIn.get_provider(provider)
   return oauth.authorize()
+
 
 @api_blueprint.route('/authorized/<provider>')
 def authorized(provider):
@@ -70,7 +71,7 @@ def authorized(provider):
 def password_login():
   client_id = request.form.get('client_id')
   client_secret = request.form.get('client_secret')
-  from vedavaapi_py_api.common.users_db import users_db
+  from vedavaapi_py_api.users import users_db
   user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": client_id,
                                    "authentication_infos.auth_provider": "vedavaapi",
                                    })

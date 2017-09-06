@@ -5,8 +5,9 @@
 import getopt
 # from flask.ext.cors import CORS
 import logging
-import sys
 import os.path
+import sys
+
 from sanskrit_data.schema.common import JsonObject
 
 # Add parent directory to PYTHONPATH, so that vedavaapi_py_api module can be found.
@@ -14,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 print(sys.path)
 
 from vedavaapi_py_api import common, textract, ullekhanam
-from vedavaapi_py_api.common import users_api_v1, file_helper
+from vedavaapi_py_api.common import file_helper
 from vedavaapi_py_api.common.flask_helper import app
 
 logging.basicConfig(
@@ -43,8 +44,9 @@ def setup_app():
     from sanskrit_data.db import mongodb
     client = mongodb.Client(url=server_config["db"]["mongo_host"])
 
-  from vedavaapi_py_api.common import users_db
-  users_db.users_db = client.get_database_interface(db_name = server_config["db"]["users_db_name"])
+  from vedavaapi_py_api import users
+  from vedavaapi_py_api.users import users_api_v1
+  users.setup(db=client.get_database_interface(db_name=server_config["db"]["users_db_name"]))
   ullekhanam_db = client.get_database(db_name=server_config["db"]["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 
