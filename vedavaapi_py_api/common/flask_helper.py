@@ -8,9 +8,16 @@ from flask import url_for
 from flask_cors import CORS
 
 
-# Pass the root module name - sets root directory.
-app = flask.Flask("run")
+""" The flask app we serve in run.py.
+"""
+app = flask.Flask(
+  # We pass the root module name - sets root directory.
+  import_name="vedavaapi_py_api.run")
+
+# Let Javascsipt hosted elsewhere access our API.
 CORS(app)
+
+# TODO: Set SECRET_KEY from server_config_local.
 app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
 
 
@@ -65,5 +72,3 @@ def site_map():
     mimetype='application/json'
   )
   return response
-
-

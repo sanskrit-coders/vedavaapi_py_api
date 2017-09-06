@@ -52,6 +52,7 @@ class BookList(flask_restplus.Resource):
     return booklist, 200
 
 
+# noinspection PyUnresolvedReferences,PyShadowingBuiltins
 @api.route('/entities/<string:id>')
 @api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
 class EntityHandler(flask_restplus.Resource):
@@ -83,6 +84,7 @@ class EntityHandler(flask_restplus.Resource):
       return node.to_json_map(), 200
 
 
+# noinspection PyUnresolvedReferences
 @api.route('/entities/<string:id>/targetters')
 class EntityTargettersHandler(flask_restplus.Resource):
   get_parser = api.parser()
@@ -93,6 +95,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
   get_parser.add_argument('filter_json', location='args', type=str,
                           help="A brief JSON string with property: value pairs. Currently unimplemented.")
 
+  # noinspection PyShadowingBuiltins
   @api.expect(get_parser, validate=True)
   def get(self, id):
     """ Get all targetters for this entity.
@@ -109,10 +112,11 @@ class EntityTargettersHandler(flask_restplus.Resource):
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
     targetters = entity.get_targetting_entities(db_interface=get_db(), entity_type=args["targetter_class"])
-    targetter_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
-                        targetters]
+    targetter_nodes = [
+      common_data_containers.JsonObjectNode.from_details(content=annotation)
+      for annotation in targetters]
     for node in targetter_nodes:
-      node.fill_descendents(db_interface=get_db(), depth=args["depth"]-1, entity_type=args["targetter_class"])
+      node.fill_descendents(db_interface=get_db(), depth=args["depth"] - 1, entity_type=args["targetter_class"])
     return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
 
@@ -125,15 +129,14 @@ class EntityListHandler(flask_restplus.Resource):
                           help="A brief JSON string with property: value pairs. Currently unimplemented.")
 
   @api.expect(get_parser, validate=True)
-  def get(self, id):
+  def get(self):
     """ Get all matching entities- Currently unimplemented."""
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
 
-
-
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
+
   # TODO: The below fails. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
   # @api.expect(json_node_model, validate=False)
 
@@ -205,6 +208,7 @@ class EntityListHandler(flask_restplus.Resource):
     return {}, 200
 
 
+# noinspection PyMethodMayBeStatic
 @api.route('/schemas')
 class SchemaListHandler(flask_restplus.Resource):
   def get(self):
