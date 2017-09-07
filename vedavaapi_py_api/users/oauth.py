@@ -25,11 +25,11 @@ class OAuthSignIn(object):
     self.provider_name = provider_name
     self.service = None
 
-  def authorize(self):
+  def authorize(self, next_url):
     """User-agent is directed to the oauth provider website, with a standard callback url."""
-    callback_url = url_for('.authorized', provider=self.provider_name,
+    callback_url = url_for('.oauth_authorized', provider=self.provider_name,
             _external=True)
-    return self.service.authorize(callback_url)
+    return self.service.authorize(callback=callback_url, state=next_url)
 
   def authorized_response(self):
     return self.service.authorized_response()

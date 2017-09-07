@@ -69,23 +69,35 @@ class UserListHandler(flask_restplus.Resource):
 
 
 @api_blueprint.route('/oauth_login/<provider>')
-def login(provider):
+def oauth_login(provider):
   oauth = OAuthSignIn.get_provider(provider)
-  return oauth.authorize()
+  return oauth.authorize(next_url=request.args.get('next_url'))
 
 
 @api_blueprint.route('/oauth_authorized/<provider>')
-def authorized(provider):
+def oauth_authorized(provider):
   oauth = OAuthSignIn.get_provider(provider)
   response = oauth.authorized_response()
-  next_url = request.args.get('next') or url_for('index')
+  # Example response: {
+  #   'expires_in': 3600,
+  #   'id_token': 'AsxTQ6wA3xM006J1pGyWd4lmcwowV9nNI1w6SNeP1Qxu1YJ69_w',
+  #   'token_type': 'Bearer',
+  #   'access_token': '-DlJU'}
+
+  # logging.debug(request.args)
+  # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}
+  next_url = request.args.get('state')
+
   if response is None:
     flash('We weren\'t able to log you in I\'m afraid.')
+  else:
+    session['oauth_token'] = oauth.get_session_data(response)
+    session['user'] = oauth.get_user().to_json_map()
+    flash('Authenticated!')
+  if next_url is not None:
     return redirect(next_url)
-
-  session['oauth_token'] = oauth.get_session_data(response)
-  session['user'] = oauth.get_user().to_json_map()
-  return redirect(next_url)
+  else:
+    return "Did not get a next_url, it seems!"
 
 
 # Passwords are convenient for authenticating bots.
