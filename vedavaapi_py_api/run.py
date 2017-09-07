@@ -54,7 +54,7 @@ def setup_app():
   logging.info(app.instance_path)
   import vedavaapi_py_api.ullekhanam.api_v1
   import vedavaapi_py_api.textract.api_v1
-  app.register_blueprint(api_v1.api_blueprint, url_prefix="/oauth")
+  app.register_blueprint(api_v1.api_blueprint, url_prefix="/auth")
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.register_blueprint(ullekhanam.api_v1.api_blueprint, url_prefix="/ullekhanam")
 

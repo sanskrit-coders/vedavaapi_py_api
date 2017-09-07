@@ -1,8 +1,10 @@
 import logging
 
 import flask_restplus
+import sanskrit_data.schema.common as common_data_containers
 from flask import redirect, url_for, request, flash, Blueprint, session
 from sanskrit_data.schema.common import JsonObject
+from sanskrit_data.schema.users import User
 
 from vedavaapi_py_api.users.oauth import OAuthSignIn
 
@@ -43,14 +45,35 @@ class UserListHandler(flask_restplus.Resource):
     """Just list the users."""
     return {"message": "NOT IMPLEMENTED"}, 404
 
+  post_parser = api.parser()
+  post_parser.add_argument('jsonStr', location='json')
 
-@api_blueprint.route('/login/<provider>')
+  @api.expect(post_parser, validate=False)
+  # TODO: The below fails silently. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
+  @api.expect(User.schema, validate=True)
+  @api.doc(responses={
+    200: 'Update success.',
+    401: 'Unauthorized - you need to be an admin. Use ../oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    417: 'JSON schema validation error.',
+  })
+  def post(self):
+    """Add or modify a user, identified by the authentication_infos array."""
+    logging.info(str(request.json))
+    if not is_user_admin():
+      return "", 401
+    user = common_data_containers.JsonObject.make_from_dict(request.json)
+    if not isinstance(user, User):
+      return "", 417
+    pass
+
+
+@api_blueprint.route('/oauth_login/<provider>')
 def login(provider):
   oauth = OAuthSignIn.get_provider(provider)
   return oauth.authorize()
 
 
-@api_blueprint.route('/authorized/<provider>')
+@api_blueprint.route('/oauth_authorized/<provider>')
 def authorized(provider):
   oauth = OAuthSignIn.get_provider(provider)
   response = oauth.authorized_response()

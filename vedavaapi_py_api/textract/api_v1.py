@@ -34,8 +34,6 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 #                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
-json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
-
 
 @api.route('/books')
 @api.doc(responses={

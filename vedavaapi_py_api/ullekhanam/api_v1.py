@@ -23,6 +23,9 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
                          prefix=URL_PREFIX, doc='/docs')
 
 
+json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
+
+
 def check_permission():
   from flask import session
   user = JsonObject.make_from_dict(session.get('user', None))
