@@ -170,11 +170,6 @@ def send_file_relpath(relpath):
   return send_from_directory(paths.DATADIR, relpath)
 
 
-# @app.route('/<path:abspath>')
-# def details_dir(abspath):
-#	logging.info("abspath:" + str(abspath))
-#	return render_template("fancytree.html", abspath='/'+abspath)
-
 @api_blueprint.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
   """???."""

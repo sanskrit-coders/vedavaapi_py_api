@@ -40,7 +40,7 @@ function getBooks(hglass)
             var book_entry = '<tr>'+
                 '<td>' +'<input type="checkbox" value=\"' +
                 bpath + '\"/>'+ '</td>'+
-                '<td>' + get_anchor_tag("/ui/textract/viewbook.html?_id=" + bookId, bpath) + '</td>'+
+                '<td>' + '<a href="viewbook.html?_id=' + bookId + '">' + bpath + '</a></td>'+
                 '<td>' +
                 '<button onclick="browse(\''+bpath+'\');">Details</button>' +
                 '<button onclick="docmd(\'' +bpath+ '\',\'delete\');">Delete</button>'+

@@ -24,7 +24,7 @@ app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
 @app.route('/')
 def index():
   flask.session['logstatus'] = 1
-  return flask.render_template('textract/listBooks.html', title='Home')
+  return app.send_static_file('html/listbooks.html')
 
 
 @app.route('/ui/<path:filepath>')
