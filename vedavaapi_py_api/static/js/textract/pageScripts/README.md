@@ -1,1 +1,0 @@
-Every js file in this folder corresponds to a html template. For example, viewbook.js is tied to viewbook.html.
