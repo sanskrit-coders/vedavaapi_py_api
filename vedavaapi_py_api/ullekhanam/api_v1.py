@@ -16,7 +16,7 @@ URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='ullekhanam_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py ullekhanam API',
                          description='For detailed intro and to report issues: see <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
-                                     'For using some API, you need to log in using <a href="../oauth/login/google">google</a>.'
+                                     'For using some API, you need to log in using <a href="../auth/oauth_login/google">google</a>.'
                                      'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="v1/schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>. ',
                          default_label=api_blueprint.name,
@@ -146,7 +146,7 @@ class EntityListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized. Use ../oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
     418: "Target entity class validation error."
   })
@@ -190,7 +190,7 @@ class EntityListHandler(flask_restplus.Resource):
   @api.expect(post_parser, validate=False)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized. Use /auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   })
   def delete(self):
     """ Delete trees of entities.

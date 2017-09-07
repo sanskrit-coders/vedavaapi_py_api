@@ -53,7 +53,7 @@ class UserListHandler(flask_restplus.Resource):
   @api.expect(User.schema, validate=True)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized - you need to be an admin. Use ../oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
   })
   def post(self):
@@ -64,6 +64,7 @@ class UserListHandler(flask_restplus.Resource):
     user = common_data_containers.JsonObject.make_from_dict(request.json)
     if not isinstance(user, User):
       return "", 417
+    logging.debug(str(User.schema))
     pass
 
 

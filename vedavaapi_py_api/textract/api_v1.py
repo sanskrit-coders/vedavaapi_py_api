@@ -38,7 +38,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 @api.route('/books')
 @api.doc(responses={
   200: 'Update success.',
-  401: 'Unauthorized. Use /oauth/login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  401: 'Unauthorized. Use /auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   417: 'JSON schema validation error.',
 })
 class ImageBookList(BookList):
