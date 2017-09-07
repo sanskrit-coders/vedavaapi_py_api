@@ -13,7 +13,7 @@ from sanskrit_data.schema.users import User, UserPermission
 class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.
 
-  A simple way to understand how this is used is to see how it is called from users_api_v1.py.  
+  A simple way to understand how this is used is to see how it is called from api_v1.py.
   Important private members:
     provider_name
     service: An oauth.remote_app object, set in the subclass constructor.
