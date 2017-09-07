@@ -12,6 +12,9 @@ users_db = None
 def setup(db):
   global users_db
   users_db = db
+  users_db.add_index(keys_dict={
+    "authentication_infos.auth_user_id" : 1
+  }, index_name="authentication_infos.auth_user_id")
 
 
 class Users(Collection): pass

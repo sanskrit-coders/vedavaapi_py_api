@@ -11,7 +11,6 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-
 URL_PREFIX = '/v1'
 api_blueprint = Blueprint(
   'oauth', __name__,
@@ -73,16 +72,19 @@ def password_login():
   client_secret = request.form.get('client_secret')
   from vedavaapi_py_api.users import users_db
   user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": client_id,
-                                   "authentication_infos.auth_provider": "vedavaapi",
-                                   })
+                                        "authentication_infos.auth_provider": "vedavaapi",
+                                        })
   logging.debug(user)
   if user is None:
     return {"message": "No such client_id"}, 403
-  authentication_matches = list(filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(client_secret), user.authentication_infos))
-  if not authentication_matches or len(authentication_matches) == 0:
-    return {"message": "Bad pw"}, 403
-  session['user'] = user
-  return {"message": "Welcome " + client_id}, 302
+  else:
+    authentication_matches = list(
+      filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(client_secret),
+             user.authentication_infos))
+    if not authentication_matches or len(authentication_matches) == 0:
+      return {"message": "Bad pw"}, 403
+    session['user'] = user
+    return {"message": "Welcome " + client_id}, 302
 
 
 @api_blueprint.route("/logout")
