@@ -1,4 +1,10 @@
 'use strict';
+
+var api_url_base = "https://api.vedavaapi.org/py/";
+if (window.location.href.includes("localhost")) {
+    api_url_base = "http://localhost:9000";
+}
+
 function serialize(obj){
     var k = Object.keys(obj);
     var s = "";
@@ -22,7 +28,7 @@ function get_anchor_tag(lpath, text, newwin)
     var url = "";
     if (lpath.startsWith('http') || lpath.startsWith('/'))
         url = lpath;
-    else url = "/textract/relpath/" + lpath;
+    else url = api_url_base + "/textract/relpath/" + lpath;
     return '<a href="' + url + '" ' + newwin + '>' + text + '</a>';
 }
 

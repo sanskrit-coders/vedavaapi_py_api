@@ -58,7 +58,7 @@ function segmentPage() {
     var bookdetails = viewBookState.bookdetails;
     var pagedetails = bookdetails.children[curpage].content;
 
-    $.getJSON('/textract/v1/pages/' + pagedetails._id + '/image_annotations/all', function (data) {
+    $.getJSON(api_url_base + '/textract/v1/pages/' + pagedetails._id + '/image_annotations/all', function (data) {
         console.log("Page Anno: ", data);
         loadpage(data);
     });
@@ -90,7 +90,7 @@ function getBook(hglass, bookId) {
     if (hglass == true) {
         $(".hourglass").show();
     }
-    var xhr = $.getJSON('/textract/v1/books/' + bookId).success(function (data) {
+    var xhr = $.getJSON(api_url_base + '/textract/v1/books/' + bookId).success(function (data) {
         console.log("in done");
         viewBookState.bookdetails = data;
         setcurpage(0);
@@ -127,7 +127,7 @@ function loadpage(annotationNodes) {
     // console.log("Book Details: ", bookdetails);
     var pagedetails = bookdetails.children[curpage].content;
     console.log(pagedetails);
-    var fpath = "/textract/relpath/" + pagedetails.path;
+    var fpath = api_url_base + "/textract/relpath/" + pagedetails.path;
     console.log("Loading page path: ", fpath);
     viewBookState.canvasState = canvasStateList.add('pageCanvas', fpath, curpage);
     viewBookState.canvasState = canvasStateList.moveTo(viewBookState.canvasState.name);

@@ -1,12 +1,4 @@
 'use strict';
-function updateWlWizard() {
-    var $consolediv = $('#console');
-    $consolediv.html("updating wlwizard...");
-    $.get('/admin/update', function(response) {
-        console.log(response);
-        $consolediv.html(response);
-    });
-}
 
 function getBooks(hglass)
 {
@@ -20,7 +12,7 @@ function getBooks(hglass)
     var $select = $('#book_table');
     $select.empty();
     var pattern=document.getElementById('wload_filter').value;
-    $.getJSON('/textract/v1/books?pattern='+pattern, function(data){
+    $.getJSON(api_url_base + '/textract/v1/books?pattern='+pattern, function(data){
         $select.append('<table class="wltabclass" id="wltable">'+
             '</table>');
         var table= $select.children();
@@ -79,8 +71,8 @@ function doexplore(wlparams, cmd)
     var formparams = getWlForm(wlparams.wlnames, 'wlactions');
     console.log("Command is :"+cmd+"wlname is:"+wlparams.wlnames);
     console.log(serialize(formparams));
-    window.open('/textract/v1/' + cmd + '?' +serialize(formparams), '_blank');
-    //window.open('/textract/v1/' + cmd + '?' +formparams, '_blank');
+    window.open(api_url_base + '/textract/v1/' + cmd + '?' +serialize(formparams), '_blank');
+    //window.open(api_url_base + '/textract/v1/' + cmd + '?' +formparams, '_blank');
 
 }
 
@@ -105,7 +97,7 @@ function bookProcess(wlparams, cmd)
     $(".hourglass").show();
     //console.log(wlparams);
     var $consolediv = $('#console');
-    $.getJSON('/textract/v1/'+cmd+'?' + serialize(wlparams), function(data){
+    $.getJSON(api_url_base + '/textract/v1/'+cmd+'?' + serialize(wlparams), function(data){
         $('#book_table').empty();
         var $resp = "Response for " + cmd + ":<p>\n";;
         $.each(data, function(ind, book) {
@@ -122,7 +114,7 @@ function bookProcess(wlparams, cmd)
 
 function browse(bname){
     var newwin="target=\"_blank\"";
-    window.open('/textract/v1/path/' + encodeURIComponent(bname));
+    window.open(api_url_base + '/textract/v1/path/' + encodeURIComponent(bname));
 }
 
 
@@ -187,15 +179,6 @@ $(document).ready(function () {
     $('#refresh').click(function () {
         window.location.reload(true);
     });
-
-    $('#upgrade_wlwizard').click(function () {
-        updateWlWizard();
-    });
-	$('#reportbug').click(function () {
-		var newwin="target=\"_blank\"";
-        window.open('/bugzilla/enter_bug.cgi',newwin);
-    });
-
 
     $('#selectall').click(function () {
         $('#wltable').find('input[type="checkbox"]').each(function (){

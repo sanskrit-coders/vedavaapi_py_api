@@ -919,7 +919,7 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     if (updatedAnnotationNodes.length > 0) {
         console.log('POST anno contents: ', updatedAnnotationNodes);
         $.ajax({
-            url: '/ullekhanam/v1/entities',
+            url: api_url_base + '/ullekhanam/v1/entities',
             type: 'POST',
             data: JSON.stringify(updatedAnnotationNodes),
             contentType: 'application/json; charset=utf-8',
@@ -945,9 +945,9 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
     });
     if (deletedAnnotationNodesWithId.length > 0) {
         console.log('DELETE anno contents: ', deletedAnnotationNodesWithId);
-        //post('/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
+        //post(api_url_base + '/textract/v1/page/anno/'+oid, JSON.stringify(rectangles));
         $.ajax({
-            url: '/ullekhanam/v1/entities',
+            url: api_url_base + '/ullekhanam/v1/entities',
             type: 'DELETE',
             data: JSON.stringify(deletedAnnotationNodesWithId),
             contentType: 'application/json; charset=utf-8',
