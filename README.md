@@ -34,7 +34,8 @@ Python based Web API's for the <vedavaapi.org> project.
 * Data setup: Grant the account running run.py authority to write in /opt/scan2text/.
   * `sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text`
   * `ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/`
-* Install and set up couchdb:
+* Install mongodb 3.4.
+* [Optional, deprecated alternative] Install and set up couchdb:
   * Consider using [our cookbook](https://github.com/vedavaapi/vedavaapi-chef) with chef for easily installing couchdb with full text indexing enabled.
   * Alter the local.ini file to provide write permissions to the admin.
 * Set up the `vedavaapi_py_api/server_config_local.config` file based on  `vedavaapi_py_api/server_config_template.config`. The database details should match your database setup!
