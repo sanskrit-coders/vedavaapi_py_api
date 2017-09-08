@@ -1,0 +1,365 @@
+header {
+    background-color:#6a5acd;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+
+nav {
+    font: 13px arial, sans-serif;
+    line-height:30px;
+    background-color:#e6e6fa;
+    height:200px;
+    width:1060px;
+    float:left;
+    padding:5px;
+}
+
+#content{
+	//background: #ffffff;
+	//width: 1200px;
+	width : 100%;
+	margin: 0 auto;
+	color : black;
+	font-size : 16px;
+	font-weight : bold;
+}
+
+#leftcol{
+    line-height : 30px;
+    background-color : #e6e6fa;
+    height : 100%;
+    width : 170px;
+    padding : 5px;
+    padding-right : 0;
+    float : left;
+    background-color : #DBD67F;
+}
+
+#bgblur {
+	font: 12px arial, sans-serif;
+	background-color:#e6e6fa;
+	line-height:30px;
+    height: auto;
+}
+.wrapper {
+    max-width:50%;
+	min-width:800px;
+	max-height:500px;
+	min-height:21%;
+}
+#plotarea{
+	background-color:#e6e6fa;
+}
+#console {
+    font: 10px arial, sans-serif;
+    color: black;
+    /* line-height:30px; */
+    background-color:#e6e6fa;
+    height:40px;
+    width:30%;
+    float:right;
+    border:0px solid #000000;
+    overflow:auto;
+    top:10px;
+    position:absolute;
+    padding:0px;
+    right:8px;
+}
+
+.viewbook_divDetailedAnnotations {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    border: 1px solid black;
+    padding: 5px;
+    z-index: 100;
+    background-color: #E7C3C3;
+    display: none;
+}
+
+.serverconsole {
+    font: 10px arial, sans-serif;
+    /* line-height:30px; */
+    /*background-color:#000000;*/
+    height:auto;
+    width:auto;
+    float:left;
+    /*border:2px solid #000000;*/
+    padding:5px;
+    overflow:auto;
+    top:64px;
+    position:absolute;
+    left:20px;
+}
+.ctrlbtns {
+    font: 10px arial, sans-serif;
+    /* line-height:30px; */
+    /*background-color:#000000;*/
+    height:auto;
+    width:auto;
+    float:left;
+    /*border:2px solid #000000;*/
+    padding:5px;
+    overflow:auto;
+    top:98px;
+    position:absolute;
+    left:20px;
+}
+
+.capture_parse_console {
+    font: 10px arial, sans-serif;
+    /* line-height:30px; */
+    /*background-color:#000000;*/
+    height:auto;
+    width:300px;
+    float:right;
+    top:98px;
+    position:absolute;
+    right:0px;
+    /*border:2px solid #000000;*/
+    padding:5px;
+    overflow:auto;
+}
+
+
+input { font: 12px arial, sans-serif; }
+
+select { font: 12px arial, sans-serif; }
+
+section {
+    width:350px;
+    float:left;
+    padding:10px;
+}
+
+#plotwin {
+    line-height:30px;
+    background-color:#FFFFFF;
+    height:412px;
+    width:512px;
+    float:right;
+    padding:10px;
+}
+
+article {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:700px;
+    width:700px;
+    float:none;
+    padding:10px;
+}
+
+footer {
+    background-color:#eeeeee;
+    color:black;
+    clear:both;
+    text-align:center;
+    padding:0px;
+}
+
+/*.no-js #loader { display: none; }
+.js #loader { display: block; position: absolute; left: 100px; top: 0;}*/
+.hourglass{
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* for IE8 and earlier */
+    z-index: 9999;
+    background: url("/vedavaapi_py_api/static/v0pi_py_api/static/v0/images/loading.gif") center no-repeat #fff;}
+
+
+/* Added new code for workload capture*/
+/*
+#capture_popup {
+width:100%;
+height:100%;
+opacity:.95;
+top:0;
+left:0;
+display:none;
+background-color:#313131;
+position:fixed;
+overflow:auto
+}
+
+div #capture_form_div{
+position:absolute;
+left:50%;
+top:17%;
+margin-left:-202px;
+font-family:'Raleway',sans-serif
+}
+
+img#close {
+position:absolute;
+right:-14px;
+top:-14px;
+cursor:pointer
+}*/
+
+#upload_popup,#capture_popup {
+width:530px;
+height:auto;
+top:150px;
+left:300px;
+display:none;
+background:#FFFFFF;
+position:fixed;
+overflow:auto;
+padding:15px;
+/*font-size:15px;*/
+border:1px solid #006666;
+z-index:100;
+margin-left:15px
+}
+
+#cmetric_popup {
+width:400px;
+height:350px;
+top:75px;
+left:200px;
+display:none;
+background:#FFFFFF;
+position:absolute;
+position:fixed;
+overflow:auto;
+padding:15px;
+/*font-size:15px;*/
+border:1px solid #006666;
+z-index:100;
+margin-left:15px
+}
+
+a{
+   cursor:pointer;
+   text-decoration:none;
+}
+#upload_popup_close,#capture_popup_close,#cmetric_popup_close
+{
+  font-size:20px;
+  line-height: 15px;
+  right:5px;
+  top:5px;
+  position:absolute;
+  color: #6fa5e2;
+  font-weight: 500;
+}
+
+/*for progress-Bar */
+.progress-trough {
+    border: 1px solid #000000;
+    height: 24px;
+    width: 100%;
+    position: relative;
+}
+
+.progress-bar {
+    width: 50%;
+    height: 100%;
+    background-color: #0099FF;
+}
+
+/*table td{padding:10px;border:1px;solid #DDD;}*/
+.wloads_css{
+    font: 12px arial, sans-serif;
+    line-height:30px;
+    background-color:#e6e6fa;
+    float:left;
+    width:900px;
+    height:350px;
+    padding:5px;
+    background-color:#eeeeee;
+    /*padding-left:20px;*/
+}
+
+    
+.wloads_css button{
+    font: 12px arial, sans-serif;
+}
+.table_area{
+    overflow:auto;
+    position:relative;
+    float:left;
+    width:100%;
+    height:300px;
+    /*padding-left:20px;*/
+}
+
+.dsrc_table_area{
+    overflow:auto;
+    /*position:relative;*/
+    float:left;
+    width:100%;
+    /*height:300px;
+    padding-left:20px;*/
+}
+
+table.wltabclass{
+    background:#CCC;
+    border:1px;
+    solid:#000;
+    /*width:100%;*/
+	width:auto;
+}
+
+.datasrctbl_class{
+    background:#CCC;
+    border:1px;
+    solid:#000;
+    width:auto;
+}
+
+button {
+/*    font-size:130%; */
+    /*font-weight:bold;*/
+}
+
+table.wltabclass th{
+	background: #EDF2F6;
+    border-bottom: 1px dotted #DDDDDD;
+    color: #444444;
+    font-size: 14px;
+    font-weight: normal !important;
+    height: 28px;
+    line-height: 28px;
+    padding-left: 5px;
+    text-align: center;
+   
+}
+table.wltabclass td{
+    border-bottom: 1px dotted #EAEAEA;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 12px;
+    height: 28px;
+    padding: 5px;
+    text-align: center;
+}
+table.wltabclass td button{
+    font-size:12px;
+}
+
+table.wltabclass tr:hover{
+	background: #E3F3F9;
+}
+
+table.wlwizard_msg td{
+    font-size: 12px;
+}
+
+table.wltabclass.dtsource th  {
+	font-size:12px;
+}
+
+table.wltabclass.dtsource  {
+	border-spacing:1px;
+}
+
+table.wltabclass.dtsource td {
+	padding:0px;
+	background:#FFF;
+}

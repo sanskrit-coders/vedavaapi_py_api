@@ -111,5 +111,5 @@ class GoogleSignIn(OAuthSignIn):
       user = User.from_details(nickname=data['name'], auth_user_id=data['email'], user_type="human", auth_provider=self.provider_name)
     if data['email'].replace("@", "___") == "vishvas.vasuki___gmail.com":
       user.permissions = [UserPermission.from_details(service=".*", actions=["read", "write", "admin"])]
-    logging.debug(user)
+    # logging.debug(user)
     return user

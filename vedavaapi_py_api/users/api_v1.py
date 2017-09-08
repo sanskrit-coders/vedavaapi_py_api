@@ -91,27 +91,35 @@ def oauth_authorized(provider):
     #   'access_token': '-DlJU'}
   except OAuthException as e:
     import traceback
-    logging.error(traceback.format_exc())
-    logging.error(e.type)
-    logging.error(e.message)
-    logging.error(e.data)
-    response = flask.json.jsonify(e.data), 401
-    return response
+    logging.warning(traceback.format_exc())
+    logging.warning(e.type)
+    logging.warning(e.message)
+    logging.warning(e.data)
+    if (e.data['error_description'] == 'Code was already redeemed.'):
+      logging.warning("For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
+    else:
+      response = flask.json.jsonify(e.data), 401
+      return response
 
   # logging.debug(request.args)
   # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}
   next_url = request.args.get('state')
 
+  response_code = 200
   if response is None:
-    flash('We weren\'t able to log you in I\'m afraid.')
+    flash('Couldn\'t authenticate you with ' + provider)
+    response_code = 401
   else:
     session['oauth_token'] = oauth.get_session_data(response)
     session['user'] = oauth.get_user().to_json_map()
+    logging.debug(session)
     flash('Authenticated!')
   if next_url is not None:
-    return redirect(next_url)
+    # Not using redirect(next_url) because:
+    #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
+    return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
   else:
-    return "Did not get a next_url, it seems!"
+    return flask.json.jsonify(message="Did not get a next_url, it seems!"), response_code
 
 
 # Passwords are convenient for authenticating bots.
