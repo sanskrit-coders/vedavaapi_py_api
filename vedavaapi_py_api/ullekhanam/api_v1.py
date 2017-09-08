@@ -29,6 +29,8 @@ json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectN
 def check_permission():
   from flask import session
   user = JsonObject.make_from_dict(session.get('user', None))
+  logging.debug(request.cookies)
+  logging.debug(session)
   logging.debug(session.get('user', None))
   logging.debug(user)
   if user is None or not user.check_permission(service="ullekhanam", action="write"):

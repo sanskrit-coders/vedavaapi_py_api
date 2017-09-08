@@ -1,7 +1,9 @@
 import logging
 
+import flask
 import flask_restplus
 import sanskrit_data.schema.common as common_data_containers
+import sys
 from flask import redirect, url_for, request, flash, Blueprint, session
 from sanskrit_data.schema.common import JsonObject
 from sanskrit_data.schema.users import User
@@ -31,6 +33,7 @@ def is_user_admin():
   from flask import session
   user = JsonObject.make_from_dict(session.get('user', None))
   logging.debug(session.get('user', None))
+  logging.debug(session)
   logging.debug(user)
   if user is None or not user.check_permission(service="users", action="admin"):
     return False
@@ -77,12 +80,23 @@ def oauth_login(provider):
 @api_blueprint.route('/oauth_authorized/<provider>')
 def oauth_authorized(provider):
   oauth = OAuthSignIn.get_provider(provider)
-  response = oauth.authorized_response()
-  # Example response: {
-  #   'expires_in': 3600,
-  #   'id_token': 'AsxTQ6wA3xM006J1pGyWd4lmcwowV9nNI1w6SNeP1Qxu1YJ69_w',
-  #   'token_type': 'Bearer',
-  #   'access_token': '-DlJU'}
+  response = None
+  from flask_oauthlib.client import OAuthException
+  try:
+    response = oauth.authorized_response()
+    # Example response: {
+    #   'expires_in': 3600,
+    #   'id_token': 'AsxTQ6wA3xM006J1pGyWd4lmcwowV9nNI1w6SNeP1Qxu1YJ69_w',
+    #   'token_type': 'Bearer',
+    #   'access_token': '-DlJU'}
+  except OAuthException as e:
+    import traceback
+    logging.error(traceback.format_exc())
+    logging.error(e.type)
+    logging.error(e.message)
+    logging.error(e.data)
+    response = flask.json.jsonify(e.data), 401
+    return response
 
   # logging.debug(request.args)
   # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}

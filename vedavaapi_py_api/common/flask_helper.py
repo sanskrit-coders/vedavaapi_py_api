@@ -7,7 +7,6 @@ import os
 from flask import url_for
 from flask_cors import CORS
 
-
 """ The flask app we serve in run.py.
 """
 app = flask.Flask(
@@ -18,7 +17,12 @@ app = flask.Flask(
 CORS(app)
 
 # TODO: Set SECRET_KEY from server_config_local.
-app.config['SECRET_KEY'] = b64encode(os.urandom(24)).decode('utf-8')
+app.config.update(
+  DEBUG=True,
+  SECRET_KEY=b64encode(os.urandom(24)).decode('utf-8'),
+  SESSION_COOKIE_NAME="vedavaapi_session",
+  # SERVER_NAME="localhost:9000",
+)
 
 
 @app.route('/')
