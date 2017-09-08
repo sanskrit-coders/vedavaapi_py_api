@@ -924,6 +924,10 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
             data: JSON.stringify(updatedAnnotationNodes),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
             success: function (nodes) {
                 console.log("Annotations saved successfully.");
                 canvasStateContext.rectangles = unmodifiedRectangles;
@@ -952,6 +956,10 @@ CanvasState.prototype.saveAnnotations = function (pageId) {
             data: JSON.stringify(deletedAnnotationNodesWithId),
             contentType: 'application/json; charset=utf-8',
             dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
             success: function(result) {
                 console.log("Annotations deleted successfully. Dropping: ", canvasStateContext.rectangles.length);
                 canvasStateContext.rectangles = canvasStateContext.rectangles.filter(function (x) {

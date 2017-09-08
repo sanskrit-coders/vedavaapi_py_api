@@ -64,6 +64,10 @@ function doUpload() {
         processData: false,
         cache: false,
         data: fd,
+        xhrFields: {
+            withCredentials: true
+        },
+        crossDomain: true,
         success: function(data) {
             $progressBar.css({"width": "100%"});
             console.log(data)
