@@ -31,7 +31,7 @@ app.config.update(
 @app.route('/')
 def index():
   flask.session['logstatus'] = 1
-  return app.send_static_file('html/listbooks.html')
+  return flask.redirect('static/v0/html/listbooks.html')
 
 
 @app.route('/ui/<path:filepath>')
@@ -46,14 +46,9 @@ def fill_template(filepath):
         traceback.print_exc(e)
         flask.abort(404)
     else:
-      return flask.redirect('/')
+      return flask.redirect(url_for(endpoint='.index'))
   else:
-    return flask.redirect('/')
-
-
-@app.route('/static/<path:filepath>')
-def static_file(filepath):
-  return app.send_static_file('static/' + filepath)
+    return flask.redirect(url_for(endpoint='.index'))
 
 
 @app.route("/sitemap")

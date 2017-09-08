@@ -117,7 +117,8 @@ def oauth_authorized(provider):
   if next_url is not None:
     # Not using redirect(next_url) because:
     #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
-    return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
+    # return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
+    return redirect(next_url)
   else:
     return flask.json.jsonify(message="Did not get a next_url, it seems!"), response_code
 
