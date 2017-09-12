@@ -46,7 +46,7 @@ def setup_app():
 
   from vedavaapi_py_api import users
   from vedavaapi_py_api.users import api_v1
-  users.setup(db=client.get_database_interface(db_name=server_config["db"]["users_db_name"]))
+  users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]))
   ullekhanam_db = client.get_database(db_name=server_config["db"]["ullekhanam_db_name"])
   textract.setup_app(db=ullekhanam_db)
 

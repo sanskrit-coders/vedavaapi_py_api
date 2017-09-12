@@ -79,7 +79,8 @@ class ImageBookList(BookList):
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
     book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db()) or
-            sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"), base_data="image", portion_class="book"))
+            sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"),
+                                                                base_data="image", portion_class="book"))
 
     if not book.authors: book.authors = [form.get("author")]
 
@@ -113,7 +114,8 @@ class ImageBookList(BookList):
 
       page = common_data_containers.JsonObjectNode.from_details(
         content=sanskrit_data.schema.books.BookPortion.from_details(
-          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName), base_data="image", portion_class="page",
+          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName), base_data="image",
+          portion_class="page",
           targets=[sanskrit_data.schema.books.BookPositionTarget.from_details(position=page_index)]
         ))
       pages.append(page)
@@ -138,6 +140,7 @@ class ImageBookList(BookList):
 @api.route('/books/<string:id>')
 class ImageBookHandler(EntityHandler):
   pass
+
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
 class AllPageAnnotationsHandler(flask_restplus.Resource):

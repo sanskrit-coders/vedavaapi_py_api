@@ -63,10 +63,11 @@ class UserListHandler(flask_restplus.Resource):
     """Add or modify a user, identified by the authentication_infos array."""
     logging.info(str(request.json))
     if not is_user_admin():
-      return "", 401
+      return {"message": "User is not an admin!"}, 401
+
     user = common_data_containers.JsonObject.make_from_dict(request.json)
     if not isinstance(user, User):
-      return "", 417
+      return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
     logging.debug(str(User.schema))
     pass
 
@@ -127,23 +128,23 @@ def oauth_authorized(provider):
 # For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
 @api_blueprint.route('/password_login')
 def password_login():
-  client_id = request.form.get('client_id')
-  client_secret = request.form.get('client_secret')
+  user_id = request.form.get('user_id')
+  user_secret = request.form.get('user_secret')
   from vedavaapi_py_api.users import users_db
-  user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": client_id,
+  user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": user_id,
                                         "authentication_infos.auth_provider": "vedavaapi",
                                         })
   logging.debug(user)
   if user is None:
-    return {"message": "No such client_id"}, 403
+    return {"message": "No such user_id"}, 403
   else:
     authentication_matches = list(
-      filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(client_secret),
+      filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(user_secret),
              user.authentication_infos))
     if not authentication_matches or len(authentication_matches) == 0:
       return {"message": "Bad pw"}, 403
     session['user'] = user
-    return {"message": "Welcome " + client_id}, 302
+    return {"message": "Welcome " + user_id}, 302
 
 
 @api_blueprint.route("/logout")
