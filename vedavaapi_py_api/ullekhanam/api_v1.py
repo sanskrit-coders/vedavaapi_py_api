@@ -53,7 +53,7 @@ class BookList(flask_restplus.Resource):
     :return: a list of JsonObjectNode json-s.
     """
     booklist = [book for book in get_db().list_books()]
-    logging.debug(booklist)
+    # logging.debug(booklist)
     return booklist, 200
 
 

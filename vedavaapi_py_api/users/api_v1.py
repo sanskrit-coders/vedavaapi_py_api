@@ -3,11 +3,11 @@ import logging
 import flask
 import flask_restplus
 import sanskrit_data.schema.common as common_data_containers
-import sys
 from flask import redirect, url_for, request, flash, Blueprint, session
 from sanskrit_data.schema.common import JsonObject
 from sanskrit_data.schema.users import User
 
+from vedavaapi_py_api.users import users_db
 from vedavaapi_py_api.users.oauth import OAuthSignIn
 
 logging.basicConfig(
@@ -23,7 +23,7 @@ api_blueprint = Blueprint(
 
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py users API',
                          description='For detailed intro and to report issues: see <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
-                                     'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="v1/schemas"> here</a>. <BR>'
+                                     'For a list of JSON schema-s this API uses (referred to by name in docs) see <a href="schemas"> here</a>. <BR>'
                                      'A list of REST and non-REST API routes avalilable on this server: <a href="../sitemap">sitemap</a>.',
                          default_label=api_blueprint.name,
                          prefix=URL_PREFIX, doc='/docs')
@@ -44,9 +44,17 @@ def is_user_admin():
 @api.route('/users')
 class UserListHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
+  @api.doc(responses={
+    200: 'Success.',
+    401: 'Unauthorized - you need to be an admin. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  })
   def get(self):
     """Just list the users."""
-    return {"message": "NOT IMPLEMENTED"}, 404
+    if not is_user_admin():
+      return {"message": "User is not an admin!"}, 401
+    user_list = [user for user in users_db.find(find_filter={})]
+    logging.debug(user_list)
+    return user_list, 200
 
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
@@ -58,6 +66,7 @@ class UserListHandler(flask_restplus.Resource):
     200: 'Update success.',
     401: 'Unauthorized - you need to be an admin. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
+    409: 'Object with matching info already exists. Please edit that instead or delete it.',
   })
   def post(self):
     """Add or modify a user, identified by the authentication_infos array."""
@@ -68,8 +77,14 @@ class UserListHandler(flask_restplus.Resource):
     user = common_data_containers.JsonObject.make_from_dict(request.json)
     if not isinstance(user, User):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
-    logging.debug(str(User.schema))
-    pass
+    for auth_info in user.authentication_infos:
+      matching_user = users_db.get_user(auth_info=auth_info)
+      logging.warning(str(matching_user))
+      return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
+              "matching_user": matching_user.to_json_map()
+              }, 409
+    updated_user = users_db.update_doc(doc=user)
+    return updated_user, 200
 
 
 @api_blueprint.route('/oauth_login/<provider>')
@@ -97,7 +112,8 @@ def oauth_authorized(provider):
     logging.warning(e.message)
     logging.warning(e.data)
     if (e.data['error_description'] == 'Code was already redeemed.'):
-      logging.warning("For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
+      logging.warning(
+        "For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
     else:
       response = flask.json.jsonify(e.data), 401
       return response
@@ -152,3 +168,15 @@ def logout():
   session.pop('oauth_token', None)
   session.pop('user', None)
   return redirect(url_for('index'))
+
+
+# noinspection PyMethodMayBeStatic
+@api.route('/schemas')
+class SchemaListHandler(flask_restplus.Resource):
+  def get(self):
+    """Just list the schemas."""
+    from sanskrit_data.schema import common, users
+    logging.debug(common.get_schemas(common))
+    schemas = common.get_schemas(common)
+    schemas.update(common.get_schemas(users))
+    return schemas, 200
