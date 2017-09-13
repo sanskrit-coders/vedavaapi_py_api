@@ -8,7 +8,8 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-from sanskrit_data.schema.users import User, UserPermission
+from sanskrit_data.schema.users import User, UserPermission, AuthenticationInfo
+
 
 class OAuthSignIn(object):
   """An interface to be extended for supporting various oauth authentication providers.
@@ -108,7 +109,7 @@ class GoogleSignIn(OAuthSignIn):
     user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": data['email'], "authentication_infos.auth_provider": self.provider_name})
     logging.debug(user)
     if user is None:
-      user = User.from_details(nickname=data['name'], auth_user_id=data['email'], user_type="human", auth_provider=self.provider_name)
+      user = User.from_details(auth_infos=[AuthenticationInfo.from_details(auth_user_id=data['email'], auth_provider=self.provider_name)], user_type="human")
     if data['email'].replace("@", "___") == "vishvas.vasuki___gmail.com":
       user.permissions = [UserPermission.from_details(service=".*", actions=["read", "write", "admin"])]
     # logging.debug(user)

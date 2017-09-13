@@ -1,7 +1,6 @@
 import logging
 
-from sanskrit_data.db import DbInterface
-from sanskrit_data.db.mongodb import Collection
+from sanskrit_data.db import DbInterface, mongodb
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -19,10 +18,8 @@ class UsersInterface(DbInterface):
                                       })
 
 
-from sanskrit_data.db.mongodb import Collection
 
-
-class UsersMongodb(Collection, UsersInterface):
+class UsersMongodb(mongodb.Collection, UsersInterface):
   def __init__(self, some_collection):
     super(UsersMongodb, self).__init__(some_collection=some_collection)
 
@@ -41,13 +38,16 @@ users_db = None
 def setup(db):
   global users_db
   from cloudant.database import CouchDatabase
+  logging.info(db.__class__)
+  from pymongo.collection import Collection
   if isinstance(db, CouchDatabase):
-    from vedavaapi_py_api.ullekhanam.backend.db.collections import UsersCouchdb
     users_db = UsersCouchdb(db)
   elif isinstance(db, Collection):
-    from vedavaapi_py_api.ullekhanam.backend.db.collections import UsersMongodb
     users_db = UsersMongodb(db)
-  users_db = db
   users_db.add_index(keys_dict={
     "authentication_infos.auth_user_id": 1
   }, index_name="authentication_infos.auth_user_id")
+
+# Directly accessing the module variable seems to yield spurious None values.
+def get_db():
+  return users_db

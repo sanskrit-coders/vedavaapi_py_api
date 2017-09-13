@@ -24,6 +24,6 @@ def initdb(db):
   }, index_name="targets_container_id")
 
 
-
+# Directly accessing the module variable seems to yield spurious None values.
 def get_db():
   return ullekhanam_db

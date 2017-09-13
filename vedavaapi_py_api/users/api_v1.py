@@ -4,10 +4,11 @@ import flask
 import flask_restplus
 import sanskrit_data.schema.common as common_data_containers
 from flask import redirect, url_for, request, flash, Blueprint, session
+from jsonschema import ValidationError
 from sanskrit_data.schema.common import JsonObject
 from sanskrit_data.schema.users import User
 
-from vedavaapi_py_api.users import users_db
+from vedavaapi_py_api.users import get_db
 from vedavaapi_py_api.users.oauth import OAuthSignIn
 
 logging.basicConfig(
@@ -17,7 +18,7 @@ logging.basicConfig(
 
 URL_PREFIX = '/v1'
 api_blueprint = Blueprint(
-  'oauth', __name__,
+  'auth', __name__,
   template_folder='templates'
 )
 
@@ -30,7 +31,6 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
 
 
 def is_user_admin():
-  from flask import session
   user = JsonObject.make_from_dict(session.get('user', None))
   logging.debug(session.get('user', None))
   logging.debug(session)
@@ -52,7 +52,7 @@ class UserListHandler(flask_restplus.Resource):
     """Just list the users."""
     if not is_user_admin():
       return {"message": "User is not an admin!"}, 401
-    user_list = [user for user in users_db.find(find_filter={})]
+    user_list = [user for user in get_db().find(find_filter={})]
     logging.debug(user_list)
     return user_list, 200
 
@@ -78,13 +78,97 @@ class UserListHandler(flask_restplus.Resource):
     if not isinstance(user, User):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
     for auth_info in user.authentication_infos:
-      matching_user = users_db.get_user(auth_info=auth_info)
-      logging.warning(str(matching_user))
-      return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
-              "matching_user": matching_user.to_json_map()
-              }, 409
-    updated_user = users_db.update_doc(doc=user)
-    return updated_user, 200
+      matching_user = get_db().get_user(auth_info=auth_info)
+      if matching_user is not None:
+        logging.warning(str(matching_user))
+        return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
+                "matching_user": matching_user.to_json_map()
+                }, 409
+
+    try:
+      user.update_collection(db_interface=get_db())
+    except ValidationError as e:
+      import traceback
+      message = {
+        "message": "Some input object does not fit the schema.",
+        "exception_dump": (traceback.format_exc())
+      }
+      return message, 417
+    return user.to_json_map(), 200
+
+
+@api.route('/users/<string:id>')
+@api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
+class UserHandler(flask_restplus.Resource):
+  # noinspection PyMethodMayBeStatic
+  @api.doc(responses={
+    200: 'Success.',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    404: 'id not found'
+  })
+  def get(self, id):
+    """Just get the user info.
+
+    :param id: String
+    :return: A User object.
+    """
+    matching_user = get_db().find_by_id(id=id)
+
+    if matching_user is None:
+      return {"message": "User not found!"}, 404
+
+    session_user = JsonObject.make_from_dict(session.get('user', None))
+
+    if not is_user_admin() and (session_user is None or session_user._id != matching_user._id):
+      return {"message": "User is not an admin!"}, 401
+
+    return matching_user, 200
+
+  post_parser = api.parser()
+  post_parser.add_argument('jsonStr', location='json')
+
+  @api.expect(post_parser, validate=False)
+  # TODO: The below fails silently. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
+  @api.expect(User.schema, validate=True)
+  @api.doc(responses={
+    200: 'Update success.',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    404: 'id not found',
+    417: 'JSON schema validation error.',
+    409: 'A different object with matching info already exists. Please edit that instead or delete it.',
+  })
+  def post(self):
+    """Add or modify a user, identified by the authentication_infos array."""
+    matching_user = get_db().find_by_id(id=id)
+
+    if matching_user is None:
+      return {"message": "User not found!"}, 404
+
+    session_user = JsonObject.make_from_dict(session.get('user', None))
+
+    logging.info(str(request.json))
+    if not is_user_admin() and (session_user is None or session_user._id != matching_user._id):
+      return {"message": "User is not an admin!"}, 401
+    user = common_data_containers.JsonObject.make_from_dict(request.json)
+    if not isinstance(user, User):
+      return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
+    for auth_info in user.authentication_infos:
+      another_matching_user = get_db().get_user(auth_info=auth_info)
+      if another_matching_user is not None and another_matching_user._id != matching_user._id:
+        logging.warning(str(another_matching_user))
+        return {"message": "Another object with matching info already exists. Please delete it first.",
+                "another_matching_user": another_matching_user.to_json_map()
+                }, 409
+    try:
+      user.update_collection(db_interface=get_db())
+    except ValidationError as e:
+      import traceback
+      message = {
+        "message": "Some input object does not fit the schema.",
+        "exception_dump": (traceback.format_exc())
+      }
+      return message, 417
+    return user.to_json_map(), 200
 
 
 @api_blueprint.route('/oauth_login/<provider>')
@@ -146,8 +230,7 @@ def oauth_authorized(provider):
 def password_login():
   user_id = request.form.get('user_id')
   user_secret = request.form.get('user_secret')
-  from vedavaapi_py_api.users import users_db
-  user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": user_id,
+  user = get_db().find_one(find_filter={"authentication_infos.auth_user_id": user_id,
                                         "authentication_infos.auth_provider": "vedavaapi",
                                         })
   logging.debug(user)
