@@ -167,10 +167,11 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 
 
 @api_blueprint.route('/relpath/<path:relpath>')
-def send_file_relpath(relpath):
-  """Get some data file - such as a page image."""
-  from flask import send_from_directory
-  return send_from_directory(paths.DATADIR, relpath)
+class RelPathHandler(flask_restplus.Resource):
+  def get(self, relpath):
+    """Get some data file - such as a page image."""
+    from flask import send_from_directory
+    return send_from_directory(paths.DATADIR, relpath)
 
 
 @api_blueprint.route('/dirtree/<path:abspath>')

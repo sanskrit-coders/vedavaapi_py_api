@@ -1,6 +1,7 @@
 import logging
 
 from sanskrit_data.db import DbInterface, mongodb
+from sanskrit_data.schema.users import User
 
 logging.basicConfig(
   level=logging.DEBUG,
@@ -13,9 +14,14 @@ class UsersInterface(DbInterface):
 
   def get_user(self, auth_info):
     """Get a user object matching details in a certain AuthenticationInfo object."""
-    return self.find_one(find_filter={"authentication_infos.auth_user_id": auth_info.auth_user_id,
+    user_dict = self.find_one(find_filter={"authentication_infos.auth_user_id": auth_info.auth_user_id,
                                       "authentication_infos.auth_provider": auth_info.auth_provider,
                                       })
+    if user_dict is None:
+      return None
+    else:
+      user = User.make_from_dict(user_dict)
+      return user
 
 
 

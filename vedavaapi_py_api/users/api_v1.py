@@ -46,7 +46,7 @@ class UserListHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
   @api.doc(responses={
     200: 'Success.',
-    401: 'Unauthorized - you need to be an admin or atleast a registered user. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin or atleast a registered user. Use ../auth/v1/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   })
   def get(self):
     """Just list the users.
@@ -72,7 +72,7 @@ class UserListHandler(flask_restplus.Resource):
   @api.expect(User.schema, validate=True)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized - you need to be an admin. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     417: 'JSON schema validation error.',
     409: 'Object with matching info already exists. Please edit that instead or delete it.',
   })
@@ -111,7 +111,7 @@ class UserHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
   @api.doc(responses={
     200: 'Success.',
-    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     404: 'id not found'
   })
   def get(self, id):
@@ -140,7 +140,7 @@ class UserHandler(flask_restplus.Resource):
   @api.expect(User.schema, validate=True)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     404: 'id not found',
     417: 'JSON schema validation error.',
     409: 'A different object with matching info already exists. Please edit that instead or delete it.',
@@ -184,7 +184,7 @@ class UserHandler(flask_restplus.Resource):
   @api.expect(User.schema, validate=True)
   @api.doc(responses={
     200: 'Update success.',
-    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     404: 'id not found',
   })
   def delete(self):
@@ -203,67 +203,86 @@ class UserHandler(flask_restplus.Resource):
     return {}, 200
 
 
-@api_blueprint.route('/oauth_login/<provider>')
-def oauth_login(provider):
-  oauth = OAuthSignIn.get_provider(provider)
-  return oauth.authorize(next_url=request.args.get('next_url'))
+@api.route('/oauth_login/<string:provider>')
+class OauthLogin(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('next_url', type=str, location='args')
+
+  @api.expect(get_parser, validate=True)
+  def get(self, provider):
+    """ Kick-off the oauth process. Will redirect to the oauth provider website first.
+
+    To try this out, try <a href="v1/oauth_login/google" target="new">google oauth in a new tab</a>"""
+    oauth = OAuthSignIn.get_provider(provider)
+    return oauth.authorize(next_url=request.args.get('next_url'))
 
 
-@api_blueprint.route('/oauth_authorized/<provider>')
-def oauth_authorized(provider):
-  oauth = OAuthSignIn.get_provider(provider)
-  response = None
-  from flask_oauthlib.client import OAuthException
-  try:
-    response = oauth.authorized_response()
-    # Example response: {
-    #   'expires_in': 3600,
-    #   'id_token': 'AsxTQ6wA3xM006J1pGyWd4lmcwowV9nNI1w6SNeP1Qxu1YJ69_w',
-    #   'token_type': 'Bearer',
-    #   'access_token': '-DlJU'}
-  except OAuthException as e:
-    import traceback
-    logging.warning(traceback.format_exc())
-    logging.warning(e.type)
-    logging.warning(e.message)
-    logging.warning(e.data)
-    if (e.data['error_description'] == 'Code was already redeemed.'):
-      logging.warning(
-        "For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
+@api.route('/oauth_authorized/<string:provider>')
+class OauthAuthorized(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('state', type=str, location='args')
+
+  @api.expect(get_parser, validate=True)
+  def get(self, provider):
+    """The user's browser is redirected to this address after successfully validating with the oauth provider by calling oauth_login."""
+    oauth = OAuthSignIn.get_provider(provider)
+    response = None
+    from flask_oauthlib.client import OAuthException
+    try:
+      response = oauth.authorized_response()
+      # Example response: {
+      #   'expires_in': 3600,
+      #   'id_token': 'AsxTQ6wA3xM006J1pGyWd4lmcwowV9nNI1w6SNeP1Qxu1YJ69_w',
+      #   'token_type': 'Bearer',
+      #   'access_token': '-DlJU'}
+    except OAuthException as e:
+      import traceback
+      logging.warning(traceback.format_exc())
+      logging.warning(e.type)
+      logging.warning(e.message)
+      logging.warning(e.data)
+      if (e.data['error_description'] == 'Code was already redeemed.'):
+        logging.warning(
+          "For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
+      else:
+        response = {"exceptionData": e.data}, 401
+        return response
+
+    # logging.debug(request.args)
+    # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}
+    next_url = request.args.get('state')
+
+    response_code = 200
+    if response is None:
+      # flash('Couldn\'t authenticate you with ' + provider)
+      response_code = 401
     else:
-      response = flask.json.jsonify(e.data), 401
-      return response
-
-  # logging.debug(request.args)
-  # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}
-  next_url = request.args.get('state')
-
-  response_code = 200
-  if response is None:
-    flash('Couldn\'t authenticate you with ' + provider)
-    response_code = 401
-  else:
-    session['oauth_token'] = oauth.get_session_data(response)
-    session['user'] = oauth.get_user().to_json_map()
-    logging.debug(session)
-    flash('Authenticated!')
-  if next_url is not None:
-    # Not using redirect(next_url) because:
-    #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
-    return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
-    # return redirect(next_url)
-  else:
-    return flask.json.jsonify(message="Did not get a next_url, it seems!"), response_code
+      session['oauth_token'] = oauth.get_session_data(response)
+      session['user'] = oauth.get_user().to_json_map()
+      logging.debug(session)
+      # flash('Authenticated!')
+    if next_url is not None:
+      # Not using redirect(next_url) because:
+      #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
+      return {"message": 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}}, response_code
+      # return redirect(next_url)
+    else:
+      return {"message": "Did not get a next_url, it seems!"}, response_code
 
 
 @api.route('/password_login')
 class PasswordLogin(flask_restplus.Resource):
-  """
+  post_parser = api.parser()
+  post_parser.add_argument('user_id', type=str, location='form')
+  post_parser.add_argument('user_secret', type=str, location='form')
 
-  Passwords are convenient for authenticating bots.
-  For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
-  """
-  def get(self):
+  @api.expect(post_parser, validate=True)
+  def post(self):
+    """ Log in with a password.
+
+    Passwords are convenient for authenticating bots.
+    For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
+    """
     user_id = request.form.get('user_id')
     user_secret = request.form.get('user_secret')
     user = get_db().find_one(find_filter={"authentication_infos.auth_user_id": user_id,
@@ -283,14 +302,19 @@ class PasswordLogin(flask_restplus.Resource):
 
 
 @api_blueprint.route("/logout")
-def logout():
-  session.pop('oauth_token', None)
-  session.pop('user', None)
-  next_url = request.args.get('next_url')
-  if next_url is not None:
-    return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
-  else:
-    return flask.json.jsonify(message="Did not get a next_url, it seems!"), 200
+class LogoutHandler(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('next_url', type=str, location='args')
+
+  @api.expect(get_parser, validate=True)
+  def get(self, next_url):
+    session.pop('oauth_token', None)
+    session.pop('user', None)
+    next_url = request.args.get('next_url')
+    if next_url is not None:
+      return {"message": 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}}, 200
+    else:
+      return {"message": "Did not get a next_url, it seems!"}, 200
 
 
 # noinspection PyMethodMayBeStatic

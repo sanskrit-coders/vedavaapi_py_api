@@ -106,7 +106,8 @@ class GoogleSignIn(OAuthSignIn):
     data = self.get_user_data()
     logging.debug(data)
     from vedavaapi_py_api.users import users_db
-    user = users_db.find_one(find_filter={"authentication_infos.auth_user_id": data['email'], "authentication_infos.auth_provider": self.provider_name})
+    user = users_db.get_user(AuthenticationInfo.from_details(auth_user_id=data['email'],
+                                                             auth_provider=self.provider_name))
     logging.debug(user)
     if user is None:
       user = User.from_details(auth_infos=[AuthenticationInfo.from_details(auth_user_id=data['email'], auth_provider=self.provider_name)], user_type="human")

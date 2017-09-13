@@ -31,7 +31,7 @@ app.config.update(
 @app.route('/')
 def index():
   flask.session['logstatus'] = 1
-  return flask.redirect('static/v0/html/listbooks.html')
+  return flask.redirect('static/api_docs_index.html')
 
 
 @app.route('/ui/<path:filepath>')
