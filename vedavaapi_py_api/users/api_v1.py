@@ -69,7 +69,7 @@ class UserListHandler(flask_restplus.Resource):
     409: 'Object with matching info already exists. Please edit that instead or delete it.',
   })
   def post(self):
-    """Add or modify a user, identified by the authentication_infos array."""
+    """Add a new user, identified by the authentication_infos array."""
     logging.info(str(request.json))
     if not is_user_admin():
       return {"message": "User is not an admin!"}, 401
@@ -138,7 +138,7 @@ class UserHandler(flask_restplus.Resource):
     409: 'A different object with matching info already exists. Please edit that instead or delete it.',
   })
   def post(self):
-    """Add or modify a user, identified by the authentication_infos array."""
+    """Modify a user."""
     matching_user = get_db().find_by_id(id=id)
 
     if matching_user is None:
