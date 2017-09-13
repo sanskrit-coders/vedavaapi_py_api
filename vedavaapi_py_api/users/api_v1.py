@@ -46,15 +46,23 @@ class UserListHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
   @api.doc(responses={
     200: 'Success.',
-    401: 'Unauthorized - you need to be an admin. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin or atleast a registered user. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   })
   def get(self):
-    """Just list the users."""
+    """Just list the users.
+
+    If the user is not an admin, just the user-db details for the current user are listed.
+    """
+    session_user = JsonObject.make_from_dict(session.get('user', None))
     if not is_user_admin():
-      return {"message": "User is not an admin!"}, 401
-    user_list = [user for user in get_db().find(find_filter={})]
-    logging.debug(user_list)
-    return user_list, 200
+      if session_user is None or not hasattr(session_user, "_id"):
+        return {"message": "No user found, not authorized!"}, 401
+      else:
+        return [session_user], 200
+    else:
+      user_list = [user for user in get_db().find(find_filter={})]
+      logging.debug(user_list)
+      return user_list, 200
 
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
@@ -148,7 +156,7 @@ class UserHandler(flask_restplus.Resource):
 
     logging.info(str(request.json))
     if not is_user_admin() and (session_user is None or session_user._id != matching_user._id):
-      return {"message": "User is not an admin!"}, 401
+      return {"message": "Unauthorized!"}, 401
     user = common_data_containers.JsonObject.make_from_dict(request.json)
     if not isinstance(user, User):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
@@ -169,6 +177,30 @@ class UserHandler(flask_restplus.Resource):
       }
       return message, 417
     return user.to_json_map(), 200
+
+  delete_parser = api.parser()
+  @api.expect(delete_parser, validate=False)
+  # TODO: The below fails silently. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
+  @api.expect(User.schema, validate=True)
+  @api.doc(responses={
+    200: 'Update success.',
+    401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use ../auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    404: 'id not found',
+  })
+  def delete(self):
+    """Modify a user."""
+    matching_user = get_db().find_by_id(id=id)
+
+    if matching_user is None:
+      return {"message": "User not found!"}, 404
+
+    session_user = JsonObject.make_from_dict(session.get('user', None))
+
+    logging.info(str(request.json))
+    if not is_user_admin() and (session_user is None or session_user._id != matching_user._id):
+      return {"message": "Unauthorized!"}, 401
+    matching_user.delete_in_collection(db_interface=get_db())
+    return {}, 200
 
 
 @api_blueprint.route('/oauth_login/<provider>')
@@ -224,33 +256,41 @@ def oauth_authorized(provider):
     return flask.json.jsonify(message="Did not get a next_url, it seems!"), response_code
 
 
-# Passwords are convenient for authenticating bots.
-# For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
-@api_blueprint.route('/password_login')
-def password_login():
-  user_id = request.form.get('user_id')
-  user_secret = request.form.get('user_secret')
-  user = get_db().find_one(find_filter={"authentication_infos.auth_user_id": user_id,
-                                        "authentication_infos.auth_provider": "vedavaapi",
-                                        })
-  logging.debug(user)
-  if user is None:
-    return {"message": "No such user_id"}, 403
-  else:
-    authentication_matches = list(
-      filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(user_secret),
-             user.authentication_infos))
-    if not authentication_matches or len(authentication_matches) == 0:
-      return {"message": "Bad pw"}, 403
-    session['user'] = user
-    return {"message": "Welcome " + user_id}, 302
+@api.route('/password_login')
+class PasswordLogin(flask_restplus.Resource):
+  """
+
+  Passwords are convenient for authenticating bots.
+  For human debugging - just use Google oauth login as an admin (but ensure that url is localhost, not a bare ip address).
+  """
+  def get(self):
+    user_id = request.form.get('user_id')
+    user_secret = request.form.get('user_secret')
+    user = get_db().find_one(find_filter={"authentication_infos.auth_user_id": user_id,
+                                          "authentication_infos.auth_provider": "vedavaapi",
+                                          })
+    logging.debug(user)
+    if user is None:
+      return {"message": "No such user_id"}, 403
+    else:
+      authentication_matches = list(
+        filter(lambda info: info.auth_provider == "vedavaapi" and info.check_password(user_secret),
+               user.authentication_infos))
+      if not authentication_matches or len(authentication_matches) == 0:
+        return {"message": "Bad pw"}, 403
+      session['user'] = user
+      return {"message": "Welcome " + user_id}, 302
 
 
 @api_blueprint.route("/logout")
 def logout():
   session.pop('oauth_token', None)
   session.pop('user', None)
-  return redirect(url_for('index'))
+  next_url = request.args.get('next_url')
+  if next_url is not None:
+    return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
+  else:
+    return flask.json.jsonify(message="Did not get a next_url, it seems!"), 200
 
 
 # noinspection PyMethodMayBeStatic
