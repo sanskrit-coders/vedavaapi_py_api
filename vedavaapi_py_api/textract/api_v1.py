@@ -166,7 +166,7 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 
-@api_blueprint.route('/relpath/<path:relpath>')
+@api.route('/relpath/<path:relpath>')
 class RelPathHandler(flask_restplus.Resource):
   def get(self, relpath):
     """Get some data file - such as a page image."""
