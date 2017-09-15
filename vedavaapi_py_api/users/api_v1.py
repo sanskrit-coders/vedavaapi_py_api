@@ -293,7 +293,7 @@ class PasswordLogin(flask_restplus.Resource):
   post_parser = api.parser()
   post_parser.add_argument('user_id', type=str, location='form')
   post_parser.add_argument('user_secret', type=str, location='form')
-  post_parser.add_argument('next_url', type=str, location='args')
+  post_parser.add_argument('next_url', type=str, location='form')
 
   @api.expect(post_parser, validate=True)
   @api.doc(responses={
