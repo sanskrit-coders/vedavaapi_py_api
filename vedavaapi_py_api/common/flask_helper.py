@@ -34,23 +34,6 @@ def index():
   return flask.redirect('static/api_docs_index.html')
 
 
-@app.route('/ui/<path:filepath>')
-def fill_template(filepath):
-  if 'logstatus' in flask.session:
-    if flask.session['logstatus'] == 1:
-      from jinja2 import TemplateNotFound
-      try:
-        return flask.render_template(filepath)
-      except TemplateNotFound as e:
-        import traceback
-        traceback.print_exc(e)
-        flask.abort(404)
-    else:
-      return flask.redirect(url_for(endpoint='.index'))
-  else:
-    return flask.redirect(url_for(endpoint='.index'))
-
-
 @app.route("/sitemap")
 def site_map():
   output = []

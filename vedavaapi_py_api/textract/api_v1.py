@@ -38,7 +38,7 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 @api.route('/books')
 @api.doc(responses={
   200: 'Update success.',
-  401: 'Unauthorized. Use /auth/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  401: 'Unauthorized. Use /auth/v1/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   417: 'JSON schema validation error.',
 })
 class ImageBookList(BookList):
@@ -138,13 +138,16 @@ class ImageBookList(BookList):
 
 
 @api.route('/books/<string:id>')
+@api.deprecated
 class ImageBookHandler(EntityHandler):
   pass
 
 
 @api.route('/pages/<string:page_id>/image_annotations/all')
+@api.deprecated
 class AllPageAnnotationsHandler(flask_restplus.Resource):
-  @api.doc(responses={404: 'id not found'})
+  @api.doc(
+    responses={404: 'id not found'})
   def get(self, page_id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.
     
@@ -166,6 +169,11 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 
+# TODO:
+# It is strongly recommended to activate either ``X-Sendfile`` support in
+# your webserver or (if no authentication happens) to tell the webserver
+# to serve files for the given path on its own without calling into the
+# web application for improved performance.
 @api.route('/relpath/<path:relpath>')
 class RelPathHandler(flask_restplus.Resource):
   def get(self, relpath):
