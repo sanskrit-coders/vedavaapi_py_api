@@ -12,5 +12,29 @@
       "client_id": "",
       "client_secret": ""
     }
-  }
+  },
+  "initial_users": [
+    {
+      "authentication_infos": [
+        {
+          "auth_provider": "google",
+          "auth_user_id": "xyz@gmail.com",
+          "jsonClass": "AuthenticationInfo"
+        }
+      ],
+      "jsonClass": "User",
+      "permissions": [
+        {
+          "actions": [
+            "read",
+            "write",
+            "admin"
+          ],
+          "jsonClass": "UserPermission",
+          "service": ".*"
+        }
+      ],
+      "user_type": "human"
+    }
+  ]
 }

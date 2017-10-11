@@ -92,13 +92,12 @@ class UserListHandler(flask_restplus.Resource):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
 
     # Check to see if there are other entries in the database with identical authentication info.
-    for auth_info in user.authentication_infos:
-      matching_user = get_db().get_user(auth_info=auth_info)
-      if matching_user is not None:
-        logging.warning(str(matching_user))
-        return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
-                "matching_user": matching_user.to_json_map()
-                }, 409
+    matching_users = get_db().get_matching_users(user=user)
+    if len(matching_users) > 0:
+      logging.warning(str(matching_users[0]))
+      return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
+              "matching_user": matching_users[0].to_json_map()
+              }, 409
 
     try:
       user.update_collection(db_interface=get_db())
@@ -172,7 +171,7 @@ class UserHandler(flask_restplus.Resource):
     if not isinstance(user, User):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
     for auth_info in user.authentication_infos:
-      another_matching_user = get_db().get_user(auth_info=auth_info)
+      another_matching_user = get_db().get_user_from_auth_info(auth_info=auth_info)
       if another_matching_user is not None and another_matching_user._id != matching_user._id:
         logging.warning(str(another_matching_user))
         return {"message": "Another object with matching info already exists. Please delete it first.",
@@ -320,8 +319,8 @@ class PasswordLogin(flask_restplus.Resource):
     """
     user_id = request.form.get('user_id')
     user_secret = request.form.get('user_secret')
-    user = get_db().get_user(auth_info=AuthenticationInfo.from_details(auth_user_id=user_id,
-                                                                       auth_provider="vedavaapi"))
+    user = get_db().get_user_from_auth_info(auth_info=AuthenticationInfo.from_details(auth_user_id=user_id,
+                                                                                      auth_provider="vedavaapi"))
     logging.debug(user)
     if user is None:
       return {"message": "No such user_id"}, 401
