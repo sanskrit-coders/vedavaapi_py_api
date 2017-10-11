@@ -1,9 +1,9 @@
 import logging
 
-import flask
 import flask_restplus
+from furl import furl
 import sanskrit_data.schema.common as common_data_containers
-from flask import redirect, url_for, request, flash, Blueprint, session
+from flask import request, Blueprint, session
 from jsonschema import ValidationError
 from sanskrit_data.schema.common import JsonObject
 from sanskrit_data.schema.users import User, AuthenticationInfo
@@ -283,7 +283,12 @@ class OauthAuthorized(flask_restplus.Resource):
     if next_url is not None:
       # Not using redirect(next_url) because:
       #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
-      return {"message": 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}}, response_code
+      next_url_final = furl(next_url)
+      next_url_final.args["response_code"] = response_code
+      from flask import Response
+
+      # Sets mimetype to text/html
+      return Response('Continue on to <a href="%(url)s">%(url)s</a>. <script>window.location = "%(url)s";</script>' % {"url": next_url_final})
       # return redirect(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, response_code
@@ -327,7 +332,8 @@ class PasswordLogin(flask_restplus.Resource):
     if next_url is not None:
       # Not using redirect(next_url) because:
       #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
-      return {"message": 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}}, 200
+      next_url
+      return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
       # return redirect(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, 200

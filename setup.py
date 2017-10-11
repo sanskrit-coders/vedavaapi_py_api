@@ -85,6 +85,7 @@ setup(
   # https://packaging.python.org/en/latest/requirements.html
   install_requires=[
     'flask', 'flask-restplus', 'flask-oauthlib', 'flask-cors',
+    'furl',
     'pymongo', 'cloudant', 'sanskrit_data',
     'docimage', 'jsonpickle', 'jinja2', 'opencv-python', 'Pillow', 'werkzeug', 'jsonschema',
   ],
