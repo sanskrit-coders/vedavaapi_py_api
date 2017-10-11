@@ -281,12 +281,13 @@ class OauthAuthorized(flask_restplus.Resource):
     # Example request.args: {'code': '4/BukA679ASNPe5xvrbq_2aJXD_OKxjQ5BpCnAsCqX_Io', 'state': 'http://localhost:63342/vedavaapi/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d'}
     next_url = request.args.get('state')
     if next_url is not None:
-      # Not using redirect(next_url) because:
-      #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
       next_url_final = furl(next_url)
       next_url_final.args["response_code"] = response_code
       from flask import Response
 
+      # oauth_authorized should redirect to next_url initially supplied with oauth_login - but cross domain redirects are a problem we don't want to have. For example: Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect." So, Not using redirect(next_url).
+      # Instead, return some redirecting javascript.
+      #
       # Sets mimetype to text/html
       return Response('Continue on to <a href="%(url)s">%(url)s</a>. <script>window.location = "%(url)s";</script>' % {"url": next_url_final})
       # return redirect(next_url)
