@@ -70,7 +70,7 @@ def setup(db, initial_users=None):
       matching_users = users_db.get_matching_users(user=initial_user)
       if len(matching_users) == 0:
         logging.info("Adding: " + str(initial_user))
-        users_db.update_doc(initial_user)
+        users_db.update_doc(initial_user_dict)
       else:
         logging.info("Not adding: " + str(initial_user))
 
