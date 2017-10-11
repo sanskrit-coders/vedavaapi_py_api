@@ -243,7 +243,12 @@ class OauthAuthorized(flask_restplus.Resource):
     401: 'Unauthorized.',
   })
   def get(self, provider):
-    """The user's browser is redirected to this address after successfully validating with the oauth provider by calling oauth_login."""
+    """The user's browser is redirected to this address after successfully validating with the oauth provider by calling oauth_login.
+
+    Here, the users oauth details are saved and access permissions are determined. The user is directed to next_url initially supplied with oauth_login, along with a code indicating login success.
+
+    Note that we're not returning user details considering the possibility of malicious websites supplied as next_url parameters. Should user details/ permissions be necessary, we should have a separate api - currently /users should work without ambiguity for non-admins.
+    """
     oauth = OAuthSignIn.get_provider(provider)
     response = None
     from flask_oauthlib.client import OAuthException
