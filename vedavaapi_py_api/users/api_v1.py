@@ -42,25 +42,39 @@ def is_user_admin():
     return True
 
 
+@api.route('/current_user')
+class CurrentUserHandler(flask_restplus.Resource):
+  # noinspection PyMethodMayBeStatic
+  @api.doc(responses={
+    200: 'Success.',
+    401: 'Unknown - you need to be logged in.',
+  })
+  def get(self):
+    """ Get current user details.
+
+    PS: Login with <a href="v1/oauth_login/google" target="new">google oauth in a new tab</a>.
+    """
+    session_user = JsonObject.make_from_dict(session.get('user', None))
+    if session_user is None:
+      return {"message": "No user found, not authorized!"}, 401
+    else:
+      return [session_user.to_json_map()], 200
+
+
 @api.route('/users')
 class UserListHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
   @api.doc(responses={
     200: 'Success.',
-    401: 'Unauthorized - you need to be an admin or atleast a registered user. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and/ or request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+    401: 'Unauthorized - you need to be an admin. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and/ or request access at https://github.com/vedavaapi/vedavaapi_py_api .',
   })
   def get(self):
     """Just list the users.
 
-    If the user is not an admin, just the user-db details for the current user are listed.
     PS: Login with <a href="v1/oauth_login/google" target="new">google oauth in a new tab</a>.
     """
-    session_user = JsonObject.make_from_dict(session.get('user', None))
     if not is_user_admin():
-      if session_user is None or not hasattr(session_user, "_id"):
-        return {"message": "No user found, not authorized!"}, 401
-      else:
-        return [session_user.to_json_map()], 200
+      return {"message": "Not authorized!"}, 401
     else:
       user_list = [user for user in get_db().find(find_filter={})]
       logging.debug(user_list)
