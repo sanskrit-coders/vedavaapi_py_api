@@ -106,7 +106,7 @@ class UserListHandler(flask_restplus.Resource):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
 
     # Check to see if there are other entries in the database with identical authentication info.
-    matching_users = get_db().get_matching_users(user=user)
+    matching_users = get_db().get_matching_users_by_auth_infos(user=user)
     if len(matching_users) > 0:
       logging.warning(str(matching_users[0]))
       return {"message": "Object with matching info already exists. Please edit that instead or delete it.",
@@ -166,7 +166,7 @@ class UserHandler(flask_restplus.Resource):
     417: 'JSON schema validation error.',
     409: 'A different object with matching info already exists. Please edit that instead or delete it.',
   })
-  def post(self):
+  def post(self, id):
     """Modify a user.
 
     PS: Login with <a href="v1/oauth_login/google" target="new">google oauth in a new tab</a>.
@@ -181,16 +181,19 @@ class UserHandler(flask_restplus.Resource):
     logging.info(str(request.json))
     if not is_user_admin() and (session_user is None or session_user._id != matching_user._id):
       return {"message": "Unauthorized!"}, 401
+
     user = common_data_containers.JsonObject.make_from_dict(request.json)
     if not isinstance(user, User):
       return {"message": "Input JSON object does not conform to User.schema: " + User.schema}, 417
-    for auth_info in user.authentication_infos:
-      another_matching_user = get_db().get_user_from_auth_info(auth_info=auth_info)
-      if another_matching_user is not None and another_matching_user._id != matching_user._id:
-        logging.warning(str(another_matching_user))
-        return {"message": "Another object with matching info already exists. Please delete it first.",
-                "another_matching_user": another_matching_user.to_json_map()
-                }, 409
+
+    # Check to see if there are other entries in the database with identical authentication info.
+    matching_users = get_db().get_matching_users_by_auth_infos(user=user)
+    if len(matching_users) > 1:
+      logging.warning(str(matching_users))
+      return {"message": "Another object with matching info already exists. Please delete it first.",
+              "another_matching_user": str(matching_users)
+              }, 409
+
     try:
       user.update_collection(db_interface=get_db())
     except ValidationError as e:
@@ -212,7 +215,7 @@ class UserHandler(flask_restplus.Resource):
     401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
     404: 'id not found',
   })
-  def delete(self):
+  def delete(self, id):
     """Delete a user.
 
     PS: Login with <a href="v1/oauth_login/google" target="new">google oauth in a new tab</a>.

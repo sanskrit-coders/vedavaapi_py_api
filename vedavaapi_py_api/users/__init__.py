@@ -23,7 +23,7 @@ class UsersInterface(DbInterface):
       user = User.make_from_dict(user_dict)
       return user
 
-  def get_matching_users(self, user):
+  def get_matching_users_by_auth_infos(self, user):
     # Check to see if there are other entries in the database with identical authentication info.
     matching_users = []
     for auth_info in user.authentication_infos:
@@ -67,7 +67,7 @@ def setup(db, initial_users=None):
   if initial_users is not None:
     for initial_user_dict in initial_users:
       initial_user = User.make_from_dict(initial_user_dict)
-      matching_users = users_db.get_matching_users(user=initial_user)
+      matching_users = users_db.get_matching_users_by_auth_infos(user=initial_user)
       if len(matching_users) == 0:
         logging.info("Adding: " + str(initial_user))
         users_db.update_doc(initial_user_dict)
