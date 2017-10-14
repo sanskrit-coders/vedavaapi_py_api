@@ -361,7 +361,7 @@ class PasswordLogin(flask_restplus.Resource):
       return {"message": "Did not get a next_url, it seems!"}, 200
 
 
-@api_blueprint.route("/logout")
+@api.route("/logout")
 class LogoutHandler(flask_restplus.Resource):
   get_parser = api.parser()
   get_parser.add_argument('next_url', type=str, location='args')
