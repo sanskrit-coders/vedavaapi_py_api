@@ -42,6 +42,10 @@ def is_user_admin():
     return True
 
 
+def redirect_js(next_url):
+  return 'Continue on to <a href="%(url)s">%(url)s</a>. <script>window.location = "%(url)s";</script>' % {"url": next_url}
+
+
 @api.route('/current_user')
 class CurrentUserHandler(flask_restplus.Resource):
   # noinspection PyMethodMayBeStatic
@@ -310,7 +314,7 @@ class OauthAuthorized(flask_restplus.Resource):
       # Instead, return some redirecting javascript.
       #
       # Sets mimetype to text/html
-      return Response('Continue on to <a href="%(url)s">%(url)s</a>. <script>window.location = "%(url)s";</script>' % {"url": next_url_final})
+      return Response(redirect_js(next_url_final))
       # return redirect(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, response_code
@@ -355,7 +359,7 @@ class PasswordLogin(flask_restplus.Resource):
       # Not using redirect(next_url) because:
       #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
       next_url
-      return 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}
+      return redirect_js(next_url)
       # return redirect(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, 200
@@ -367,12 +371,12 @@ class LogoutHandler(flask_restplus.Resource):
   get_parser.add_argument('next_url', type=str, location='args')
 
   @api.expect(get_parser, validate=True)
-  def get(self, next_url):
+  def get(self):
     session.pop('oauth_token', None)
     session.pop('user', None)
     next_url = request.args.get('next_url')
     if next_url is not None:
-      return {"message": 'Continue on to <a href="%(url)s">%(url)s</a>' % {"url": next_url}}, 200
+      return redirect_js(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, 200
 
