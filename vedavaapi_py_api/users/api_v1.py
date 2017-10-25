@@ -3,7 +3,7 @@ import logging
 import flask_restplus
 from furl import furl
 import sanskrit_data.schema.common as common_data_containers
-from flask import request, Blueprint, session
+from flask import request, Blueprint, session, Response
 from jsonschema import ValidationError
 from sanskrit_data.schema.common import JsonObject
 from sanskrit_data.schema.users import User, AuthenticationInfo
@@ -359,7 +359,7 @@ class PasswordLogin(flask_restplus.Resource):
       # Not using redirect(next_url) because:
       #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
       next_url
-      return redirect_js(next_url)
+      return Response(redirect_js(next_url))
       # return redirect(next_url)
     else:
       return {"message": "Did not get a next_url, it seems!"}, 200
@@ -376,7 +376,7 @@ class LogoutHandler(flask_restplus.Resource):
     session.pop('user', None)
     next_url = request.args.get('next_url')
     if next_url is not None:
-      return redirect_js(next_url)
+      return Response(redirect_js(next_url))
     else:
       return {"message": "Did not get a next_url, it seems!"}, 200
 
