@@ -13,7 +13,12 @@
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/abhyAsEkChandaPuLa.jpg",
         "base_data": "image",
-        "portion_class": "page"
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 1
+        }]
       },
       "children": []
     },
@@ -23,7 +28,12 @@
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/aksharunicodetext.jpg",
         "base_data": "image",
-        "portion_class": "page"
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 2
+        }]
       },
       "children": []
     },
@@ -33,7 +43,12 @@
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/durga.jpg",
         "base_data": "image",
-        "portion_class": "page"
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 3
+        }]
       },
       "children": []
     },
@@ -43,7 +58,12 @@
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/hi.png",
         "base_data": "image",
-        "portion_class": "page"
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 4
+        }]
       },
       "children": []
     },
@@ -53,7 +73,12 @@
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/vishnu-chalisa.jpg",
         "base_data": "image",
-        "portion_class": "page"
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 5
+        }]
       },
       "children": []
     }
