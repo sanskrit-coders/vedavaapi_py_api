@@ -12,11 +12,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/abhyAsEkChandaPuLa.jpg",
-        "title": "pg_0",
-        "targets": [],
         "base_data": "image",
-        "portion_class": "page",
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     },
@@ -25,11 +22,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/aksharunicodetext.jpg",
-        "title": "pg_1",
         "base_data": "image",
-        "portion_class": "page",
-        "targets": [],
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     },
@@ -38,11 +32,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/durga.jpg",
-        "title": "pg_2",
         "base_data": "image",
-        "portion_class": "page",
-        "targets": [],
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     },
@@ -51,11 +42,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/hi.png",
-        "title": "pg_3",
         "base_data": "image",
-        "portion_class": "page",
-        "targets": [],
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     },
@@ -64,11 +52,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "hindi/scanned-misc/vishnu-chalisa.jpg",
-        "title": "pg_4",
         "base_data": "image",
-        "portion_class": "page",
-        "targets": [],
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     }

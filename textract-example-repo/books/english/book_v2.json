@@ -4,7 +4,27 @@
     "jsonClass": "BookPortion",
     "path": "english",
     "base_data": "image",
-    "portion_class": "book"
+    "portion_class": "book",
+    "creation_details": {
+      "jsonClass": "CreationDetails",
+      "names": [{
+        "jsonClass": "Text",
+        "script_renderings": [{
+          "jsonClass": "ScriptRendering",
+          "text": "A dummy English book"
+        }]
+      }],
+      "authors": [{
+        "jsonClass": "NamedEntity",
+        "names": [{
+          "jsonClass": "Text",
+          "script_renderings": [{
+            "jsonClass": "ScriptRendering",
+            "text": "Random Englishman"
+          }]
+        }]
+      }]
+    }
   },
   "children": [
     {
@@ -12,11 +32,8 @@
       "content": {
         "jsonClass": "BookPortion",
         "path": "english/2.jpg",
-        "title": "pg_0",
         "base_data": "image",
-        "portion_class": "page",
-        "targets": [],
-        "authors": []
+        "portion_class": "page"
       },
       "children": []
     },
@@ -26,10 +43,7 @@
         "jsonClass": "BookPortion",
         "base_data": "image",
         "portion_class": "page",
-        "path": "english/3.png",
-        "title": "pg_1",
-        "targets": [],
-        "authors": []
+        "path": "english/3.png"
       },
       "children": []
     },
@@ -39,10 +53,7 @@
         "jsonClass": "BookPortion",
         "base_data": "image",
         "portion_class": "page",
-        "path": "english/test1.png",
-        "title": "pg_2",
-        "targets": [],
-        "authors": []
+        "path": "english/test1.png"
       },
       "children": []
     }
