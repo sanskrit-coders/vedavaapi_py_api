@@ -44,11 +44,18 @@ def setup_app():
     from sanskrit_data.db import mongodb
     client = mongodb.Client(url=server_config["db"]["mongo_host"])
 
+
   from vedavaapi_py_api import users
   from vedavaapi_py_api.users import api_v1
   users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]), initial_users=server_config["initial_users"])
+
+  # Set up ullekhanam API databases.
+  # ullekhanam is the main database/ service.
   ullekhanam_db = client.get_database(db_name=server_config["db"]["ullekhanam_db_name"])
-  textract.setup_app(db=ullekhanam_db)
+  from vedavaapi_py_api.ullekhanam.backend.db import add_db
+  add_db(db=ullekhanam_db, db_name="ullekhanam")
+
+  textract.setup_app()
 
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)

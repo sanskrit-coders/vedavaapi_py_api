@@ -35,7 +35,8 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
 
 
-@api.route('/books')
+@api.route('/dbs/<string:db_id>/books')
+@api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
 @api.doc(responses={
   200: 'Update success.',
   401: 'Unauthorized. Use /auth/v1/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
@@ -54,14 +55,14 @@ class ImageBookList(BookList):
   post_parser.add_argument('author', location='form', type='string')
 
   @api.expect(post_parser, validate=True)
-  def post(self):
+  def post(self, db_id):
     """Handle uploading files.
     
     :return: Book details in a json tree like:
       {"content": BookPortionObj, "children": [JsonObjectNode with BookPortion_Pg1, JsonObjectNode with BookPortion_Pg2]}    
     """
     from vedavaapi_py_api import ullekhanam
-    if not ullekhanam.api_v1.check_permission():
+    if not ullekhanam.api_v1.check_permission(db_name=db_id):
       return "", 401
     form = request.form
     logging.info("uploading " + str(form))
@@ -128,7 +129,7 @@ class ImageBookList(BookList):
     book_portion_node_minus_id.dump_to_file(book_mfile)
 
     try:
-      book_portion_node.update_collection(get_db())
+      book_portion_node.update_collection(get_db(db_name=db_id))
     except Exception as e:
       logging.error(format(e))
       traceback.print_exc()
@@ -137,35 +138,30 @@ class ImageBookList(BookList):
     return book_portion_node.to_json_map(), 200
 
 
-@api.route('/books/<string:id>')
-@api.deprecated
-class ImageBookHandler(EntityHandler):
-  pass
-
-
-@api.route('/pages/<string:page_id>/image_annotations/all')
+@api.route('/dbs/<string:db_id>/pages/<string:page_id>/image_annotations/all')
 @api.deprecated
 class AllPageAnnotationsHandler(flask_restplus.Resource):
   @api.doc(
     responses={404: 'id not found'})
-  def get(self, page_id):
+  def get(self, page_id, db_id):
     """ Get all annotations (pre existing or automatically generated from open CV) for this page.
-    
-    :param page_id: 
+
+    :param page_id:
+    :param db_id
     :return: A list of JsonObjectNode-s with annotations with the following structure.
-      {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}    
+      {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}
     """
     logging.info("page get by id = " + str(page_id))
-    book_portions_collection = get_db()
+    book_portions_collection = get_db(db_name=db_id)
     page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=book_portions_collection)
     if page is None:
       return "No such book portion id", 404
     else:
-      image_annotations = get_db().update_image_annotations(page)
+      image_annotations = get_db(db_name=db_id).update_image_annotations(page)
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
-        node.fill_descendents(db_interface=get_db())
+        node.fill_descendents(db_interface=get_db(db_name=db_id))
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 

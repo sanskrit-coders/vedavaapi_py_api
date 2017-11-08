@@ -7,12 +7,13 @@ from pymongo.collection import Collection
 
 from vedavaapi_py_api.ullekhanam.backend.db import collections
 
-ullekhanam_db = None
+dbs = {}
 
-def initdb(db):
+
+def add_db(db, db_name = "ullekhanam"):
   logging.info("Initializing database")
-  global ullekhanam_db
   logging.info(db.__class__)
+  ullekhanam_db = None
   if isinstance(db, CouchDatabase):
     from vedavaapi_py_api.ullekhanam.backend.db.collections import BookPortionsCouchdb
     ullekhanam_db =  BookPortionsCouchdb(db)
@@ -22,8 +23,10 @@ def initdb(db):
   ullekhanam_db.add_index(keys_dict={
     "targets.container_id" : 1
   }, index_name="targets_container_id")
+  global dbs
+  dbs[db_name] = ullekhanam_db
 
 
 # Directly accessing the module variable seems to yield spurious None values.
-def get_db():
-  return ullekhanam_db
+def get_db(db_name = "ullekhanam"):
+  return dbs[db_name]
