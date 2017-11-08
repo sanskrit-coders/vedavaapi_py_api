@@ -47,9 +47,9 @@ class UsersCouchdb(CloudantApiDatabase, UsersInterface):
 
 
 users_db = None
+default_permissions = None
 
-
-def setup(db, initial_users=None):
+def setup(db, initial_users=None, default_permissions_in=None):
   global users_db
   from cloudant.database import CouchDatabase
   logging.info(db.__class__)
@@ -74,7 +74,12 @@ def setup(db, initial_users=None):
       else:
         logging.info("Not adding: " + str(initial_user))
 
+  global default_permissions
+  default_permissions = default_permissions_in
 
 # Directly accessing the module variable seems to yield spurious None values.
 def get_db():
   return users_db
+
+def get_default_permissions():
+  return default_permissions

@@ -106,13 +106,13 @@ class GoogleSignIn(OAuthSignIn):
   def get_user(self):
     data = self.get_user_data()
     logging.debug(data)
-    from vedavaapi_py_api.users import users_db
+    from vedavaapi_py_api.users import users_db, get_default_permissions
     user = users_db.get_user_from_auth_info(AuthenticationInfo.from_details(auth_user_id=data['email'],
                                                                             auth_provider=self.provider_name))
     logging.debug(user)
     if user is None:
       user = User.from_details(
         auth_infos=[AuthenticationInfo.from_details(auth_user_id=data['email'], auth_provider=self.provider_name)],
-        user_type="human")
+        user_type="human", permissions=get_default_permissions())
     # logging.debug(user)
     return user

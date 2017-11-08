@@ -48,7 +48,7 @@ def setup_app():
   from vedavaapi_py_api import users
   from vedavaapi_py_api.users import api_v1
   users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]),
-              initial_users=server_config["initial_users"])
+              initial_users=server_config["initial_users"], default_permissions_in=server_config["default_permissions"])
 
   # Set up ullekhanam API databases.
   # ullekhanam is the main database/ service.

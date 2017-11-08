@@ -49,5 +49,15 @@
       ],
       "user_type": "human"
     }
+  ],
+  "default_permissions": [
+    {
+      "actions": [
+        "read",
+        "write"
+      ],
+      "jsonClass": "UserPermission",
+      "service": "quotes"
+    }
   ]
 }
