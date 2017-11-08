@@ -5,6 +5,7 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
+
 def setup_app():
   from vedavaapi_py_api.ullekhanam.backend import paths
   logging.info(": Using " + paths.DATADIR)
@@ -12,5 +13,3 @@ def setup_app():
   # Import all book metadata into the IndicDocs database
   paths.init_data_dir()
   get_db(db_name="ullekhanam").import_all(rootdir=paths.DATADIR)
-
-

@@ -1,7 +1,20 @@
 {
   "db": {
     "users_db_name" : "vedavaapi_users",
-    "ullekhanam_db_name" : "vedavaapi_ullekhanam_db",
+    "ullekhanam_dbs": [
+      {
+        "backend_id": "vedavaapi_ullekhanam_db",
+        "frontend_id": "ullekhanam"
+      },
+      {
+        "backend_id": "vedavaapi_ullekhanam_test_db",
+        "frontend_id": "ullekhanam_test"
+      },
+      {
+        "backend_id": "quotes_db",
+        "frontend_id": "quotes"
+      }
+    ],
     "db_type": "Choices: mongo, couchdb",
     "comment": "We currently use mongo",
     "mongo_host" : "mongodb://someUser:somePw@localhost/",

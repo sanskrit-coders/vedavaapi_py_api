@@ -29,7 +29,7 @@ class OAuthSignIn(object):
   def authorize(self, next_url):
     """User-agent is directed to the oauth provider website, with a standard callback url."""
     callback_url = url_for('.oauth_authorized', provider=self.provider_name,
-            _external=True)
+                           _external=True)
     return self.service.authorize(callback=callback_url, state=next_url)
 
   def authorized_response(self):
@@ -46,12 +46,13 @@ class OAuthSignIn(object):
     if cls.providers is None:
       cls.providers = {}
       for provider_class in cls.__subclasses__():
-        provider = provider_class(client_id=oauth_config[provider_name]["client_id"], client_secret=oauth_config[provider_name]["client_secret"])
+        provider = provider_class(client_id=oauth_config[provider_name]["client_id"],
+                                  client_secret=oauth_config[provider_name]["client_secret"])
         cls.providers[provider.provider_name] = provider
     return cls.providers[provider_name]
 
   @staticmethod
-  def _get_token(token=None):
+  def _get_token():
     """This method is passed as an argument to the oauth.remote_app object.
     """
     return session.get('oauth_token')
@@ -110,6 +111,8 @@ class GoogleSignIn(OAuthSignIn):
                                                                             auth_provider=self.provider_name))
     logging.debug(user)
     if user is None:
-      user = User.from_details(auth_infos=[AuthenticationInfo.from_details(auth_user_id=data['email'], auth_provider=self.provider_name)], user_type="human")
+      user = User.from_details(
+        auth_infos=[AuthenticationInfo.from_details(auth_user_id=data['email'], auth_provider=self.provider_name)],
+        user_type="human")
     # logging.debug(user)
     return user

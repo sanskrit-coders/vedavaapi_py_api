@@ -10,6 +10,7 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
+
 class BookPortionsInterface(DbInterface):
   """Operations on BookPortion objects in an Db"""
 
@@ -90,6 +91,7 @@ class BookPortionsInterface(DbInterface):
     new_annotations = []
     for region in detected_regions:
       del region.score
+      # noinspection PyProtectedMember
       target = ullekhanam.ImageTarget.from_details(container_id=page._id, rectangle=region)
       annotation = ullekhanam.ImageAnnotation.from_details(
         targets=[target], source=ullekhanam.AnnotationSource.from_details(source_type='system_inferred', id="pyCV2"))
@@ -97,12 +99,18 @@ class BookPortionsInterface(DbInterface):
       new_annotations.append(annotation)
     return new_annotations
 
+
 from sanskrit_data.db.mongodb import Collection
+
+
 class BookPortionsMongodb(Collection, BookPortionsInterface):
   def __init__(self, some_collection):
     super(BookPortionsMongodb, self).__init__(some_collection=some_collection)
 
+
 from sanskrit_data.db.couchdb import CloudantApiDatabase
+
+
 class BookPortionsCouchdb(CloudantApiDatabase, BookPortionsInterface):
   def __init__(self, some_collection):
     super(BookPortionsCouchdb, self).__init__(db=some_collection)

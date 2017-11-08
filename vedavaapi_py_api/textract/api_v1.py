@@ -32,7 +32,7 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 
 # api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
 #                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
-ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'])
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'}
 
 
 @api.route('/dbs/<string:db_id>/books')
@@ -79,7 +79,10 @@ class ImageBookList(BookList):
 
     bookpath = abspath.replace(paths.DATADIR + "/", "")
 
-    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=get_db()) or
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
+    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=db) or
             sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"),
                                                                 base_data="image", portion_class="book"))
 
@@ -95,18 +98,18 @@ class ImageBookList(BookList):
       destination = join(abspath, filename)
       upload.save(destination)
       [fname, ext] = os.path.splitext(filename)
-      newFileName = fname + ".jpg"
-      tmpImage = cv2.imread(destination)
-      cv2.imwrite(join(abspath, newFileName), tmpImage)
+      new_file_name = fname + ".jpg"
+      tmp_image = cv2.imread(destination)
+      cv2.imwrite(join(abspath, new_file_name), tmp_image)
 
-      image = Image.open(join(abspath, newFileName)).convert('RGB')
-      workingFilename = os.path.splitext(filename)[0] + "_working.jpg"
-      out = open(join(abspath, workingFilename), "w")
+      image = Image.open(join(abspath, new_file_name)).convert('RGB')
+      working_filename = os.path.splitext(filename)[0] + "_working.jpg"
+      out = open(join(abspath, working_filename), "w")
       img = DocImage.resize(image, (1920, 1080), False)
       img.save(out, "JPEG", quality=100)
       out.close()
 
-      image = Image.open(join(abspath, newFileName)).convert('RGB')
+      image = Image.open(join(abspath, new_file_name)).convert('RGB')
       thumbnailname = os.path.splitext(filename)[0] + "_thumb.jpg"
       out = open(join(abspath, thumbnailname), "w")
       img = DocImage.resize(image, (400, 400), True)
@@ -115,7 +118,7 @@ class ImageBookList(BookList):
 
       page = common_data_containers.JsonObjectNode.from_details(
         content=sanskrit_data.schema.books.BookPortion.from_details(
-          title="pg_%000d" % page_index, path=os.path.join(book.path, newFileName), base_data="image",
+          title="pg_%000d" % page_index, path=os.path.join(book.path, new_file_name), base_data="image",
           portion_class="page",
           targets=[sanskrit_data.schema.books.BookPositionTarget.from_details(position=page_index)]
         ))
@@ -129,7 +132,7 @@ class ImageBookList(BookList):
     book_portion_node_minus_id.dump_to_file(book_mfile)
 
     try:
-      book_portion_node.update_collection(get_db(db_name=db_id))
+      book_portion_node.update_collection(db)
     except Exception as e:
       logging.error(format(e))
       traceback.print_exc()
@@ -152,16 +155,18 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}
     """
     logging.info("page get by id = " + str(page_id))
-    book_portions_collection = get_db(db_name=db_id)
-    page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=book_portions_collection)
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
+    page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=db)
     if page is None:
       return "No such book portion id", 404
     else:
-      image_annotations = get_db(db_name=db_id).update_image_annotations(page)
+      image_annotations = db.update_image_annotations(page)
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
-        node.fill_descendents(db_interface=get_db(db_name=db_id))
+        node.fill_descendents(db_interface=db)
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 

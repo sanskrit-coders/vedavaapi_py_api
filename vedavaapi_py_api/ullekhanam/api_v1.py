@@ -54,7 +54,10 @@ class BookList(flask_restplus.Resource):
     
     :return: a list of JsonObjectNode json-s.
     """
-    booklist = [book for book in get_db(db_name=db_id).list_books()]
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
+    booklist = [book for book in db.list_books()]
     # logging.debug(booklist)
     return booklist, 200
 
@@ -77,6 +80,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
   def get(self, db_id, id):
     """ Get all targetters for this entity.
 
+    :param db_id:
     :param id:
 
     :return: A list of JsonObjectNode-s with targetters with the following structure.
@@ -88,12 +92,15 @@ class EntityTargettersHandler(flask_restplus.Resource):
     entity._id = str(id)
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
-    targetters = entity.get_targetting_entities(db_interface=get_db(db_name=db_id), entity_type=args["targetter_class"])
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
+    targetters = entity.get_targetting_entities(db_interface=db, entity_type=args["targetter_class"])
     targetter_nodes = [
       common_data_containers.JsonObjectNode.from_details(content=annotation)
       for annotation in targetters]
     for node in targetter_nodes:
-      node.fill_descendents(db_interface=get_db(db_name=db_id), depth=args["depth"] - 1, entity_type=args["targetter_class"])
+      node.fill_descendents(db_interface=db, depth=args["depth"] - 1, entity_type=args["targetter_class"])
     return common_data_containers.JsonObject.get_json_map_list(targetter_nodes), 200
 
 
@@ -106,11 +113,13 @@ class EntityHandler(flask_restplus.Resource):
   get_parser.add_argument('depth', location='args', type=int, default=1,
                           help="Do you want children or grandchildren or great grandchildren etc.. of this entity?")
 
+  # noinspection PyShadowingBuiltins
   @api.doc(responses={404: 'id not found'})
   @api.expect(get_parser, validate=True)
   def get(self, db_id, id):
     """ Get any entity.
 
+    :param db_id:
     :param id: String
 
     :return: Entity with descendents in a json tree like:
@@ -120,6 +129,8 @@ class EntityHandler(flask_restplus.Resource):
     args = self.get_parser.parse_args()
     logging.info("entity get by id = " + id)
     db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
     entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
     if entity is None:
       return "No such entity id", 404
@@ -175,10 +186,14 @@ class EntityListHandler(flask_restplus.Resource):
     if not check_permission(db_name=db_id):
       return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
     for node in nodes:
       from jsonschema import ValidationError
+      # noinspection PyUnusedLocal,PyUnusedLocal
       try:
-        node.update_collection(db_interface=get_db(db_name=db_id))
+        node.update_collection(db_interface=db)
       except ValidationError as e:
         import traceback
         message = {
@@ -214,8 +229,11 @@ class EntityListHandler(flask_restplus.Resource):
     if not check_permission(db_name=db_id):
       return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
+    db = get_db(db_name=db_id)
+    if db is None:
+      return "No such db id", 404
     for node in nodes:
-      node.delete_in_collection(db_interface=get_db(db_name=db_id))
+      node.delete_in_collection(db_interface=db)
     return {}, 200
 
 

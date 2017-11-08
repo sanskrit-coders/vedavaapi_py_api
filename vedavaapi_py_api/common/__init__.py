@@ -8,6 +8,7 @@ logging.basicConfig(
 
 server_config = None
 
+
 def set_configuration(config_file_name):
   global server_config
   with open(config_file_name) as fhandle:

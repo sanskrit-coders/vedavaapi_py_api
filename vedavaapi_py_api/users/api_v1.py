@@ -132,7 +132,7 @@ class UserListHandler(flask_restplus.Resource):
 @api.route('/users/<string:id>')
 @api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
 class UserHandler(flask_restplus.Resource):
-  # noinspection PyMethodMayBeStatic
+  # noinspection PyMethodMayBeStatic,PyProtectedMember,PyProtectedMember,PyShadowingBuiltins
   @api.doc(responses={
     200: 'Success.',
     401: 'Unauthorized - you need to be an admin, or you need to be accessing your own data. Use <a href="../auth/v1/oauth_login/google" target="new">google oauth</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
@@ -160,6 +160,7 @@ class UserHandler(flask_restplus.Resource):
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
 
+  # noinspection PyProtectedMember,PyProtectedMember,PyShadowingBuiltins
   @api.expect(post_parser, validate=False)
   # TODO: The below fails silently. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
   @api.expect(User.schema, validate=True)
@@ -211,6 +212,7 @@ class UserHandler(flask_restplus.Resource):
 
   delete_parser = api.parser()
 
+  # noinspection PyProtectedMember,PyProtectedMember,PyShadowingBuiltins
   @api.expect(delete_parser, validate=False)
   # TODO: The below fails silently. Await response on https://github.com/noirbizarre/flask-restplus/issues/194#issuecomment-284703984 .
   @api.expect(User.schema, validate=True)
@@ -285,7 +287,7 @@ class OauthAuthorized(flask_restplus.Resource):
       logging.warning(e.type)
       logging.warning(e.message)
       logging.warning(e.data)
-      if (e.data['error_description'] == 'Code was already redeemed.'):
+      if e.data['error_description'] == 'Code was already redeemed.':
         logging.warning(
           "For some strange reason, the browser requested this url for a second time. Could be just the user, but investigate.")
       else:
@@ -358,7 +360,6 @@ class PasswordLogin(flask_restplus.Resource):
     if next_url is not None:
       # Not using redirect(next_url) because:
       #   Attempting to redirect to file:///home/vvasuki/ullekhanam-ui/docs/v0/html/viewbook.html?_id=59adf4eed63f84441023762d failed with "unsafe redirect."
-      next_url
       return Response(redirect_js(next_url))
       # return redirect(next_url)
     else:

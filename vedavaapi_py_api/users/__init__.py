@@ -15,8 +15,8 @@ class UsersInterface(DbInterface):
   def get_user_from_auth_info(self, auth_info):
     """Get a user object matching details in a certain AuthenticationInfo object."""
     user_dict = self.find_one(find_filter={"authentication_infos.auth_user_id": auth_info.auth_user_id,
-                                      "authentication_infos.auth_provider": auth_info.auth_provider,
-                                      })
+                                           "authentication_infos.auth_provider": auth_info.auth_provider,
+                                           })
     if user_dict is None:
       return None
     else:

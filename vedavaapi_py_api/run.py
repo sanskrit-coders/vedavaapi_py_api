@@ -32,6 +32,7 @@ params.set_from_dict({
   'myport': 9000,
 })
 
+
 def setup_app():
   common.set_configuration(config_file_name=os.path.join(os.path.dirname(__file__), 'server_config_local.json'))
   server_config = common.server_config
@@ -44,16 +45,16 @@ def setup_app():
     from sanskrit_data.db import mongodb
     client = mongodb.Client(url=server_config["db"]["mongo_host"])
 
-
   from vedavaapi_py_api import users
   from vedavaapi_py_api.users import api_v1
-  users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]), initial_users=server_config["initial_users"])
+  users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]),
+              initial_users=server_config["initial_users"])
 
   # Set up ullekhanam API databases.
   # ullekhanam is the main database/ service.
-  ullekhanam_db = client.get_database(db_name=server_config["db"]["ullekhanam_db_name"])
   from vedavaapi_py_api.ullekhanam.backend.db import add_db
-  add_db(db=ullekhanam_db, db_name="ullekhanam")
+  for db_details in server_config["db"]["ullekhanam_dbs"]:
+    add_db(db=client.get_database(db_name=db_details["backend_id"]), db_name=db_details["frontend_id"])
 
   textract.setup_app()
 
@@ -73,24 +74,24 @@ def main(argv):
 
   try:
     opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])
+    for opt, arg in opts:
+      if opt == '-h':
+        usage()
+      elif opt in ("-o", "--workdir"):
+        params.wdir = arg
+      elif opt in ("-l", "--wloaddir"):
+        params.localdir = arg
+      elif opt in ("-p", "--port"):
+        params.myport = int(arg)
+      elif opt in ("-r", "--reset"):
+        params.reset = True
+      elif opt in ("-R", "--dbreset"):
+        params.dbreset = True
+      elif opt in ("-d", "--debug"):
+        params.dbgFlag = True
   except getopt.GetoptError:
     usage()
 
-  for opt, arg in opts:
-    if opt == '-h':
-      usage()
-    elif opt in ("-o", "--workdir"):
-      params.wdir = arg
-    elif opt in ("-l", "--wloaddir"):
-      params.localdir = arg
-    elif opt in ("-p", "--port"):
-      params.myport = int(arg)
-    elif opt in ("-r", "--reset"):
-      params.reset = True
-    elif opt in ("-R", "--dbreset"):
-      params.dbreset = True
-    elif opt in ("-d", "--debug"):
-      params.dbgFlag = True
   # noinspection PyUnboundLocalVariable
   params.repos = args
 
@@ -108,6 +109,7 @@ def main(argv):
     debug=params.dbgFlag,
     use_reloader=False
   )
+
 
 if __name__ == "__main__":
   logging.info("Running in stand-alone mode.")

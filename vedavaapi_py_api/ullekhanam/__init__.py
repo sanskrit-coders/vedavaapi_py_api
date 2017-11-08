@@ -1,4 +1,3 @@
-
 import logging
 
 # Essential for depickling to work.
@@ -9,5 +8,5 @@ logging.basicConfig(
   format="%(levelname)s: %(asctime)s {%(filename)s:%(lineno)d}: %(message)s "
 )
 
-#Dummy usage.
+# Dummy usage.
 logging.debug("So that depickling works well, we imported: " + str([common, ullekhanam, books, users]))
