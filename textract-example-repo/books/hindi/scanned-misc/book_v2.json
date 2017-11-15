@@ -3,6 +3,36 @@
   "content": {
     "jsonClass": "BookPortion",
     "path": "hindi/scanned-misc",
+    "creation_details": {
+      "authors": [
+        {
+          "names": [
+            {
+              "jsonClass": "Text",
+              "script_renderings": [
+                {
+                  "jsonClass": "ScriptRendering",
+                  "text": "कोई हिन्दी लेखक"
+                }
+              ]
+            }
+          ],
+          "jsonClass": "NamedEntity"
+        }
+      ],
+      "jsonClass": "CreationDetails",
+      "names": [
+        {
+          "jsonClass": "Text",
+          "script_renderings": [
+            {
+              "jsonClass": "ScriptRendering",
+              "text": "कोई हिन्दी पुस्तक"
+            }
+          ]
+        }
+      ]
+    },
     "base_data": "image",
     "portion_class": "book"
   },
