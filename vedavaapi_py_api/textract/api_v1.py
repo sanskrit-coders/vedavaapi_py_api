@@ -12,7 +12,6 @@ from PIL import Image
 from docimage import DocImage
 from flask import Blueprint, request
 from vedavaapi_py_api.ullekhanam.api_v1 import BookList, EntityHandler
-from vedavaapi_py_api.ullekhanam.backend import paths
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
@@ -69,16 +68,17 @@ class ImageBookList(BookList):
     logging.info("uploading " + str(form))
     bookpath = (form.get('uploadpath')).replace(" ", "_")
 
-    abspath = join(paths.DATADIR, bookpath)
+    data_dir = get_file_store(db_name=db_id)
+    abspath = join(data_dir, bookpath)
     logging.info("uploading to " + abspath)
+
     try:
-      from vedavaapi_py_api.ullekhanam.backend.paths import createdir
-      createdir(abspath)
+      os.makedirs(abspath, exist_ok=True)
     except Exception as e:
       logging.error(str(e))
       return "Couldn't create upload directory: %s , %s" % (format(abspath), str(e)), 500
 
-    bookpath = abspath.replace(paths.DATADIR + "/", "")
+    bookpath = abspath.replace(data_dir + "/", "")
 
     db = get_db(db_name=db_id)
     if db is None:
@@ -163,7 +163,7 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
     if page is None:
       return "No such book portion id", 404
     else:
-      image_annotations = db.update_image_annotations(page)
+      image_annotations = db.update_image_annotations(page, base_path=get_file_store(db_name=db_id))
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
@@ -176,12 +176,12 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
 # your webserver or (if no authentication happens) to tell the webserver
 # to serve files for the given path on its own without calling into the
 # web application for improved performance.
-@api.route('/relpath/<path:relpath>')
+@api.route('/dbs/<string:db_id>/relpath/<path:relpath>')
 class RelPathHandler(flask_restplus.Resource):
-  def get(self, relpath):
+  def get(self, db_id, relpath):
     """Get some data file - such as a page image."""
     from flask import send_from_directory
-    return send_from_directory(paths.DATADIR, relpath)
+    return send_from_directory(get_file_store(db_name=db_id), relpath)
 
 
 @api_blueprint.route('/dirtree/<path:abspath>')

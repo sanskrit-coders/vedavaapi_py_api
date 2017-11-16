@@ -64,11 +64,10 @@ class BookPortionsInterface(DbInterface):
     book_node.fill_descendents(self)
     return book_node
 
-  def update_image_annotations(self, page):
+  def update_image_annotations(self, page, base_path):
     """return the page annotation with id = anno_id"""
     from os import path
-    from vedavaapi_py_api.ullekhanam.backend import paths
-    page_image = DocImage.from_path(path=path.join(paths.DATADIR, page.path))
+    page_image = DocImage.from_path(path=path.join(base_path, page.path))
     known_annotations = page.get_targetting_entities(db_interface=self,
                                                      entity_type=ullekhanam.ImageAnnotation.get_wire_typeid())
     if len(known_annotations):

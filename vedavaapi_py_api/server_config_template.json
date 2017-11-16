@@ -4,11 +4,13 @@
     "ullekhanam_dbs": [
       {
         "backend_id": "vedavaapi_ullekhanam_db",
-        "frontend_id": "ullekhanam"
+        "frontend_id": "ullekhanam",
+        "file_store": "/opt/scan2text/data/books/ullekhanam"
       },
       {
         "backend_id": "vedavaapi_ullekhanam_test_db",
-        "frontend_id": "ullekhanam_test"
+        "frontend_id": "ullekhanam_test",
+        "file_store": "/opt/scan2text/data/books/ullekhanam_test"
       },
       {
         "backend_id": "quotes_db",

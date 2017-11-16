@@ -33,7 +33,7 @@ Python based Web API's for the <vedavaapi.org> project.
     ~ `sudo pip3 install git+https://github.com/vedavaapi/sanskrit_data@master -U`
 * Data setup: Grant the account running run.py authority to write in /opt/scan2text/.
   * `sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text`
-  * `ln -s ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/`
+  * `cp -R ~/vedavaapi_py_api/textract-example-repo/books /opt/scan2text/data/books/ullekhanam_test`
 * Install mongodb 3.4.
 * [Optional, deprecated alternative] Install and set up couchdb:
   * Consider using [our cookbook](https://github.com/vedavaapi/vedavaapi-chef) with chef for easily installing couchdb with full text indexing enabled.

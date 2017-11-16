@@ -8,10 +8,12 @@ from sanskrit_data.schema.ullekhanam import TextAnnotation
 from sanskrit_data.schema.books import BookPortion
 from vedavaapi_py_api.ullekhanam.backend.db import collections
 
+import os
+
 dbs = {}
+db_file_stores = {}
 
-
-def add_db(db, db_name="ullekhanam"):
+def add_db(db, db_name="ullekhanam", file_store=None):
   logging.info("Initializing database")
   logging.info(db.__class__)
   ullekhanam_db = None
@@ -37,10 +39,25 @@ def add_db(db, db_name="ullekhanam"):
   global dbs
   dbs[db_name] = ullekhanam_db
 
+  # Add filestores for use with the DB.
+  global db_file_stores
+  if file_store is not None:
+    logging.info("Initializing work directory ...")
+    os.makedirs(name=file_store, exist_ok=True)
+    db_file_stores[db_name] = file_store
+    ullekhanam_db.import_all(rootdir=file_store)
+
 
 # Directly accessing the module variable seems to yield spurious None values.
 def get_db(db_name="ullekhanam"):
   if db_name in dbs:
     return dbs[db_name]
+  else:
+    return None
+
+
+def get_file_store(db_name="ullekhanam"):
+  if db_name in dbs:
+    return db_file_stores[db_name]
   else:
     return None
