@@ -32,7 +32,6 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 
 # api = flask_restplus.Api(app, version='1.0', prefix=URL_PREFIX, title='vedavaapi py API',
 #                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'}
 
 
 @api.route('/dbs/<string:db_id>/books')
@@ -43,6 +42,8 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jp2', 'jpeg', 'gif'}
   417: 'JSON schema validation error.',
 })
 class ImageBookList(BookList):
+  ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
   @classmethod
   def allowed_file(cls, filename):
     return '.' in filename and \
@@ -82,6 +83,7 @@ class ImageBookList(BookList):
     db = get_db(db_name=db_id)
     if db is None:
       return "No such db id", 404
+
     book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=db) or
             sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"),
                                                                 base_data="image", portion_class="book"))
@@ -142,12 +144,11 @@ class ImageBookList(BookList):
 
 
 @api.route('/dbs/<string:db_id>/pages/<string:page_id>/image_annotations/all')
-@api.deprecated
 class AllPageAnnotationsHandler(flask_restplus.Resource):
   @api.doc(
     responses={404: 'id not found'})
   def get(self, page_id, db_id):
-    """ Get all annotations (pre existing or automatically generated from open CV) for this page.
+    """ Get all annotations (pre existing or automatically generated, using open CV) for this page.
 
     :param page_id:
     :param db_id
