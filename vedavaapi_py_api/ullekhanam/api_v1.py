@@ -155,6 +155,7 @@ class EntityListHandler(flask_restplus.Resource):
     """ Get all matching entities- Currently unimplemented."""
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
+    return "NOT IMPLEMENTED!", 401
 
   post_parser = api.parser()
   post_parser.add_argument('jsonStr', location='json')
