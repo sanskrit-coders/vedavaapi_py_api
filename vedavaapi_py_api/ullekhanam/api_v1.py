@@ -40,6 +40,15 @@ def check_permission(db_name="ullekhanam"):
     return True
 
 
+def get_user_id():
+  from flask import session
+  user = JsonObject.make_from_dict(session.get('user', None))
+  if user is None:
+    return None
+  else:
+    return user.get_user_ids()[0]
+
+
 @api.route('/dbs/<string:db_id>/books')
 @api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
 class BookList(flask_restplus.Resource):
@@ -194,7 +203,7 @@ class EntityListHandler(flask_restplus.Resource):
       from jsonschema import ValidationError
       # noinspection PyUnusedLocal,PyUnusedLocal
       try:
-        node.update_collection(db_interface=db)
+        node.update_collection(db_interface=db, user_id=get_user_id())
       except ValidationError as e:
         import traceback
         message = {
