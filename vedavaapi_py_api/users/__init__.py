@@ -35,7 +35,7 @@ class UsersInterface(DbInterface):
 
 class UsersMongodb(mongodb.Collection, UsersInterface):
   def __init__(self, some_collection):
-    super(UsersMongodb, self).__init__(some_collection=some_collection)
+    super(UsersMongodb, self).__init__(some_collection=some_collection, db_name_frontend="users")
 
 
 from sanskrit_data.db.couchdb import CloudantApiDatabase

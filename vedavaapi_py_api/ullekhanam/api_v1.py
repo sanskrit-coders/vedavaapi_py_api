@@ -40,13 +40,9 @@ def check_permission(db_name="ullekhanam"):
     return True
 
 
-def get_user_id():
+def get_user():
   from flask import session
-  user = JsonObject.make_from_dict(session.get('user', None))
-  if user is None:
-    return None
-  else:
-    return user.get_user_ids()[0]
+  return JsonObject.make_from_dict(session.get('user', None))
 
 
 @api.route('/dbs/<string:db_id>/books')
@@ -63,7 +59,7 @@ class BookList(flask_restplus.Resource):
     
     :return: a list of JsonObjectNode json-s.
     """
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     booklist = [book for book in db.list_books()]
@@ -101,7 +97,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
     entity._id = str(id)
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     targetters = entity.get_targetting_entities(db_interface=db, entity_type=args["targetter_class"])
@@ -137,7 +133,7 @@ class EntityHandler(flask_restplus.Resource):
     """
     args = self.get_parser.parse_args()
     logging.info("entity get by id = " + id)
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
@@ -196,14 +192,14 @@ class EntityListHandler(flask_restplus.Resource):
     if not check_permission(db_name=db_id):
       return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     for node in nodes:
       from jsonschema import ValidationError
       # noinspection PyUnusedLocal,PyUnusedLocal
       try:
-        node.update_collection(db_interface=db, user_id=get_user_id())
+        node.update_collection(db_interface=db, user=get_user())
       except ValidationError as e:
         import traceback
         message = {
@@ -239,7 +235,7 @@ class EntityListHandler(flask_restplus.Resource):
     if not check_permission(db_name=db_id):
       return "", 401
     nodes = common_data_containers.JsonObject.make_from_dict_list(request.json)
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     for node in nodes:

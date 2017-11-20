@@ -54,7 +54,7 @@ def setup_app():
   # ullekhanam is the main database/ service.
   from vedavaapi_py_api.ullekhanam.backend.db import add_db
   for db_details in server_config["db"]["ullekhanam_dbs"]:
-    add_db(db=client.get_database(db_name=db_details["backend_id"]), db_name=db_details["frontend_id"], file_store=db_details.get("file_store"))
+    add_db(db=client.get_database(db_name=db_details["backend_id"]), db_name_frontend=db_details["frontend_id"], external_file_store=db_details.get("file_store"))
 
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)

@@ -68,7 +68,7 @@ class ImageBookList(BookList):
     logging.info("uploading " + str(form))
     bookpath = (form.get('uploadpath')).replace(" ", "_")
 
-    data_dir = get_file_store(db_name=db_id)
+    data_dir = get_file_store(db_name_frontend=db_id)
     abspath = join(data_dir, bookpath)
     logging.info("uploading to " + abspath)
 
@@ -80,7 +80,7 @@ class ImageBookList(BookList):
 
     bookpath = abspath.replace(data_dir + "/", "")
 
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
 
@@ -156,14 +156,14 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       {"content": ImageAnnotation, "children": [JsonObjectNode with TextAnnotation_1]}
     """
     logging.info("page get by id = " + str(page_id))
-    db = get_db(db_name=db_id)
+    db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
     page = common_data_containers.JsonObject.from_id(id=page_id, db_interface=db)
     if page is None:
       return "No such book portion id", 404
     else:
-      image_annotations = db.update_image_annotations(page, base_path=get_file_store(db_name=db_id))
+      image_annotations = db.update_image_annotations(page, base_path=get_file_store(db_name_frontend=db_id))
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
       for node in image_annotation_nodes:
@@ -181,7 +181,7 @@ class RelPathHandler(flask_restplus.Resource):
   def get(self, db_id, relpath):
     """Get some data file - such as a page image."""
     from flask import send_from_directory
-    return send_from_directory(get_file_store(db_name=db_id), relpath)
+    return send_from_directory(get_file_store(db_name_frontend=db_id), relpath)
 
 
 @api_blueprint.route('/dirtree/<path:abspath>')

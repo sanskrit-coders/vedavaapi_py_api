@@ -103,13 +103,13 @@ from sanskrit_data.db.mongodb import Collection
 
 
 class BookPortionsMongodb(Collection, BookPortionsInterface):
-  def __init__(self, some_collection):
-    super(BookPortionsMongodb, self).__init__(some_collection=some_collection)
+  def __init__(self, some_collection, db_name_frontend, external_file_store=None):
+    super(BookPortionsMongodb, self).__init__(some_collection=some_collection, db_name_frontend=db_name_frontend, external_file_store=external_file_store)
 
 
 from sanskrit_data.db.couchdb import CloudantApiDatabase
 
 
 class BookPortionsCouchdb(CloudantApiDatabase, BookPortionsInterface):
-  def __init__(self, some_collection):
-    super(BookPortionsCouchdb, self).__init__(db=some_collection)
+  def __init__(self, some_collection, db_name_frontend, external_file_store=None):
+    super(BookPortionsCouchdb, self).__init__(db=some_collection, db_name_frontend=db_name_frontend, external_file_store=external_file_store)
