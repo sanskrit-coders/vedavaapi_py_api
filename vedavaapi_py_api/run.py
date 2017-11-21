@@ -52,7 +52,7 @@ def setup_app():
 
   # Set up ullekhanam API databases.
   # ullekhanam is the main database/ service.
-  from vedavaapi_py_api.ullekhanam.backend.db import add_db
+  from vedavaapi_py_api.ullekhanam.backend import add_db
   for db_details in server_config["db"]["ullekhanam_dbs"]:
     add_db(db=client.get_database(db_name=db_details["backend_id"]), db_name_frontend=db_details["frontend_id"], external_file_store=db_details.get("file_store"))
 

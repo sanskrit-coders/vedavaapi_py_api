@@ -5,7 +5,7 @@ import sanskrit_data.schema.common as common_data_containers
 from flask import Blueprint, request
 from sanskrit_data.schema.common import JsonObject
 
-from vedavaapi_py_api.ullekhanam.backend.db import get_db
+from vedavaapi_py_api.ullekhanam.backend import get_db
 
 logging.basicConfig(
   level=logging.DEBUG,

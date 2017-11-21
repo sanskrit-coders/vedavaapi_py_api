@@ -1,21 +1,21 @@
 import copy
 import json
+import os
 import traceback
 from os.path import join
 
 import cv2
 import flask_restplus
-import os
 import sanskrit_data.schema.books
 import sanskrit_data.schema.common as common_data_containers
 from PIL import Image
 from docimage import DocImage
 from flask import Blueprint, request
-from vedavaapi_py_api.ullekhanam.api_v1 import BookList, EntityHandler
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from vedavaapi_py_api.ullekhanam.backend.db import *
+from vedavaapi_py_api.ullekhanam.api_v1 import BookList
+from vedavaapi_py_api.ullekhanam.backend import get_db, get_file_store
 
 logging.basicConfig(
   level=logging.DEBUG,
