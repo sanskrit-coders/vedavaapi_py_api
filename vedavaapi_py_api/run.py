@@ -39,22 +39,22 @@ def setup_app():
 
   client = None
   if server_config["db"]["db_type"] == "couchdb":
-    from sanskrit_data.db import couchdb
+    from sanskrit_data.db.implementations import couchdb
     client = couchdb.CloudantApiClient(url=server_config["db"]["couchdb_host"])
   elif server_config["db"]["db_type"] == "mongo":
-    from sanskrit_data.db import mongodb
+    from sanskrit_data.db.implementations import mongodb
     client = mongodb.Client(url=server_config["db"]["mongo_host"])
 
   from vedavaapi_py_api import users
   from vedavaapi_py_api.users import api_v1
-  users.setup(db=client.get_database(db_name=server_config["db"]["users_db_name"]),
+  users.setup(db=client.get_database_interface(db_name_backend=server_config["db"]["users_db_name"], db_name_frontend="users", db_type="users_db"),
               initial_users=server_config["initial_users"], default_permissions_in=server_config["default_permissions"])
 
   # Set up ullekhanam API databases.
   # ullekhanam is the main database/ service.
   from vedavaapi_py_api.ullekhanam.backend import add_db
   for db_details in server_config["db"]["ullekhanam_dbs"]:
-    add_db(db=client.get_database(db_name=db_details["backend_id"]), db_name_frontend=db_details["frontend_id"], external_file_store=db_details.get("file_store"))
+    add_db(db=client.get_database_interface(db_name_backend=db_details["backend_id"], db_name_frontend=db_details["frontend_id"], external_file_store=db_details.get("file_store"), db_type="ullekhanam_db"))
 
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)

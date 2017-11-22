@@ -10,16 +10,10 @@ from sanskrit_data.schema.ullekhanam import TextAnnotation
 dbs = {}
 
 
-def add_db(db, db_name_frontend="ullekhanam", external_file_store=None):
+def add_db(db):
   logging.info("Initializing database")
   logging.info(db.__class__)
-  ullekhanam_db = None
-  if isinstance(db, CouchDatabase):
-    from sanskrit_data.db.ullekhanam_db import BookPortionsCouchdb
-    ullekhanam_db = BookPortionsCouchdb(some_collection=db, db_name_frontend=db_name_frontend, external_file_store=external_file_store)
-  elif isinstance(db, Collection):
-    from sanskrit_data.db.ullekhanam_db import BookPortionsMongodb
-    ullekhanam_db = BookPortionsMongodb(some_collection=db, db_name_frontend=db_name_frontend, external_file_store=external_file_store)
+  ullekhanam_db = db
 
   ## General indices (corresponds to schema defined in schema.common).
   # Not really required since BookPortion index creation automatically includes the below.
@@ -34,14 +28,14 @@ def add_db(db, db_name_frontend="ullekhanam", external_file_store=None):
   TextAnnotation.add_indexes(db_interface=ullekhanam_db)
 
   global dbs
-  dbs[db_name_frontend] = ullekhanam_db
+  dbs[db.db_name_frontend] = ullekhanam_db
 
   # Add filestores for use with the DB.
-  if external_file_store is not None:
+  if db.external_file_store is not None:
     logging.info("Initializing work directory ...")
     # noinspection PyArgumentList
-    os.makedirs(name=external_file_store, exist_ok=True)
-    ullekhanam_db.import_all(rootdir=external_file_store)
+    os.makedirs(name=db.external_file_store, exist_ok=True)
+    ullekhanam_db.import_all(rootdir=db.external_file_store)
 
 
 def get_db(db_name_frontend="ullekhanam"):

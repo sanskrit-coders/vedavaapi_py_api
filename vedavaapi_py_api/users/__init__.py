@@ -1,6 +1,5 @@
 import logging
 
-from sanskrit_data.db.users_db import UsersCouchdb, UsersMongodb
 from sanskrit_data.schema.users import User
 
 logging.basicConfig(
@@ -11,15 +10,11 @@ logging.basicConfig(
 users_db = None
 default_permissions = None
 
+
 def setup(db, initial_users=None, default_permissions_in=None):
   global users_db
-  from cloudant.database import CouchDatabase
   logging.info(db.__class__)
-  from pymongo.collection import Collection
-  if isinstance(db, CouchDatabase):
-    users_db = UsersCouchdb(db)
-  elif isinstance(db, Collection):
-    users_db = UsersMongodb(db)
+  users_db = db
   users_db.add_index(keys_dict={
     "authentication_infos.auth_user_id": 1
   }, index_name="authentication_infos.auth_user_id")
