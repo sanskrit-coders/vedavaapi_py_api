@@ -18,7 +18,7 @@ def add_db(db):
   ## General indices (corresponds to schema defined in schema.common).
   # Not really required since BookPortion index creation automatically includes the below.
   # JsonObject.add_indexes(db_interface=ullekhanam_db)
-  # JsonObjectWithTarget.add_indexes(db_interface=ullekhanam_db)
+  # UllekhanamJsonObject.add_indexes(db_interface=ullekhanam_db)
 
   ## Book portion indices (corresponds to schema defined in schema.books).
   # Appropriate index use confirmed: https://trello.com/c/CHKgDABv/117-mongodb-index-array-of-array

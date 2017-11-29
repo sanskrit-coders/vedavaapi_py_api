@@ -93,7 +93,7 @@ class EntityTargettersHandler(flask_restplus.Resource):
       {"content": Annotation, "children": [JsonObjectNode with targetting Entity]}
     """
     logging.info("entity id = " + str(id))
-    entity = common_data_containers.JsonObjectWithTarget()
+    entity = common_data_containers.UllekhanamJsonObject()
     entity._id = str(id)
     args = self.get_parser.parse_args()
     logging.debug(args["filter_json"])
