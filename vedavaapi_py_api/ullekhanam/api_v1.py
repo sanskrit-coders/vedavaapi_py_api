@@ -239,7 +239,7 @@ class EntityListHandler(flask_restplus.Resource):
     if db is None:
       return "No such db id", 404
     for node in nodes:
-      node.delete_in_collection(db_interface=db)
+      node.delete_in_collection(db_interface=db, user=get_user())
     return {}, 200
 
 
