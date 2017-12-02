@@ -1,0 +1,87 @@
+{
+  "jsonClass": "JsonObjectNode",
+  "content": {
+    "jsonClass": "BookPortion",
+    "path": "tamil/palm-leaf",
+    "base_data": "image",
+    "portion_class": "book",
+    "creation_details": {
+      "jsonClass": "CreationDetails",
+      "names": [
+        {
+          "jsonClass": "Text",
+          "script_renderings": [
+            {
+              "jsonClass": "ScriptRendering",
+              "text": "A dummy tamil palm leaf manuscript"
+            }
+          ]
+        }
+      ],
+      "authors": [
+        {
+          "jsonClass": "NamedEntity",
+          "names": [
+            {
+              "jsonClass": "Text",
+              "script_renderings": [
+                {
+                  "jsonClass": "ScriptRendering",
+                  "text": "Random Tamilian"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "children": [
+    {
+      "jsonClass": "JsonObjectNode",
+      "content": {
+        "jsonClass": "BookPortion",
+        "path": "tamil/palm-leaf/1.jpg",
+        "base_data": "image",
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 1
+        }]
+      },
+      "children": []
+    },
+    {
+      "jsonClass": "JsonObjectNode",
+      "content": {
+        "jsonClass": "BookPortion",
+        "path": "tamil/palm-leaf/pl1.jpg",
+        "base_data": "image",
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 2
+        }]
+      },
+      "children": []
+    },
+    {
+      "jsonClass": "JsonObjectNode",
+      "content": {
+        "jsonClass": "BookPortion",
+        "path": "tamil/palm-leaf/pl4.jpg",
+        "title": "pg_2",
+        "base_data": "image",
+        "portion_class": "page",
+        "targets": [{
+          "jsonClass": "BookPositionTarget",
+          "container_id": "ToBeFilledByImporter",
+          "position": 3
+        }]
+      },
+      "children": []
+    }
+  ]
+}

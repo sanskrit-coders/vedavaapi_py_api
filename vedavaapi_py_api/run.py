@@ -15,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 print(sys.path)
 
 from vedavaapi_py_api import common, textract, ullekhanam
-from vedavaapi_py_api.common import file_helper
+from sanskrit_data import file_helper
 from vedavaapi_py_api.common.flask_helper import app
 
 logging.basicConfig(

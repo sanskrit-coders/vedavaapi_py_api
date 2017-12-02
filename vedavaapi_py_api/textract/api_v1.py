@@ -1,6 +1,6 @@
-import logging
 import copy
 import json
+import logging
 import os
 import traceback
 from os.path import join
@@ -190,7 +190,7 @@ class RelPathHandler(flask_restplus.Resource):
 def listdirtree(abspath):
   """???."""
   # print abspath
-  from vedavaapi_py_api.common.file_helper import list_dirtree
+  from sanskrit_data.file_helper import list_dirtree
   data = list_dirtree("/" + abspath)
   # logging.info("Data:" + str(json.dumps(data)))
   return json.dumps(data)
