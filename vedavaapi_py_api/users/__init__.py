@@ -34,9 +34,11 @@ def setup(db, initial_users=None, default_permissions_in=None):
   global default_permissions
   default_permissions = default_permissions_in
 
+
 # Directly accessing the module variable seems to yield spurious None values.
 def get_db():
   return users_db
+
 
 def get_default_permissions():
   return default_permissions
