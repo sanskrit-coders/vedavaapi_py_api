@@ -62,7 +62,7 @@ class BookList(flask_restplus.Resource):
     db = get_db(db_name_frontend=db_id)
     if db is None:
       return "No such db id", 404
-    booklist = [book for book in db.list_books()]
+    booklist = [book.to_json_map() for book in db.list_books()]
     # logging.debug(booklist)
     return booklist, 200
 
