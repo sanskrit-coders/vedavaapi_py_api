@@ -51,9 +51,7 @@ class ImageBookList(BookList):
 
   post_parser = api.parser()
   post_parser.add_argument('in_files', type=FileStorage, location='files')
-  post_parser.add_argument('uploadpath', location='form', type='string')
-  post_parser.add_argument('title', location='form', type='string')
-  post_parser.add_argument('author', location='form', type='string')
+  post_parser.add_argument('jsonStr', location='json')
 
   @api.expect(post_parser, validate=True)
   def post(self, db_id):
@@ -65,12 +63,21 @@ class ImageBookList(BookList):
     from vedavaapi_py_api import ullekhanam
     if not ullekhanam.api_v1.check_permission(db_name=db_id):
       return "", 401
-    form = request.form
-    logging.info("uploading " + str(form))
-    bookpath = (form.get('uploadpath')).replace(" ", "_")
+
+    db = get_db(db_name_frontend=db_id)
+    if db is None:
+      return "No such db id", 404
+
+    logging.debug(str(request.json))
+    book = common_data_containers.JsonObject.make_from_pickledstring(request.json)
+    if book.base_data != "image":
+      message = {
+        "message": "Only image books can be uploaded with this API."
+      }
+      return message, 417
 
     data_dir = get_file_store(db_name_frontend=db_id)
-    abspath = join(data_dir, bookpath)
+    abspath = join(data_dir, book.path)
     logging.info("uploading to " + abspath)
 
     try:
@@ -78,18 +85,6 @@ class ImageBookList(BookList):
     except Exception as e:
       logging.error(str(e))
       return "Couldn't create upload directory: %s , %s" % (format(abspath), str(e)), 500
-
-    bookpath = abspath.replace(data_dir + "/", "")
-
-    db = get_db(db_name_frontend=db_id)
-    if db is None:
-      return "No such db id", 404
-
-    book = (sanskrit_data.schema.books.BookPortion.from_path(path=bookpath, db_interface=db) or
-            sanskrit_data.schema.books.BookPortion.from_details(path=bookpath, title=form.get("title"),
-                                                                base_data="image", portion_class="book"))
-
-    if not book.authors: book.authors = [form.get("author")]
 
     pages = []
     page_index = -1
@@ -101,18 +96,18 @@ class ImageBookList(BookList):
       destination = join(abspath, filename)
       upload.save(destination)
       [fname, ext] = os.path.splitext(filename)
-      new_file_name = fname + ".jpg"
+      image_file_name = fname + ".jpg"
       tmp_image = cv2.imread(destination)
-      cv2.imwrite(join(abspath, new_file_name), tmp_image)
+      cv2.imwrite(join(abspath, image_file_name), tmp_image)
 
-      image = Image.open(join(abspath, new_file_name)).convert('RGB')
+      image = Image.open(join(abspath, image_file_name)).convert('RGB')
       working_filename = os.path.splitext(filename)[0] + "_working.jpg"
       out = open(join(abspath, working_filename), "w")
       img = DocImage.resize(image, (1920, 1080), False)
       img.save(out, "JPEG", quality=100)
       out.close()
 
-      image = Image.open(join(abspath, new_file_name)).convert('RGB')
+      image = Image.open(join(abspath, image_file_name)).convert('RGB')
       thumbnailname = os.path.splitext(filename)[0] + "_thumb.jpg"
       out = open(join(abspath, thumbnailname), "w")
       img = DocImage.resize(image, (400, 400), True)
@@ -121,7 +116,7 @@ class ImageBookList(BookList):
 
       page = common_data_containers.JsonObjectNode.from_details(
         content=sanskrit_data.schema.books.BookPortion.from_details(
-          title="pg_%000d" % page_index, path=os.path.join(book.path, new_file_name), base_data="image",
+          title="pg_%000d" % page_index, path=os.path.join(book.path, image_file_name), base_data="image",
           portion_class="page",
           targets=[sanskrit_data.schema.books.BookPositionTarget.from_details(position=page_index)]
         ))

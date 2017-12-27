@@ -10,7 +10,7 @@ from sanskrit_data.schema.ullekhanam import TextAnnotation
 dbs = {}
 
 
-def add_db(db):
+def add_db(db, reimport=False):
   logging.info("Initializing database")
   logging.info(db.__class__)
   ullekhanam_db = db
@@ -30,11 +30,7 @@ def add_db(db):
   global dbs
   dbs[db.db_name_frontend] = ullekhanam_db
 
-  # Add filestores for use with the DB.
-  if db.external_file_store is not None:
-    logging.info("Initializing work directory ...")
-    # noinspection PyArgumentList
-    os.makedirs(name=db.external_file_store, exist_ok=True)
+  if reimport:
     ullekhanam_db.import_all(rootdir=db.external_file_store)
 
 
