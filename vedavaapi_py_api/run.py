@@ -67,31 +67,20 @@ def setup_app():
 
 def main(argv):
   def usage():
-    logging.info("run.py [-r] [-R] [-d] [-o <workdir>] [-l <local_wloads_dir>] <repodir1>[:<reponame>] ...")
+    logging.info("run.py [--port 4444]...")
     exit(1)
 
   try:
-    opts, args = getopt.getopt(argv, "do:l:p:rRh", ["workdir=", "wloaddir="])
+    opts, args = getopt.getopt(argv, "dp:h", ["port=", "debug="])
     for opt, arg in opts:
       if opt == '-h':
         usage()
-      elif opt in ("-o", "--workdir"):
-        params.wdir = arg
-      elif opt in ("-l", "--wloaddir"):
-        params.localdir = arg
       elif opt in ("-p", "--port"):
-        params.myport = int(arg)
-      elif opt in ("-r", "--reset"):
-        params.reset = True
-      elif opt in ("-R", "--dbreset"):
-        params.dbreset = True
+        params.port = int(arg)
       elif opt in ("-d", "--debug"):
-        params.dbgFlag = True
+        params.debug = True
   except getopt.GetoptError:
     usage()
-
-  # noinspection PyUnboundLocalVariable
-  params.repos = args
 
   setup_app()
 
@@ -100,11 +89,11 @@ def main(argv):
     import re
     m = re.match('\s*inet addr:(.*?) .*', line)
     if m:
-      logging.info("    http://" + m.group(1) + ":" + str(params.myport) + "/")
+      logging.info("    http://" + m.group(1) + ":" + str(params.port) + "/")
   app.run(
     host="0.0.0.0",
-    port=params.myport,
-    debug=params.dbgFlag,
+    port=params.port,
+    debug=params.debug,
     use_reloader=False
   )
 
