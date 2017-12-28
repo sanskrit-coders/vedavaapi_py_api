@@ -26,8 +26,6 @@ logging.basicConfig(
 params = JsonObject()
 
 params.set_from_dict({
-  'reset': False,
-  'dbreset': False,
   'dbgFlag': False,
   'myport': 9000,
 })
