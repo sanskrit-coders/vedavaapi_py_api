@@ -159,7 +159,7 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
     if page is None:
       return "No such book portion id", 404
     else:
-      page_image = DocImage.from_path(path=path.join(get_file_store(db_name_frontend=db_id), page.path))
+      page_image = DocImage.from_path(path=os.path.join(page.get_external_storage_path(db_interface=db), page.list_files(db_interface=db, suffix_pattern="content*")[0]))
       image_annotations = db.update_image_annotations(page=page, page_image=page_image)
       image_annotation_nodes = [common_data_containers.JsonObjectNode.from_details(content=annotation) for annotation in
                                 image_annotations]
