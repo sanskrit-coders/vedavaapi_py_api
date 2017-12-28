@@ -146,6 +146,70 @@ class EntityHandler(flask_restplus.Resource):
       return node.to_json_map(), 200
 
 
+@api.route('/dbs/<string:db_id>/entities/<string:id>/files')
+@api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
+@api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
+class EntityFileListHandler(flask_restplus.Resource):
+  get_parser = api.parser()
+  get_parser.add_argument('pattern', location='args', type=str, default="*",
+                          help="Wildcard pattern for the file you want ot find.")
+
+  # noinspection PyShadowingBuiltins
+  @api.doc(responses={404: 'id not found'})
+  @api.expect(get_parser, validate=True)
+  def get(self, db_id, id):
+    """ Get files associated with an entity.
+
+    :param db_id:
+    :param id: String
+
+    :return: Entity with descendents in a json tree like:
+
+      {"content": EntityObj, "children": [JsonObjectNode with Child_1, JsonObjectNode with Child_2]}
+    """
+    args = self.get_parser.parse_args()
+    logging.info("entity get by id = " + id)
+    db = get_db(db_name_frontend=db_id)
+    if db is None:
+      return "No such db id", 404
+    entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
+    if entity is None:
+      return "No such entity id", 404
+    else:
+      return entity.list_files(db_interface=db, suffix_pattern=args["pattern"]), 200
+
+
+@api.route('/dbs/<string:db_id>/entities/<string:id>/files/<string:file_name>')
+@api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
+@api.param('id', 'Hint: Get one from the JSON object returned by another GET call. ')
+@api.param('file_name', 'Hint: Get one from the file list returned by another GET call. ')
+class EntityFileHandler(flask_restplus.Resource):
+  # noinspection PyShadowingBuiltins
+  @api.doc(responses={404: 'id not found'})
+  @api.representation('image/*')
+  def get(self, db_id, id, file_name):
+    """ Get files associated with an entity.
+
+    :param db_id:
+    :param id: String
+    :param file_name: String
+
+    :return: Entity with descendents in a json tree like:
+
+      {"content": EntityObj, "children": [JsonObjectNode with Child_1, JsonObjectNode with Child_2]}
+    """
+    logging.info("entity get by id = " + id)
+    db = get_db(db_name_frontend=db_id)
+    if db is None:
+      return "No such db id", 404
+    entity = common_data_containers.JsonObject.from_id(id=id, db_interface=db)
+    if entity is None:
+      return "No such entity id", 404
+    else:
+      from flask import send_from_directory
+      return send_from_directory(directory=entity.get_external_storage_path(db_interface=db), filename=file_name)
+
+
 @api.route('/dbs/<string:db_id>/entities')
 @api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
 class EntityListHandler(flask_restplus.Resource):
