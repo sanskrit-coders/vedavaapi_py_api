@@ -40,10 +40,11 @@ Python based Web API's for the <vedavaapi.org> project.
   * Consider using [our cookbook](https://github.com/vedavaapi/vedavaapi-chef) with chef for easily installing couchdb with full text indexing enabled.
   * Alter the local.ini file to provide write permissions to the admin.
 * Set up the `vedavaapi_py_api/server_config_local.config` file based on  `vedavaapi_py_api/server_config_template.config`. The database details should match your database setup!
-* For further details of setting this app up in the context of the vedavaapi server, see [vedavaapi_misc](https://github.com/vedavaapi/vedavaapi-misc) .
+* For further details of setting this app up in the context of the vedavaapi server, see [vedavaapi_servercfg](https://github.com/vedavaapi/vedavaapi-misc) .
 
 ## Running
-* Launch server: run.py
+* Launch server: run.py.
+* General maintenance and deployment instructions - see [vedavaapi_servercfg](https://github.com/vedavaapi/vedavaapi-misc).
 
 ### Diagnostics
 * List routes: /sitemap on your browser.

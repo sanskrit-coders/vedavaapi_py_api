@@ -40,7 +40,7 @@ def login(test_client):
 
 
 def test_book_list(app_fixture):
-  url = "ullekhanam/v1/dbs/ullekhanam_test/books"
+  url = "ullekhanam/v1/dbs/ullekhanam_test_v2/books"
   response = app_fixture.get(url)
   book_nodes = common.JsonObject.make_from_pickledstring(pickle=response.data)
   assert book_nodes.__len__() > 0
