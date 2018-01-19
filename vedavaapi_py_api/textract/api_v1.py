@@ -1,21 +1,21 @@
 import copy
 import json
 import logging
-import os
+import os, sys
 import traceback
 from os.path import join
 
 import cv2
 import flask_restplus
-import sanskrit_data.schema.books
-import sanskrit_data.schema.common as common_data_containers
+from sanskrit_data.schema import books
+from sanskrit_data.schema import common as common_data_containers
 from PIL import Image
 from docimage import DocImage
 from flask import Blueprint, request
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
-from vedavaapi_py_api.ullekhanam.api_v1 import BookList
+from vedavaapi_py_api.ullekhanam.api_v1 import BookList, get_user
 from vedavaapi_py_api.ullekhanam.backend import get_db, get_file_store
 
 logging.basicConfig(
@@ -27,6 +27,7 @@ URL_PREFIX = '/v1'
 api_blueprint = Blueprint(name='textract_api', import_name=__name__)
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py API',
                          description='vedavaapi py API (Textract). '
+                                     'For using some API, you need to log in using <a href="../auth/v1/oauth_login/google">google</a>.'
                                      'For a basic idea, see the <a href="../ullekhanam/docs">ullekhanam API docs</a>',
                          prefix=URL_PREFIX, doc='/docs')
 
@@ -34,24 +35,29 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py A
 #                          description='vedavaapi py API', doc= URL_PREFIX + '/docs/')
 
 
+
+def is_extension_allowed(filename, allowed_extensions_with_dot):
+  [fname, ext] = os.path.splitext(filename)
+  return ext in allowed_extensions_with_dot
+
+
 @api.route('/dbs/<string:db_id>/books')
 @api.param('db_id', 'Hint: Get one from the JSON object returned by another GET call. ')
 @api.doc(responses={
   200: 'Update success.',
-  401: 'Unauthorized. Use /auth/v1/oauth_login/google to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  401: 'Unauthorized. Use <a href="../auth/v1/oauth_login/google">google</a> to login and request access at https://github.com/vedavaapi/vedavaapi_py_api .',
+  405: "book with same ID already exists.",
   417: 'JSON schema validation error.',
+  418: 'Illegal file extension.',
+  419: 'Error saving page files.',
 })
 class ImageBookList(BookList):
-  ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-
-  @classmethod
-  def allowed_file(cls, filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
   post_parser = api.parser()
+  # The below only results in the ability to upload a single file from the SwaggerUI. TODO: Surpass this limitation.
   post_parser.add_argument('in_files', type=FileStorage, location='files')
-  post_parser.add_argument('jsonStr', location='json')
+  # post_parser.add_argument('jsonStr', location='json') would lead to an error - "flask_restplus.errors.SpecsError: Can't use formData and body at the same time"
+  post_parser.add_argument('book_json', location='form', type='string')
 
   @api.expect(post_parser, validate=True)
   def post(self, db_id):
@@ -68,73 +74,88 @@ class ImageBookList(BookList):
     if db is None:
       return "No such db id", 404
 
-    logging.debug(str(request.json))
-    book = common_data_containers.JsonObject.make_from_pickledstring(request.json)
-    if book.base_data != "image":
+    book_json = request.form.get("book_json")
+    logging.debug(book_json)
+
+    # To avoid having to do rollbacks, we try to prevalidate the data to the maximum extant possible.
+    book = common_data_containers.JsonObject.make_from_pickledstring(book_json)
+    if book.base_data != "image" or not isinstance(book, books.BookPortion) :
       message = {
         "message": "Only image books can be uploaded with this API."
       }
       return message, 417
 
-    data_dir = get_file_store(db_name_frontend=db_id)
-    abspath = join(data_dir, book.path)
-    logging.info("uploading to " + abspath)
+    if hasattr(book, "_id"):
+      message = {
+        "message": "overwriting " + book._id + " is not allowed."
+      }
+      logging.warning(str(message))
+      return message, 405
+
+    # Check the files
+    for uploaded_file in request.files.getlist("in_files"):
+      input_filename = os.path.basename(uploaded_file.filename)
+      allowed_extensions = {".jpg", ".png", ".gif"}
+      if not is_extension_allowed(input_filename, allowed_extensions):
+        message = {
+          "message": "Only these extensionsa are allowed: %(exts)s, but filename is %(input_filename)s" % dict(exts=str(allowed_extensions), input_filename=input_filename) ,
+        }
+        logging.error(message)
+        return message, 418
+
+    # Book is validated here.
+    book = book.update_collection(db_interface=db, user=get_user())
 
     try:
-      os.makedirs(abspath, exist_ok=True)
-    except Exception as e:
-      logging.error(str(e))
-      return "Couldn't create upload directory: %s , %s" % (format(abspath), str(e)), 500
+      page_index = -1
+      for uploaded_file in request.files.getlist("in_files"):
+        page_index = page_index + 1
+        # TODO: Add image update subroutine and call that.
+        page = books.BookPortion.from_details(
+            title="pg_%000d" % page_index, base_data="image", portion_class="page",
+            targets=[books.BookPositionTarget.from_details(position=page_index, container_id=book._id)]
+          )
+        page = page.update_collection(db_interface=db, user=get_user())
+        page_storage_path = page.get_external_storage_path(db_interface=db)
+        logging.debug(page_storage_path)
 
-    pages = []
-    page_index = -1
-    for upload in request.files.getlist("file"):
-      page_index = page_index + 1
-      filename = upload.filename.rsplit("/")[0]
-      if self.__class__.allowed_file(filename):
-        filename = secure_filename(filename)
-      destination = join(abspath, filename)
-      upload.save(destination)
-      [fname, ext] = os.path.splitext(filename)
-      image_file_name = fname + ".jpg"
-      tmp_image = cv2.imread(destination)
-      cv2.imwrite(join(abspath, image_file_name), tmp_image)
+        input_filename = os.path.basename(uploaded_file.filename)
+        logging.debug(input_filename)
+        original_file_path = join(page_storage_path, "original__" + input_filename)
+        os.makedirs(os.path.dirname(original_file_path), exist_ok=True)
+        uploaded_file.save(original_file_path)
 
-      image = Image.open(join(abspath, image_file_name)).convert('RGB')
-      working_filename = os.path.splitext(filename)[0] + "_working.jpg"
-      out = open(join(abspath, working_filename), "w")
-      img = DocImage.resize(image, (1920, 1080), False)
-      img.save(out, "JPEG", quality=100)
-      out.close()
+        image_file_name = "content.jpg"
+        tmp_image = cv2.imread(original_file_path)
+        cv2.imwrite(join(page_storage_path, image_file_name), tmp_image)
 
-      image = Image.open(join(abspath, image_file_name)).convert('RGB')
-      thumbnailname = os.path.splitext(filename)[0] + "_thumb.jpg"
-      out = open(join(abspath, thumbnailname), "w")
-      img = DocImage.resize(image, (400, 400), True)
-      img.save(out, "JPEG", quality=100)
-      out.close()
+        image = Image.open(join(page_storage_path, image_file_name)).convert('RGB')
+        working_filename = "content__resized_for_uniform_display.jpg"
+        out = open(join(page_storage_path, working_filename), "w")
+        img = DocImage.resize(image, (1920, 1080), False)
+        img.save(out, "JPEG", quality=100)
+        out.close()
 
-      page = common_data_containers.JsonObjectNode.from_details(
-        content=sanskrit_data.schema.books.BookPortion.from_details(
-          title="pg_%000d" % page_index, path=os.path.join(book.path, image_file_name), base_data="image",
-          portion_class="page",
-          targets=[sanskrit_data.schema.books.BookPositionTarget.from_details(position=page_index)]
-        ))
-      pages.append(page)
+        image = Image.open(join(page_storage_path, image_file_name)).convert('RGB')
+        thumbnailname = "thumb.jpg"
+        out = open(join(page_storage_path, thumbnailname), "w")
+        img = DocImage.resize(image, (400, 400), True)
+        img.save(out, "JPEG", quality=100)
+        out.close()
+    except:
+      message = {
+        "message": "Unexpected error while saving files: " + str(sys.exc_info()[0]),
+        "deatils": traceback.format_exc()
+      }
+      logging.error(str(message))
+      logging.error(traceback.format_exc())
+      book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book)
+      logging.error("Rolling back and deleting the book!")
+      book_portion_node.delete_in_collection(db_interface=db)
+      return message, 419
 
-    book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book, children=pages)
-
-    book_portion_node_minus_id = copy.deepcopy(book_portion_node)
-    book_portion_node_minus_id.content._id = None
-    book_mfile = join(abspath, "book_v2.json")
-    book_portion_node_minus_id.dump_to_file(book_mfile)
-
-    try:
-      book_portion_node.update_collection(db)
-    except Exception as e:
-      logging.error(format(e))
-      traceback.print_exc()
-      return format(e), 500
+    book_portion_node = common_data_containers.JsonObjectNode.from_details(content=book)
+    book_portion_node.fill_descendents(db_interface=db)
 
     return book_portion_node.to_json_map(), 200
 

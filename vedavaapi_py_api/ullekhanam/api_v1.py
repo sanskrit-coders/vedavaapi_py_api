@@ -27,9 +27,14 @@ api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py u
 json_node_model = api.model('JsonObjectNode', common_data_containers.JsonObjectNode.schema)
 
 
+def get_user():
+  from flask import session
+  return JsonObject.make_from_dict(session.get('user', None))
+
+
 def check_permission(db_name="ullekhanam"):
   from flask import session
-  user = JsonObject.make_from_dict(session.get('user', None))
+  user = get_user()
   logging.debug(request.cookies)
   logging.debug(session)
   logging.debug(session.get('user', None))
@@ -38,11 +43,6 @@ def check_permission(db_name="ullekhanam"):
     return False
   else:
     return True
-
-
-def get_user():
-  from flask import session
-  return JsonObject.make_from_dict(session.get('user', None))
 
 
 @api.route('/dbs/<string:db_id>/books')
