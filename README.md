@@ -30,7 +30,7 @@ Python based Web API's for the <vedavaapi.org> project.
   * Refer to list in setup.py.
   * Possibly easy way (untested): `sudo pip3 install --target=/home/samskritam/ git+https://github.com/vedavaapi/vedavaapi_py_api@master`
   * To get the latest development snapshot, you may need to install the modules `sanskrit_data` and `docimage` directly from the git repositories. Example:
-    ~ `sudo pip3 install git+https://github.com/vedavaapi/sanskrit_data@master -U`
+    ~ `sudo pip3 install git+https://github.com/vedavaapi/sanskrit_data@master -U` or `cd sasnkrit_data; sudo pip3 install -e .`
 * Data setup: Grant the account running run.py authority to write in /opt/scan2text/.
   * `sudo mkdir /opt/scan2text/; sudo mkdir /opt/scan2text/data; sudo chmod a+rwx /opt/scan2text`
   * `rm -Rf /opt/scan2text/data/books/ullekhanam_test_v2`

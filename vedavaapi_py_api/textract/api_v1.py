@@ -168,19 +168,6 @@ class AllPageAnnotationsHandler(flask_restplus.Resource):
       return common_data_containers.JsonObject.get_json_map_list(image_annotation_nodes), 200
 
 
-# TODO:
-# It is strongly recommended to activate either ``X-Sendfile`` support in
-# your webserver or (if no authentication happens) to tell the webserver
-# to serve files for the given path on its own without calling into the
-# web application for improved performance.
-@api.route('/dbs/<string:db_id>/relpath/<path:relpath>')
-class RelPathHandler(flask_restplus.Resource):
-  def get(self, db_id, relpath):
-    """Get some data file - such as a page image."""
-    from flask import send_from_directory
-    return send_from_directory(get_file_store(db_name_frontend=db_id), relpath)
-
-
 @api_blueprint.route('/dirtree/<path:abspath>')
 def listdirtree(abspath):
   """???."""
