@@ -44,7 +44,6 @@ def setup_app():
     client = mongodb.Client(url=server_config["db"]["mongo_host"])
 
   from vedavaapi_py_api import users
-  from vedavaapi_py_api.users import api_v1
   users.setup(db=client.get_database_interface(db_name_backend=server_config["db"]["users_db_name"], db_name_frontend="users", db_type="users_db"),
               initial_users=server_config["initial_users"], default_permissions_in=server_config["default_permissions"])
 
@@ -56,9 +55,10 @@ def setup_app():
 
   logging.info("Root path: " + app.root_path)
   logging.info(app.instance_path)
+  import vedavaapi_py_api.users.api_v1
   import vedavaapi_py_api.ullekhanam.api_v1
   import vedavaapi_py_api.textract.api_v1
-  app.register_blueprint(api_v1.api_blueprint, url_prefix="/auth")
+  app.register_blueprint(users.api_v1.api_blueprint, url_prefix="/auth")
   app.register_blueprint(textract.api_v1.api_blueprint, url_prefix="/textract")
   app.register_blueprint(ullekhanam.api_v1.api_blueprint, url_prefix="/ullekhanam")
 
