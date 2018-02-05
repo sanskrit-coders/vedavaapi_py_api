@@ -17,10 +17,7 @@ logging.basicConfig(
 )
 
 URL_PREFIX = '/v1'
-api_blueprint = Blueprint(
-  'auth', __name__,
-  template_folder='templates'
-)
+api_blueprint = Blueprint(name='auth', import_name=__name__)
 
 api = flask_restplus.Api(app=api_blueprint, version='1.0', title='vedavaapi py users API',
                          description='For detailed intro and to report issues: see <a href="https://github.com/vedavaapi/vedavaapi_py_api">here</a>. '
