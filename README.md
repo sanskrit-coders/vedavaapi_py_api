@@ -20,6 +20,7 @@ Python based Web API's for the <vedavaapi.org> project.
 ## API
 - ullekhanam API docs [here](http://api.vedavaapi.org/py/ullekhanam/docs) - includes:
   - links to a [video playlist](https://www.youtube.com/playlist?list=PL63uIhJxWbghuZDlqwRLpPoPPFDNQppR6) describing API usage and schema.
+  - Slides [here](https://docs.google.com/presentation/d/1Wx1rxf5W5VpvSS4oGkGpp28WPPM57CUx41dGHC4ed80/edit#slide=id.p).
   - JSON-schemas
 - Textract API docs [here](http://api.vedavaapi.org/py/textract/docs) .
 - User/ Oauth API docs [here](http://api.vedavaapi.org/py/textract/docs) .
