@@ -15,10 +15,12 @@ Python based Web API's for the <vedavaapi.org> project.
 
 # Usage
 ## Documentation (includes setup instructions)
-- http://vedavaapi_py_api.readthedocs.io/en/latest/vedavaapi_py_api.html should automatically have good updated documentation - unless there are build errors.
+- http://vedavaapi-py-api.readthedocs.io/en/latest/vedavaapi_py_api.html should automatically have good updated documentation - unless there are build errors.
 
 ## API
-- ullekhanam API docs [here](http://api.vedavaapi.org/py/ullekhanam/docs) .
+- ullekhanam API docs [here](http://api.vedavaapi.org/py/ullekhanam/docs) - includes:
+  - links to a [video playlist](https://www.youtube.com/playlist?list=PL63uIhJxWbghuZDlqwRLpPoPPFDNQppR6) describing API usage and schema.
+  - JSON-schemas
 - Textract API docs [here](http://api.vedavaapi.org/py/textract/docs) .
 - User/ Oauth API docs [here](http://api.vedavaapi.org/py/textract/docs) .
 
