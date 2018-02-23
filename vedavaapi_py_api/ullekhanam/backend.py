@@ -1,3 +1,7 @@
+"""
+Sets up database with add_db() and getdb().
+"""
+
 import logging
 import os
 

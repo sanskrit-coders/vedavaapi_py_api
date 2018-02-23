@@ -1,3 +1,11 @@
+"""
+A general API to access and annotate a text corpus.
+
+API docs `here`_
+
+.. _here: http://api.vedavaapi.org/py/ullekhanam/docs
+"""
+
 import logging
 
 import flask_restplus

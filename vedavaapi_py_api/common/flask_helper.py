@@ -1,3 +1,9 @@
+"""
+This module defines the basic flask app, and sets it up.
+
+It also defines some basic handlers.
+"""
+
 import logging
 from base64 import b64encode
 

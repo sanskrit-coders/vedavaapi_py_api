@@ -1,3 +1,9 @@
+"""
+A general API to access and annotate a text corpus.
+
+api_v1 is the main submodule.
+"""
+
 import logging
 
 # Essential for depickling to work.

@@ -1,5 +1,12 @@
 #!/usr/bin/python3 -u
 
+"""
+This is the main entry point. It does the following
+
+-  starts the webservice (either as an indpendent flask server, or as an apache WSGI module)
+-  sets up actions to be taken when various URL-s are accessed.
+"""
+
 # This web app may be run in two modes. See bottom of the file.
 
 import getopt

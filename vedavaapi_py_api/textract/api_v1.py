@@ -1,3 +1,13 @@
+"""
+REST API
+--------
+
+See general notes from the ullekhanam module apply. Additional API docs
+`here`_ .
+
+.. _here: http://api.vedavaapi.org/py/textract/docs
+"""
+
 import copy
 import json
 import logging
